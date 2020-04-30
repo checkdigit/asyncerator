@@ -4,7 +4,7 @@ import debug from 'debug';
 const log = debug('asyncerator');
 
 /**
- * Asyncerator extends AsyncIterableIterator to provide standard Array-like utility operators
+ * Asyncerator extends AsyncIterableIterator to provide standard Array-like utility operators.
  */
 export interface Asyncerator<T> extends AsyncIterableIterator<T> {
   map<U>(mapFunction: (value: T) => U): Asyncerator<U>;
