@@ -1,0 +1,49 @@
+{
+  "name": "@checkdigit/asyncerator",
+  "version": "0.0.1",
+  "description": "Extends AsyncIterableIterator to provide standard Array-like utility operators",
+  "typings": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "prettier": "@checkdigit/prettier-config",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/checkdigit/asyncerator.git"
+  },
+  "author": "Check Digit, LLC",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/checkdigit/asyncerator/issues"
+  },
+  "homepage": "https://github.com/checkdigit/asyncerator#readme",
+  "dependencies": {
+    "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "@checkdigit/eslint-config": "^3.2.0",
+    "@checkdigit/prettier-config": "^1.0.1",
+    "@checkdigit/typescript": "^3.8.3",
+    "@types/debug": "^4.1.5",
+    "@types/jest": "^25.2.1",
+    "eslint": "^6.8.0",
+    "jest": "^25.5.2",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^25.4.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "<rootDir>/build",
+      "<rootDir>/coverage",
+      "<rootDir>/node_modules"
+    ]
+  },
+  "scripts": {
+    "lint": "eslint -f unix --ext .js,.ts src/**",
+    "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
+    "prettier": "prettier --list-different src/**/*.ts",
+    "prettier:fix": "prettier --write src/**/*.ts",
+    "test": "jest && npm run lint && npm run prettier"
+  }
+}
