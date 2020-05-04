@@ -1,4 +1,4 @@
-// XXXasyncerator.spec.ts
+// asyncerator.spec.ts
 
 import * as assert from 'assert';
 
