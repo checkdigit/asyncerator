@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 
-import { all, Asyncerator, from, merge, series } from './asyncerator';
+import { all, Asyncerator, from, merge, series } from './index';
 
 describe('asyncerator', () => {
   describe('map', () => {

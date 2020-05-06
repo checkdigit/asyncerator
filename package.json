@@ -1,7 +1,7 @@
 {
-  "name": "@checkdigit/asyncerator",
+  "name": "asyncerator",
   "version": "0.0.1",
-  "description": "Extends AsyncIterableIterator to provide standard Array-like utility operators",
+  "description": "Extends AsyncIterableIterator to provide standard Array-like utility operators, sources and sinks",
   "typings": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "prettier": "@checkdigit/prettier-config",
