@@ -302,7 +302,56 @@ describe('asyncerator', () => {
       assert.deepStrictEqual(await from(asyncIterable).toArray(), [0, 1, 2, 3]);
     });
 
-    it('a async iterable iterator', async () => {
+    it('a custom async iterable iterator with throw and return defined', async () => {
+      let count = 0;
+      const asyncIterableIterator: AsyncIterableIterator<number> = {
+        [Symbol.asyncIterator]: () => {
+          return asyncIterableIterator;
+        },
+        async next() {
+          if (count === 4) {
+            return { done: true, value: undefined };
+          }
+          return { done: false, value: count++ };
+        },
+        async throw() {
+          return { done: true, value: 'throw' };
+        },
+        async return() {
+          return { done: true, value: 'return' };
+        },
+      };
+      const asyncerator = from(asyncIterableIterator);
+      assert.deepStrictEqual(await asyncerator.toArray(), [0, 1, 2, 3]);
+      if (asyncerator.throw === undefined || asyncerator.return === undefined) {
+        throw Error();
+      }
+      assert.deepStrictEqual(await asyncerator.throw(), { done: true, value: 'throw' });
+      assert.deepStrictEqual(await asyncerator.return(), { done: true, value: 'return' });
+    });
+
+    it('a custom async iterable iterator without throw and return', async () => {
+      let count = 0;
+      const asyncIterableIterator: AsyncIterableIterator<number> = {
+        [Symbol.asyncIterator]: () => {
+          return asyncIterableIterator;
+        },
+        async next() {
+          if (count === 4) {
+            return { done: true, value: undefined };
+          }
+          return { done: false, value: count++ };
+        },
+      };
+      const asyncerator = from(asyncIterableIterator);
+      assert.deepStrictEqual(await asyncerator.toArray(), [0, 1, 2, 3]);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      assert.strictEqual(asyncerator.throw, undefined);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      assert.strictEqual(asyncerator.return, undefined);
+    });
+
+    it('an async iterable iterator', async () => {
       const iterable: AsyncIterableIterator<string | Promise<string>> = from(
         from(['abc', Promise.resolve('def'), 'ghi'])
       );
