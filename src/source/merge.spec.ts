@@ -110,7 +110,7 @@ describe('merge', () => {
   });
 
   it('works with a randomized merge tree', async () => {
-    const TEST_SIZE = 3178;
+    const TEST_SIZE = 1037;
     const input = [...Array(TEST_SIZE)].map(() => Math.ceil(Math.random() * 25));
 
     function tree(elements: number[]): Asyncerator<number> {

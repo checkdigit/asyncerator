@@ -1,5 +1,6 @@
 // create.ts
 
+import type { Readable } from 'stream';
 import * as operator from './operator';
 import * as sink from './sink';
 
@@ -15,6 +16,7 @@ export interface Asyncerator<T> extends AsyncIterableIterator<T> {
   error(errorFunction: (error: Error) => void): Asyncerator<T>;
   split(separator: string, limit?: number): Asyncerator<string>;
   toArray(): Promise<T[]>;
+  toReadable(): Readable;
 }
 
 /*
@@ -68,6 +70,7 @@ function create<T>(source: Asyncable<T> | (() => Asyncable<T>)): Asyncerator<T> 
     complete: (completeFunction) => create(operator.complete(iterator, completeFunction)),
     error: (errorFunction) => create(operator.error(iterator, errorFunction)),
     toArray: () => sink.toArray(iterator),
+    toReadable: () => sink.toReadable(iterator),
   };
 }
 

@@ -1,6 +1,18 @@
 // operator/split.ts
 
-export default async function* <T>(iterator: AsyncIterable<T>, separator: string, limit = Infinity) {
+/**
+ * Equivalent of the Javascript array split method.  Matches it's behavior/corner cases, which is why the
+ * implementation is more funky than you may expect.
+ *
+ * @param iterator
+ * @param separator
+ * @param limit
+ */
+export default async function* <T extends { toString: () => string }>(
+  iterator: AsyncIterable<T>,
+  separator: string,
+  limit = Infinity
+) {
   if (limit === 0) {
     return;
   }
@@ -15,7 +27,7 @@ export default async function* <T>(iterator: AsyncIterable<T>, separator: string
     ) {
       throw Error(`${JSON.stringify(chunk)} not convertible to a string`);
     }
-    previous += (chunk as { toString: Function }).toString();
+    previous += chunk.toString();
     let index;
     while (previous.length > 0 && (index = separator === '' ? 1 : previous.indexOf(separator)) >= 0) {
       const line = previous.slice(0, index);
