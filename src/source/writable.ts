@@ -11,6 +11,8 @@ export interface WritableAsyncerator {
 
 /**
  * Return an Asyncerator with a Writable source.
+ *
+ * Note: this is a temporary convenience function, not needed in Node 14+
  */
 export default function (): WritableAsyncerator {
   // eslint-disable-next-line @typescript-eslint/no-require-imports,global-require
