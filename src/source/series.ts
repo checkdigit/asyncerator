@@ -10,9 +10,7 @@ import create, { Asyncable, Asyncerator } from '../create';
 export default function <T>(...iterators: Asyncable<T>[]): Asyncerator<T> {
   return create(async function* () {
     for await (const iterator of iterators) {
-      for await (const item of iterator) {
-        yield item;
-      }
+      yield* iterator;
     }
   });
 }

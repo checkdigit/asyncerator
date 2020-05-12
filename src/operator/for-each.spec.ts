@@ -17,7 +17,7 @@ describe('forEach', () => {
     const results: number[] = [];
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
     await iterable.forEach((value) => results.push(value)).toArray();
-    assert.deepStrictEqual(results, [1, 2, 3]);
+    assert.deepStrictEqual(results.sort(), [1, 2, 3]);
   });
 
   it('operates on sequence of non-promises', async () => {

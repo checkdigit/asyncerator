@@ -11,7 +11,7 @@ describe('all', () => {
 
   it('converts array of promises into async iterable iterator', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(await iterable.toArray(), [1, 2, 3]);
+    assert.deepStrictEqual((await iterable.toArray()).sort(), [1, 2, 3]);
   });
 
   it('reject if array item is a promise that rejects', async () => {

@@ -18,7 +18,7 @@ describe('map', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(await iterable.map((value) => value * 2).toArray(), [2, 4, 6]);
+    assert.deepStrictEqual((await iterable.map((value) => value * 2).toArray()).sort(), [2, 4, 6]);
   });
 
   it('operates on sequence of non-promises', async () => {

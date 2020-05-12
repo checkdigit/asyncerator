@@ -22,7 +22,7 @@ describe('error', () => {
         errored = true;
       })
       .toArray();
-    assert.deepStrictEqual(results, [1, 2, 3]);
+    assert.deepStrictEqual(results.sort(), [1, 2, 3]);
     assert.strictEqual(errored, false);
   });
 

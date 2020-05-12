@@ -5,9 +5,7 @@ const log = debug('asyncerator:operator:error');
 
 export default async function* <T>(iterator: AsyncIterable<T>, errorFunction: (error: Error) => void) {
   try {
-    for await (const item of iterator) {
-      yield item;
-    }
+    yield* iterator;
   } catch (errorObject) {
     try {
       errorFunction(errorObject);
