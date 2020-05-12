@@ -13,7 +13,6 @@ export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T
     return { index, iterator, result: await iterator.next() };
   }
 
-  // eslint-disable-next-line func-names
   return create(async function* () {
     const pending = iterators.map(createPending);
     const indexMap = iterators.map((value, index) => index);

@@ -131,7 +131,6 @@ describe('from', () => {
   });
 
   it('an async generator function', async () => {
-    // eslint-disable-next-line func-names
     const iterable: AsyncIterableIterator<string | Promise<string>> = from(async function* () {
       yield 'abc';
       yield 'def';

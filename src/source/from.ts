@@ -23,7 +23,6 @@ export default function <T>(
   } else if (typeof (source as IterableIterator<T>)[Symbol.iterator] === 'function') {
     // we know for sure this is a normal, synchronous iterator
     const synchronousIterator = (source as IterableIterator<T>)[Symbol.iterator]();
-    // eslint-disable-next-line func-names
     return create(async function* () {
       for (let item = synchronousIterator.next(); !item.done; item = synchronousIterator.next()) {
         yield item.value;
@@ -34,7 +33,6 @@ export default function <T>(
     iterator = source as AsyncIterator<T>;
   }
 
-  // eslint-disable-next-line func-names
   return create(async function* () {
     // eslint-disable-next-line no-await-in-loop
     for (let item = await iterator.next(); !item.done; item = await iterator.next()) {

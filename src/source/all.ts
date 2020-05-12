@@ -10,7 +10,6 @@ import create, { Asyncerator } from '../create';
  * @param promises
  */
 export default function <T>(promises: Iterable<Promise<T>>): Asyncerator<T> {
-  // eslint-disable-next-line func-names
   return create(async function* () {
     const output: T[] = [];
     const pending = new Set(promises);
