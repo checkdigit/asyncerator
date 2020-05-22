@@ -15,7 +15,7 @@ export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T
 
   return create(async function* () {
     const pending = iterators.map(createPending);
-    const indexMap = iterators.map((value, index) => index);
+    const indexMap = iterators.map((_, index) => index);
 
     while (pending.length > 0) {
       // eslint-disable-next-line no-await-in-loop
