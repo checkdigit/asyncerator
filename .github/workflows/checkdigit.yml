@@ -1,0 +1,38 @@
+name: Check Digit Deployer
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [NODE]
+        node-version: [12.x]
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout action repo
+        uses: actions/checkout@v2
+        with:
+          repository: checkdigit/github-actions
+          ref: ALPHA
+          token: 01722ed0a8685887709c06df042c1a678c56afb5
+          path: .github/actions/github-actions
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run CheckDigit Actions
+        uses: ./.github/actions/github-actions
+        with:
+          language: ${{ matrix.language }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
