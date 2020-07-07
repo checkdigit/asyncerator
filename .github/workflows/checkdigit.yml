@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         language: [NODE]
-        node-version: [12.x]
+        version: [12.x]
 
     steps:
       - name: Checkout this repo
@@ -37,4 +37,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BUILD_TOKEN: ${{ secrets.SLACK_BUILD_TOKEN }}
+          SLACK_DEPLOY_TOKEN: ${{ secrets.SLACK_DEPLOY_TOKEN }}
 
