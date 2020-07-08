@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: checkdigit/github-actions
-          ref: ALPHA
+          ref: BETA
           token: 01722ed0a8685887709c06df042c1a678c56afb5
           path: .github/actions/github-actions
 
@@ -34,6 +34,7 @@ jobs:
         with:
           language: ${{ matrix.language }}
           version: ${{ matrix.version }}
+          cache: false
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
