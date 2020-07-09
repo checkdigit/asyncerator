@@ -1,5 +1,5 @@
 {
-  "name": "asyncerator",
+  "name": "@checkdigit/asyncerator",
   "version": "0.0.1",
   "description": "Extends AsyncIterableIterator to provide standard Array-like utility operators, sources and sinks",
   "typings": "./dist/index.d.ts",
