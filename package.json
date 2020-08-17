@@ -19,19 +19,19 @@
     "debug": "^4.1.1"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^3.3.3",
+    "@checkdigit/eslint-config": "^3.3.6",
     "@checkdigit/prettier-config": "^1.0.1",
     "@checkdigit/typescript": "^3.9.3",
     "@types/debug": "^4.1.5",
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.5",
-    "@types/uuid": "^8.0.0",
-    "eslint": "^7.0.0",
-    "jest": "^26.0.1",
+    "@types/jest": "^26.0.10",
+    "@types/node": "^14.6.0",
+    "@types/uuid": "^8.3.0",
+    "eslint": "^7.7.0",
+    "jest": "^26.4.0",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.0.0",
-    "uuid": "^8.1.0"
+    "ts-jest": "^26.2.0",
+    "uuid": "^8.3.0"
   },
   "jest": {
     "collectCoverage": true,
@@ -47,6 +47,6 @@
     "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
     "prettier": "prettier --list-different src/**/*.ts",
     "prettier:fix": "prettier --write src/**/*.ts",
-    "test": "jest && npm run lint && npm run prettier"
+    "test": "tsc && jest && npm run lint && npm run prettier"
   }
 }

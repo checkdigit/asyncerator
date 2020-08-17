@@ -3,7 +3,10 @@
 import debug from 'debug';
 const log = debug('asyncerator:operator:complete');
 
-export default async function* <T>(iterator: AsyncIterable<T>, completeFunction: () => void) {
+export default async function* <T>(
+  iterator: AsyncIterable<T>,
+  completeFunction: () => void
+): AsyncGenerator<T, void, undefined> {
   yield* iterator;
   try {
     completeFunction();

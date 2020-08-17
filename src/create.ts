@@ -48,7 +48,7 @@ function create<T>(source: Asyncable<T> | (() => Asyncable<T>)): Asyncerator<T> 
     ...(typeof iterator.return !== 'undefined'
       ? {
           return(...args) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return iterator.return(...args);
           },
@@ -57,7 +57,7 @@ function create<T>(source: Asyncable<T> | (() => Asyncable<T>)): Asyncerator<T> 
     ...(typeof iterator.throw !== 'undefined'
       ? {
           throw(...args) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return iterator.throw(...args);
           },

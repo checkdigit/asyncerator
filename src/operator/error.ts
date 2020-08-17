@@ -3,7 +3,10 @@
 import debug from 'debug';
 const log = debug('asyncerator:operator:error');
 
-export default async function* <T>(iterator: AsyncIterable<T>, errorFunction: (error: Error) => void) {
+export default async function* <T>(
+  iterator: AsyncIterable<T>,
+  errorFunction: (error: Error) => void
+): AsyncGenerator<T, void, undefined> {
   try {
     yield* iterator;
   } catch (errorObject) {

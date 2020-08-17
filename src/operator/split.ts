@@ -12,7 +12,7 @@ export default async function* <T extends { toString: () => string }>(
   iterator: AsyncIterable<T>,
   separator: string,
   limit = Infinity
-) {
+): AsyncGenerator<string, void> {
   if (limit === 0) {
     return;
   }
@@ -23,7 +23,7 @@ export default async function* <T extends { toString: () => string }>(
     if (
       typeof chunk === 'undefined' ||
       chunk === null ||
-      typeof (chunk as { toString: Function }).toString !== 'function'
+      typeof (chunk as { toString: () => string }).toString !== 'function'
     ) {
       throw Error(`${JSON.stringify(chunk)} not convertible to a string`);
     }
