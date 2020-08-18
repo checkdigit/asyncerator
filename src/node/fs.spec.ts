@@ -22,6 +22,13 @@ declare module 'stream' {
     function __promisify__(
       stream1: NodeJS.ReadableStream | Iterable<string | Buffer> | AsyncIterable<string | Buffer>,
       stream2: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
+      stream3:
+        | NodeJS.WritableStream
+        | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer> | Promise<unknown>)
+    ): Promise<void>;
+    function __promisify__(
+      stream1: NodeJS.ReadableStream | Iterable<string | Buffer> | AsyncIterable<string | Buffer>,
+      stream2: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
       stream3: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
       stream4:
         | NodeJS.WritableStream
@@ -31,10 +38,9 @@ declare module 'stream' {
 }
 
 describe('fs', () => {
-  // this code is super cool, but can only be used by super cool kids running node 14.  Also, although it works
-  // in node 14, currently the node typescript types aren't cool enough for it.
-  xit('to gzip and back again (node 14 only)', async () => {
+  it('to gzip and back again (node 14 only)', async () => {
     const input = ['hello', 'world'];
+
     // pipe the input through a series of steps, including gzipping and gunzipping to get back what we started with
     const result = await pipeline(
       from(input).map((string) => `${string}\n`),
@@ -56,9 +62,7 @@ describe('fs', () => {
 
     // write a Gzipped file
     await pipeline(
-      from(input)
-        .map((string) => `${string}\n`)
-        .toReadable(),
+      from(input).map((string) => `${string}\n`),
       zlib.createGzip(),
       fs.createWriteStream(temporaryFile)
     );
@@ -67,7 +71,6 @@ describe('fs', () => {
     const { asyncerator, writable: writableStream } = writable();
     await pipeline(fs.createReadStream(temporaryFile), zlib.createUnzip(), writableStream);
     const result = await asyncerator
-      .map((buffer) => buffer.toString())
       .split('\n')
       .filter((string) => string !== '')
       .toArray();
