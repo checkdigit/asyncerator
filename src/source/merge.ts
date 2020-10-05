@@ -9,7 +9,7 @@ import create, { Asyncerator } from '../create';
  * @param iterators
  */
 export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T>>[]): Asyncerator<T> {
-  async function createPending<T>(iterator: AsyncIterator<T>, index: number) {
+  async function createPending<U>(iterator: AsyncIterator<U>, index: number) {
     return { index, iterator, result: await iterator.next() };
   }
 

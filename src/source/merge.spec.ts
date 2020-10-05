@@ -99,9 +99,20 @@ describe('merge', () => {
       (
         await merge(
           from(['10']),
-          from([new Promise((resolve) => resolve('77'))]),
+          from([
+            new Promise((resolve) => {
+              resolve('77');
+            }),
+          ]),
           from(['30']),
-          from(['11', '12', new Promise((resolve) => resolve('58')), '14']),
+          from([
+            '11',
+            '12',
+            new Promise((resolve) => {
+              resolve('58');
+            }),
+            '14',
+          ]),
           from(['41'])
         ).toArray()
       ).sort(),
@@ -119,7 +130,9 @@ describe('merge', () => {
       }
       if (elements.length === 1) {
         return from<number>(([
-          new Promise<number>((resolve) => setTimeout(() => resolve(elements[0]), elements[0])),
+          new Promise<number>((resolve) => {
+            setTimeout(() => resolve(elements[0]), elements[0]);
+          }),
         ] as unknown) as Asyncerator<number>);
       }
       const splitInto = elements[0];
