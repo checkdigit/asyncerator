@@ -38,7 +38,7 @@ declare module 'stream' {
 }
 
 describe('fs', () => {
-  it('to gzip and back again (node 14 only)', async () => {
+  it('to gzip and back again', async () => {
     const input = ['hello', 'world'];
 
     // pipe the input through a series of steps, including gzipping and gunzipping to get back what we started with

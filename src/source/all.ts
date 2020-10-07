@@ -1,6 +1,9 @@
 // source/all.ts
 
+import debug from 'debug';
 import create, { Asyncerator } from '../create';
+
+const log = debug('asyncerator:source:all');
 
 /**
  * Similar to Promise.all(), but instead returns values as they become available via an Asyncerator.
@@ -15,12 +18,18 @@ export default function <T>(promises: Iterable<Promise<T>>): Asyncerator<T> {
     const queue: T[] = [];
     const pending = new Set(promises);
 
-    [...promises].map((promise) =>
-      promise.then((value) => {
-        queue.push(value);
-        pending.delete(promise);
-        return value;
-      })
+    [...promises].map((promise, index) =>
+      promise
+        .then((value) => {
+          queue.push(value);
+          pending.delete(promise);
+          return value;
+        })
+        .catch((reason: unknown) => {
+          // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
+          // future versions of Node will process.exit().
+          log(`[${index}]`, reason);
+        })
     );
 
     // wait for the results to come in...
