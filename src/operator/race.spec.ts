@@ -1,14 +1,14 @@
-// operator/map-dynamic.spec.ts
+// operator/race.spec.ts
 
 import * as assert from 'assert';
 
 import { all, from } from '../index';
 
-describe('mapDynamic', () => {
+describe('race', () => {
   it('works for an empty array', async () => {
     assert.deepStrictEqual(
       await all([])
-        .mapDynamic(() => {
+        .race(() => {
           throw new Error('This should not happen');
         })
         .toArray(),
@@ -18,30 +18,32 @@ describe('mapDynamic', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual((await iterable.mapDynamic(async (value) => value * 2).toArray()).sort(), [2, 4, 6]);
+    assert.deepStrictEqual((await iterable.race(async (value) => value * 2).toArray()).sort(), [2, 4, 6]);
   });
 
   it('operates on sequence of non-promises', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(await iterable.mapDynamic(async (value) => value.length).toArray(), [1, 2, 3]);
+    assert.deepStrictEqual((await iterable.race(async (value) => value.length).toArray()).sort(), [1, 2, 3]);
   });
 
   it('is chain-able', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
     assert.deepStrictEqual(
-      await iterable
-        .mapDynamic(async (value) => value.length)
-        .mapDynamic(async (value) => value * 2)
-        .mapDynamic(async (value) => ''.padStart(value, ' '))
-        .toArray(),
+      (
+        await iterable
+          .race(async (value) => value.length)
+          .race(async (value) => value * 2)
+          .race(async (value) => ''.padStart(value, ' '))
+          .toArray()
+      ).sort(),
       ['  ', '    ', '      ']
     );
   });
 
-  it('reject if map function throws an exception', async () => {
+  it('reject if race function throws an exception', async () => {
     await assert.rejects(
       from([1])
-        .mapDynamic(() => {
+        .race(() => {
           throw Error('Reject');
         })
         .toArray(),
@@ -49,7 +51,7 @@ describe('mapDynamic', () => {
     );
     await assert.rejects(
       all([Promise.resolve(1)])
-        .mapDynamic(() => {
+        .race(() => {
           throw Error('Reject');
         })
         .toArray(),
@@ -58,19 +60,23 @@ describe('mapDynamic', () => {
   });
 
   it('does something big', async () => {
-    const inputArray = new Array(100);
+    const inputArray = new Array(1000);
     for (let index = 0; index < inputArray.length; index++) {
       inputArray[index] = index;
     }
 
-    // console.log(inputArray[23]);
     // const startTime = Date.now();
 
-    const iterable = from(inputArray).mapDynamic(async (num) => num * 2);
+    const iterable = from(inputArray).race(async (num) => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, Math.floor(Math.random() * 10));
+      });
+      return num;
+    });
     const outputArray = await iterable.toArray();
 
-    assert.strictEqual(outputArray.length, 100);
+    assert.deepStrictEqual(inputArray.sort(), outputArray.sort());
+
     // console.log(Date.now() - startTime);
-    // console.log(outputArray[23]);
   });
 });
