@@ -5,5 +5,12 @@
  */
 export type AsyncWorker<T, U> = (item: T) => Promise<U>;
 
+/**
+ * AsyncWork is an async function that given an array of items of type T[], pass each item to an AsyncWorker to produce
+ * an array of type U[].  The exact mechanism depends on how the AsyncWork was created (e.g. mapSeries or mapDynamic).
+ */
+export type AsyncWork<T, U> = (items: T[]) => Promise<U[]>;
+
+export { default as dynamic } from './dynamic';
 export { default as retry } from './retry';
 export { default as timeout } from './timeout';
