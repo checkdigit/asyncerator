@@ -8,7 +8,7 @@ const DEFAULT_CONCURRENT = 64;
 
 export default async function* <T, U>(
   iterator: AsyncIterable<T>,
-  dynamicMapFunction: (value: T) => Promise<U>,
+  raceFunction: (value: T) => Promise<U>,
   concurrent = DEFAULT_CONCURRENT
 ): AsyncGenerator<U, void, undefined> {
   const queue: U[] = [];
@@ -29,7 +29,7 @@ export default async function* <T, U>(
         await new Promise(setImmediate);
       }
 
-      const promise = dynamicMapFunction(item);
+      const promise = raceFunction(item);
       pending.add(promise);
 
       promise
