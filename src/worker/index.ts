@@ -11,6 +11,15 @@ export type AsyncWorker<T, U> = (item: T) => Promise<U>;
  */
 export type AsyncWork<T, U> = (items: T[]) => Promise<U[]>;
 
+export interface Work<T, U> {
+  attempts: number;
+  item: T;
+  index: number;
+  elapsed: number;
+  result?: U;
+  lastError?: { retryDelay: number };
+}
+
 export { default as dynamic } from './dynamic';
 export { default as retry } from './retry';
 export { default as timeout } from './timeout';

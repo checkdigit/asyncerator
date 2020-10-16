@@ -3,22 +3,13 @@
 import debug from 'debug';
 
 import timeout from './timeout';
-import type { AsyncWorker } from './index';
+import type { AsyncWorker, Work } from './index';
 
 const log = debug('asyncerator:worker:retry');
 
 const DEFAULT_WAIT_RATIO = 100;
 const TIMEOUT = 60000;
 const MAX_RETRIES = 8;
-
-interface RetryableWork<T, U> {
-  attempts: number;
-  item: T;
-  index: number;
-  elapsed: number;
-  result?: U;
-  lastError?: { retryDelay: number };
-}
 
 /**
  * Item processor, with retry logic
@@ -27,8 +18,8 @@ interface RetryableWork<T, U> {
  */
 export default function (waitRatio = DEFAULT_WAIT_RATIO) {
   const timeoutWorker = timeout(TIMEOUT);
-  return <T, U>(worker: AsyncWorker<T, U>): ((work: RetryableWork<T, U>) => Promise<RetryableWork<T, U>>) => {
-    return async ({ item, index, attempts }: RetryableWork<T, U>) => {
+  return <T, U>(worker: AsyncWorker<T, U>): ((work: Work<T, U>) => Promise<Work<T, U>>) => {
+    return async ({ item, index, attempts }: Work<T, U>) => {
       if (attempts > 0) {
         // wait for (2^attempts * 100) milliseconds (per AWS recommendation)
         const waitTime = 2 ** attempts * waitRatio;
