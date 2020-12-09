@@ -16,7 +16,9 @@ const MAX_RETRIES = 8;
  *
  * @param waitRatio how much to multiply 2^attempts by
  */
-export default function (waitRatio = DEFAULT_WAIT_RATIO) {
+export default function (
+  waitRatio = DEFAULT_WAIT_RATIO
+): <T, U>(worker: AsyncWorker<T, U>) => (work: Work<T, U>) => Promise<Work<T, U>> {
   const timeoutWorker = timeout(TIMEOUT);
   return <T, U>(worker: AsyncWorker<T, U>): ((work: Work<T, U>) => Promise<Work<T, U>>) => {
     return async ({ item, index, attempts }: Work<T, U>) => {
