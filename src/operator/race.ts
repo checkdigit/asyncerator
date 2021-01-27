@@ -4,7 +4,7 @@ import debug from 'debug';
 
 const log = debug('asyncerator:operator:race');
 
-const DEFAULT_CONCURRENT = 64;
+const DEFAULT_CONCURRENT = 128;
 
 export default async function* <T, U>(
   iterator: AsyncIterable<T>,
