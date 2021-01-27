@@ -23,7 +23,7 @@ export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T
 
       if (result.done) {
         // delete this iterable from pending
-        pending.splice(indexMap[index], 1);
+        pending.splice(indexMap[index] as number, 1);
         for (let position = index + 1; position < indexMap.length; position++) {
           indexMap[position]--;
         }
@@ -31,13 +31,11 @@ export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T
         if ((result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator]) {
           // this is another async iterable iterator, so merge its output into the pending
           pending.push(
-            (async (newIterator, newIndex) => {
-              return {
-                index: newIndex,
-                iterator: newIterator,
-                result: await newIterator.next(),
-              };
-            })(merge(result.value as AsyncIterableIterator<T>), indexMap.length)
+            (async (newIterator, newIndex) => ({
+              index: newIndex,
+              iterator: newIterator,
+              result: await newIterator.next(),
+            }))(merge(result.value as AsyncIterableIterator<T>), indexMap.length)
           );
           indexMap.push(pending.length - 1);
         } else {
@@ -45,7 +43,7 @@ export default function merge<T>(...iterators: AsyncIterator<T | AsyncIterator<T
         }
 
         // start waiting for the next result from this iterable
-        pending[indexMap[index]] = createPending(iterator, index);
+        pending[indexMap[index] as number] = createPending(iterator, index);
       }
     }
   }) as Asyncerator<T>;

@@ -1,14 +1,14 @@
-// operator/complete.spec.ts
+// operator/before.spec.ts
 
 import * as assert from 'assert';
 
 import { all, from } from '../index';
 
-describe('complete', () => {
+describe('before', () => {
   it('works for an empty array', async () => {
     let completed = false;
     await all([])
-      .complete(() => {
+      .before(() => {
         completed = true;
       })
       .toArray();
@@ -16,19 +16,24 @@ describe('complete', () => {
   });
 
   it('operates on sequence', async () => {
-    let completed = false;
+    let count = 0;
+    let beforeCount = 0;
     const results = await all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)])
-      .complete(() => {
-        completed = true;
+      .forEach(() => {
+        count += 1;
+      })
+      .before(() => {
+        beforeCount = count;
       })
       .toArray();
     assert.deepStrictEqual(results.sort(), [1, 2, 3]);
-    assert.strictEqual(completed, true);
+    assert.strictEqual(count, 3);
+    assert.strictEqual(beforeCount, 0);
   });
 
-  it('do not reject if complete function throws an exception', async () => {
+  it('do not reject if before function throws an exception', async () => {
     await from([1])
-      .complete(() => {
+      .before(() => {
         throw Error('Reject');
       })
       .toArray();

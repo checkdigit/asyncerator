@@ -30,9 +30,7 @@ describe('from', () => {
       },
     };
     const iterable: Iterable<number> = {
-      [Symbol.iterator]: () => {
-        return iterator;
-      },
+      [Symbol.iterator]: () => iterator,
     };
     assert.deepStrictEqual(await from(iterable).toArray(), [0, 1, 2, 3]);
   });
@@ -63,9 +61,7 @@ describe('from', () => {
       },
     };
     const asyncIterable: AsyncIterable<number> = {
-      [Symbol.asyncIterator]: () => {
-        return asyncIterator;
-      },
+      [Symbol.asyncIterator]: () => asyncIterator,
     };
     assert.deepStrictEqual(await from(asyncIterable).toArray(), [0, 1, 2, 3]);
   });
@@ -73,9 +69,7 @@ describe('from', () => {
   it('a custom async iterable iterator with throw and return defined', async () => {
     let count = 0;
     const asyncIterableIterator: AsyncIterableIterator<number> = {
-      [Symbol.asyncIterator]: () => {
-        return asyncIterableIterator;
-      },
+      [Symbol.asyncIterator]: () => asyncIterableIterator,
       async next() {
         if (count === 4) {
           return { done: true, value: undefined };
@@ -101,9 +95,7 @@ describe('from', () => {
   it('a custom async iterable iterator without throw and return', async () => {
     let count = 0;
     const asyncIterableIterator: AsyncIterableIterator<number> = {
-      [Symbol.asyncIterator]: () => {
-        return asyncIterableIterator;
-      },
+      [Symbol.asyncIterator]: () => asyncIterableIterator,
       async next() {
         if (count === 4) {
           return { done: true, value: undefined };

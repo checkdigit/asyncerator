@@ -30,7 +30,7 @@ describe('error', () => {
     let completed = false;
     let errored = false;
     await from([Promise.reject(new Error('Reject'))])
-      .complete(() => {
+      .after(() => {
         completed = true;
       })
       .error(() => {
@@ -46,7 +46,7 @@ describe('error', () => {
     let completed = false;
     let errorObject: Error = new Error();
     await from([Promise.reject(new Error('Reject'))])
-      .complete(() => {
+      .after(() => {
         completed = true;
       })
       .error((error) => {

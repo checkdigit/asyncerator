@@ -96,13 +96,13 @@ export default function <T, U>(worker: AsyncWorker<T, U>, waitRatio = 100): Asyn
           attempts: 0,
           elapsed: 0,
           index,
-          item: items[index++],
+          item: items[index++] as T,
         });
       }
 
       const work = todo.pop();
 
-      if (typeof work === 'undefined') {
+      if (work === undefined) {
         // nothing new to be processed
         continue;
       }
