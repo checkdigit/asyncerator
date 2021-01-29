@@ -12,8 +12,8 @@ export interface Asyncerator<T> extends AsyncIterableIterator<T> {
   filter(filterFunction: (value: T) => boolean): Asyncerator<T>;
   filter<U extends T>(filterFunction: (value: T) => value is U): Asyncerator<U>;
   forEach(forEachFunction: (value: T) => void): Asyncerator<T>;
-  before(beforeFunction: () => void): Asyncerator<T>;
-  after(afterFunction: () => void): Asyncerator<T>;
+  before(beforeFunction: () => T | void): Asyncerator<T>;
+  after(afterFunction: () => T | void): Asyncerator<T>;
   error(errorFunction: (error: Error) => void): Asyncerator<T>;
   split(separator: string, limit?: number): Asyncerator<string>;
   toArray(): Promise<T[]>;

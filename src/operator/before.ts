@@ -5,10 +5,13 @@ const log = debug('asyncerator:operator:before');
 
 export default async function* <T>(
   iterator: AsyncIterable<T>,
-  beforeFunction: () => void
+  beforeFunction: () => T | void
 ): AsyncGenerator<T, void, undefined> {
   try {
-    beforeFunction();
+    const result = beforeFunction();
+    if (result !== undefined) {
+      yield result;
+    }
   } catch (errorObject) {
     log('WARNING: error thrown in before(), ignored', errorObject);
   }

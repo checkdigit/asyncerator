@@ -18,17 +18,19 @@ describe('after', () => {
   it('operates on sequence', async () => {
     let count = 0;
     let afterCount = 0;
-    const results = await all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)])
+    const results = await from([1, 2, 3])
+      .after(() => 4)
       .forEach(() => {
         count += 1;
       })
       .after(() => {
         afterCount = count;
+        return 5;
       })
       .toArray();
-    assert.deepStrictEqual(results.sort(), [1, 2, 3]);
-    assert.strictEqual(afterCount, 3);
-    assert.strictEqual(count, 3);
+    assert.deepStrictEqual(results, [1, 2, 3, 4, 5]);
+    assert.strictEqual(afterCount, 4);
+    assert.strictEqual(count, 4);
   });
 
   it('do not reject if after function throws an exception', async () => {

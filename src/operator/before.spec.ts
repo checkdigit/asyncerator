@@ -18,16 +18,18 @@ describe('before', () => {
   it('operates on sequence', async () => {
     let count = 0;
     let beforeCount = 0;
-    const results = await all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)])
+    const results = await from([3, 4, 5])
+      .before(() => 2)
       .forEach(() => {
         count += 1;
       })
       .before(() => {
         beforeCount = count;
+        return 1;
       })
       .toArray();
-    assert.deepStrictEqual(results.sort(), [1, 2, 3]);
-    assert.strictEqual(count, 3);
+    assert.deepStrictEqual(results, [1, 2, 3, 4, 5]);
+    assert.strictEqual(count, 4);
     assert.strictEqual(beforeCount, 0);
   });
 

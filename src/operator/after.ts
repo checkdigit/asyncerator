@@ -5,11 +5,14 @@ const log = debug('asyncerator:operator:after');
 
 export default async function* <T>(
   iterator: AsyncIterable<T>,
-  afterFunction: () => void
+  afterFunction: () => T | void
 ): AsyncGenerator<T, void, undefined> {
   yield* iterator;
   try {
-    afterFunction();
+    const result = afterFunction();
+    if (result !== undefined) {
+      yield result;
+    }
   } catch (errorObject) {
     log('WARNING: error thrown in after(), ignored', errorObject);
   }
