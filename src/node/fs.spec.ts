@@ -9,7 +9,7 @@ import util from 'util';
 import zlib from 'zlib';
 import { v4 as uuid } from 'uuid';
 
-import { from, writable } from '../index';
+import { from } from '../index';
 
 const pipeline = util.promisify(stream.pipeline);
 
@@ -68,12 +68,12 @@ describe('fs', () => {
     );
 
     // read a Gzipped file
-    const { asyncerator, writable: writableStream } = writable();
-    await pipeline(fs.createReadStream(temporaryFile), zlib.createUnzip(), writableStream);
-    const result = await asyncerator
-      .split('\n')
-      .filter((string) => string !== '')
-      .toArray();
+    const result = await pipeline(fs.createReadStream(temporaryFile), zlib.createUnzip(), (source) =>
+      from(source)
+        .split('\n')
+        .filter((string) => string !== '')
+        .toArray()
+    );
 
     assert.deepStrictEqual(result, input);
   });

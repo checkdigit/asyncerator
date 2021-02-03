@@ -8,6 +8,7 @@ import * as sink from './sink';
  */
 export interface Asyncerator<T> extends AsyncIterableIterator<T> {
   map<U>(mapFunction: (value: T) => U): Asyncerator<U>;
+  flat(depth?: number): Asyncerator<T extends (infer U)[] ? U : T>;
   race<U>(raceFunction: (value: T) => Promise<U>, concurrent?: number): Asyncerator<U>;
   filter(filterFunction: (value: T) => boolean): Asyncerator<T>;
   filter<U extends T>(filterFunction: (value: T) => value is U): Asyncerator<U>;
@@ -66,6 +67,7 @@ function create<T>(source: Asyncable<T> | (() => Asyncable<T>)): Asyncerator<T> 
       : {}),
     map: (mapFunction) => create(operator.map(iterator, mapFunction)),
     race: (raceFunction, concurrent) => create(operator.race(iterator, raceFunction, concurrent)),
+    flat: (depth) => create(operator.flat(iterator, depth)),
     filter: (filterFunction: (value: T) => boolean) => create(operator.filter(iterator, filterFunction)),
     split: (separator: string, limit?: number) => create(operator.split(iterator, separator, limit)),
     forEach: (tapFunction) => create(operator.forEach(iterator, tapFunction)),
