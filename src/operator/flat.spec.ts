@@ -18,8 +18,13 @@ describe('flat', () => {
     await Promise.all(
       [[], [1], [1, [2]], [1, [2, [3]]], [1, [2, [3, [4, [5]]]]], [1, [2, [3, [4, [5, [6, [7, 8, 9]]]]]]]].map(
         async (item) => {
+          await check(item, -1.23);
+          await check(item, -1);
           await check(item, 0);
+          await check(item, 0.23);
+          await check(item, 0.9);
           await check(item, 1);
+          await check(item, 1.5);
           await check(item, 2);
           await check(item, 3);
           await check(item, Infinity);
