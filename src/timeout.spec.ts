@@ -2,7 +2,7 @@
 
 import assert from 'assert';
 
-import timeout from './timeout';
+import timeout, { TimeoutError } from './timeout';
 
 describe('timeout', () => {
   it('returns resolved value if promise execution is less than timeout', async () => {
@@ -39,7 +39,7 @@ describe('timeout', () => {
     );
   });
 
-  it('rejects with Timeout error if promise execution exceeds timeout', async () => {
+  it('rejects with TimeoutError if promise execution exceeds timeout', async () => {
     let reached = false;
     await assert.rejects(
       async () =>
@@ -51,16 +51,20 @@ describe('timeout', () => {
       /^Error: Timeout after 2ms$/u
     );
     assert.strictEqual(reached, false);
-    await assert.rejects(
-      async () =>
-        timeout(3)(
-          new Promise(() => {
-            setTimeout(() => (reached = true), 10);
-          })
-        ),
-      /^Error: Timeout after 3ms$/u
-    );
+
+    let returnedError;
+    try {
+      await timeout(3)(
+        new Promise(() => {
+          setTimeout(() => (reached = true), 10);
+        })
+      );
+    } catch (error: unknown) {
+      returnedError = error;
+    }
     assert.strictEqual(reached, false);
+    assert.ok(returnedError instanceof TimeoutError);
+    assert.strictEqual(returnedError.timeout, 3);
   });
 
   it('throws RangeError on invalid timeout values', async () => {

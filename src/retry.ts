@@ -2,7 +2,7 @@
 
 import debug from 'debug';
 
-const log = debug('retry');
+const log = debug('checkdigit:retry');
 
 const DEFAULT_WAIT_RATIO = 100;
 const MAX_RETRIES = 8;
