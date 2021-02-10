@@ -5,10 +5,6 @@ const DEFAULT_TIMEOUT = 60000; // 1 minute
 const MAXIMUM_TIMEOUT = 900000; // 15 minutes
 
 export class TimeoutError extends Error {
-  static create(timeout: number): TimeoutError {
-    return new TimeoutError(timeout);
-  }
-
   constructor(public timeout: number) {
     super(`Timeout after ${timeout}ms`);
   }
@@ -33,7 +29,7 @@ export default function (timeout = DEFAULT_TIMEOUT): <T>(promise: Promise<T>) =>
         promise,
         new Promise((_, reject) => {
           handle = setTimeout(() => {
-            reject(TimeoutError.create(timeout));
+            reject(new TimeoutError(timeout));
           }, timeout);
         }),
       ])) as T;
