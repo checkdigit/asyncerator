@@ -4,38 +4,10 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import stream from 'stream';
-import util from 'util';
 import zlib from 'zlib';
 import { v4 as uuid } from 'uuid';
 
-import { from } from '../index';
-
-const pipeline = util.promisify(stream.pipeline);
-
-/**
- * This is a monkey-patch to the pipeline type definition to support node 14 functionality
- */
-declare module 'stream' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace,no-shadow
-  namespace pipeline {
-    function __promisify__(
-      stream1: NodeJS.ReadableStream | Iterable<string | Buffer> | AsyncIterable<string | Buffer>,
-      stream2: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
-      stream3:
-        | NodeJS.WritableStream
-        | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer> | Promise<unknown>)
-    ): Promise<void>;
-    function __promisify__(
-      stream1: NodeJS.ReadableStream | Iterable<string | Buffer> | AsyncIterable<string | Buffer>,
-      stream2: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
-      stream3: NodeJS.ReadWriteStream | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer>),
-      stream4:
-        | NodeJS.WritableStream
-        | ((source: AsyncIterable<string | Buffer>) => AsyncIterable<string | Buffer> | Promise<unknown>)
-    ): Promise<void>;
-  }
-}
+import { from, pipeline } from '../index';
 
 describe('fs', () => {
   it('to gzip and back again', async () => {
