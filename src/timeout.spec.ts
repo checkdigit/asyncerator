@@ -7,7 +7,7 @@ import timeout, { TimeoutError } from './timeout';
 describe('timeout', () => {
   it('returns resolved value if promise execution is less than timeout', async () => {
     assert.strictEqual(
-      await timeout(5)(
+      await timeout({ timeout: 5 })(
         new Promise((resolve) => {
           setTimeout(() => resolve('abc'), 1);
         })
@@ -19,7 +19,7 @@ describe('timeout', () => {
   it('returns with reject error if promise execution is less than timeout', async () => {
     await assert.rejects(
       async () =>
-        timeout(5)(
+        timeout({ timeout: 5 })(
           new Promise((_, reject) => {
             reject(new Error('Rejected'));
           })
@@ -30,7 +30,7 @@ describe('timeout', () => {
 
   it('returns resolved value if promise execution resolves immediately', async () => {
     assert.strictEqual(
-      await timeout(5)(
+      await timeout({ timeout: 5 })(
         new Promise((resolve) => {
           resolve('abc');
         })
@@ -43,7 +43,7 @@ describe('timeout', () => {
     let reached = false;
     await assert.rejects(
       async () =>
-        timeout(2)(
+        timeout({ timeout: 2 })(
           new Promise(() => {
             setTimeout(() => (reached = true), 10);
           })
@@ -54,7 +54,7 @@ describe('timeout', () => {
 
     let returnedError;
     try {
-      await timeout(3)(
+      await timeout({ timeout: 3 })(
         new Promise(() => {
           setTimeout(() => (reached = true), 10);
         })
@@ -69,14 +69,15 @@ describe('timeout', () => {
 
   it('throws RangeError on invalid timeout values', async () => {
     const expectedRangeError = /^RangeError: The argument must be >= 1 and <= 900000$/u;
-    assert.throws(() => timeout(-1), expectedRangeError);
-    assert.throws(() => timeout(0), expectedRangeError);
-    assert.throws(() => timeout(900001), expectedRangeError);
+    assert.throws(() => timeout({ timeout: -1 }), expectedRangeError);
+    assert.throws(() => timeout({ timeout: 0 }), expectedRangeError);
+    assert.throws(() => timeout({ timeout: 900001 }), expectedRangeError);
   });
 
   it('does not throw RangeError on valid timeout values', async () => {
     timeout();
-    timeout(1);
-    timeout(900000);
+    timeout({});
+    timeout({ timeout: 1 });
+    timeout({ timeout: 900000 });
   });
 });

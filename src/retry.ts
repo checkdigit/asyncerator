@@ -32,17 +32,15 @@ export class RetryError extends Error {
 /**
  * Item processor, with retry logic
  *
- * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
  * @param maximumRetries maximum number of retries before throwing a RetryError
  */
 export default function <T, U>(
-  retryable: Retryable<T, U>,
   { waitRatio = DEFAULT_WAIT_RATIO, retries = DEFAULT_RETRIES }: RetryOptions = {
     waitRatio: DEFAULT_WAIT_RATIO,
     retries: DEFAULT_RETRIES,
   }
-): (item: T) => Promise<U> {
+): (retryable: Retryable<T, U>) => (item: T) => Promise<U> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
   }
@@ -50,7 +48,7 @@ export default function <T, U>(
     throw RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
   }
 
-  return (item) =>
+  return (retryable: Retryable<T, U>) => (item) =>
     (async function work(attempts = 0): Promise<U> {
       if (attempts > 0) {
         // wait for (2^attempts * 100) milliseconds (per AWS recommendation)
