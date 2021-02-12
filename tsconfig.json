@@ -2,7 +2,8 @@
   "extends": "@checkdigit/typescript-config",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "target": "es2020"
   },
   "exclude": [
     "node_modules",
