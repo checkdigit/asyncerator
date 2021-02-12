@@ -3,6 +3,7 @@
 import assert from 'assert';
 
 import retry, { RetryError } from './retry';
+import timeout from './timeout';
 
 describe('retry', () => {
   function work(waiter: (callback: (...args: unknown[]) => void, ...args: unknown[]) => void, errorNumber = 0) {
@@ -78,5 +79,13 @@ describe('retry', () => {
     retry({ retries: 1 })(work(nextTick));
     retry({ retries: 64 })(work(nextTick));
     assert.throws(() => retry({ retries: 65 })(work(nextTick)), expectedRangeError);
+  });
+
+  it('works in parallel (using timeout)', async () => {
+    const range = [...Array(10000).keys()].map((index) => index.toString().padStart(4, '0'));
+    const timer = timeout();
+    const worker = retry()((item) => timer(Promise.resolve(item)));
+    const results = await Promise.all(range.map(worker)); // ?.
+    assert.deepStrictEqual(results.sort(), range);
   });
 });

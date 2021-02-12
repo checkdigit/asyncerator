@@ -80,4 +80,19 @@ describe('timeout', () => {
     timeout({ timeout: 1 });
     timeout({ timeout: 900000 });
   });
+
+  it('works in parallel', async () => {
+    const range = [...Array(10000).keys()].map((index) => index.toString().padStart(4, '0'));
+    const timer = timeout();
+    const results = await Promise.all(
+      range.map(async (index) =>
+        timer(
+          new Promise((resolve) => {
+            setImmediate(() => resolve(index), 1);
+          })
+        )
+      )
+    ); // ?.
+    assert.deepStrictEqual(results.sort(), range);
+  });
 });
