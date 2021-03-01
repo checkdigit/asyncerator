@@ -8,16 +8,13 @@ import type { Operator } from './index';
 
 const log = debug('asyncerator:operator:before');
 
-export default function <Input, Output>(beforeFunction: () => Output | void): Operator<Input, Output> {
+export default function <Input>(beforeFunction: () => void): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
     try {
-      const result = beforeFunction();
-      if (result !== undefined) {
-        yield result;
-      }
+      beforeFunction();
     } catch (errorObject) {
       log('WARNING: error thrown in before(), ignored', errorObject);
     }
-    yield* (iterator as unknown) as Asyncerator<Output>;
+    yield* iterator;
   };
 }

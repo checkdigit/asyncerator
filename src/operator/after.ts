@@ -8,14 +8,11 @@ import type { Operator } from './index';
 
 const log = debug('asyncerator:operator:after');
 
-export default function <Input, Output>(afterFunction: () => Output | void): Operator<Input, Output> {
+export default function <Input>(afterFunction: () => void): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
-    yield* (iterator as unknown) as Asyncerator<Output>;
+    yield* iterator;
     try {
-      const result = afterFunction();
-      if (result !== undefined) {
-        yield result;
-      }
+      afterFunction();
     } catch (errorObject) {
       log('WARNING: error thrown in after(), ignored', errorObject);
     }
