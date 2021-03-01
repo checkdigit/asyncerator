@@ -1,5 +1,9 @@
 // index.ts
 
-export type { Asyncable, Asyncerator } from './create';
-export { default as pipeline } from './pipeline';
+export { default as from } from './asyncerator';
+
+export * from './asyncerator';
+export * from './operator';
+export * from './node';
+export * from './sink';
 export * from './source';

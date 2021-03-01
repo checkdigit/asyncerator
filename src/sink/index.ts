@@ -2,3 +2,4 @@
 
 export { default as drop } from './drop';
 export { default as toArray } from './to-array';
+export { default as toString } from './to-string';

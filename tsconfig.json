@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build",
-    "target": "es2020"
+    "target": "es2020",
+    "noPropertyAccessFromIndexSignature": true
   },
   "exclude": [
     "node_modules",

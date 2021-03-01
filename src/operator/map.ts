@@ -1,10 +1,13 @@
 // operator/map.ts
 
-export default async function* <T, U>(
-  iterator: AsyncIterable<T>,
-  mapFunction: (value: T) => U
-): AsyncGenerator<U, void, undefined> {
-  for await (const item of iterator) {
-    yield mapFunction(item);
-  }
+import type { Asyncerator } from '../asyncerator';
+
+import type { Operator } from './index';
+
+export default function <Input, Output>(mapFunction: (value: Input) => Output): Operator<Input, Output> {
+  return async function* (iterator: Asyncerator<Input>) {
+    for await (const item of iterator) {
+      yield mapFunction(item);
+    }
+  };
 }

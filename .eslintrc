@@ -1,3 +1,8 @@
 {
-  "extends": ["@checkdigit"]
+  "extends": [
+    "@checkdigit"
+  ],
+  "rules": {
+    "deprecate/function": "error"
+  }
 }

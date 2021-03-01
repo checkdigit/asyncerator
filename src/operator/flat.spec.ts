@@ -2,17 +2,17 @@
 
 import * as assert from 'assert';
 
-import { all, from } from '../index';
+import { all, flat, from, pipeline, toArray } from '../index';
 
 describe('flat', () => {
   it('operates on sequence of promises', async () => {
     const iterable = all<unknown>([Promise.resolve(1), Promise.resolve([2, 3]), Promise.resolve([4, [[5], 6]])]);
-    assert.deepStrictEqual((await iterable.flat().toArray()).sort(), [1, 2, 3, 4, [[5], 6]]);
+    assert.deepStrictEqual((await pipeline(iterable, flat(), toArray)).sort(), [1, 2, 3, 4, [[5], 6]]);
   });
 
   it('behaves the same as built-in Array.flat()', async () => {
     async function check(array: unknown[], depth = 1) {
-      assert.deepStrictEqual(await from(array).flat(depth).toArray(), array.flat(depth));
+      assert.deepStrictEqual(await pipeline(from(array), flat(depth), toArray), array.flat(depth));
     }
 
     await Promise.all(

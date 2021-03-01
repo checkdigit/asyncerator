@@ -1,16 +1,14 @@
 // source/series.ts
 
-import create, { Asyncable, Asyncerator } from '../create';
+import asyncerator, { Asyncable, Asyncerator } from '../asyncerator';
 
 /**
  * Combine the output of iterators in a series.  Requires all the iterators to complete.
  *
  * @param iterators
  */
-export default function <T>(...iterators: Asyncable<T>[]): Asyncerator<T> {
-  return create(async function* () {
-    for await (const iterator of iterators) {
-      yield* iterator;
-    }
-  });
+export default async function* <T>(...iterators: Asyncable<T>[]): Asyncerator<T> {
+  for await (const iterator of iterators) {
+    yield* asyncerator(iterator);
+  }
 }

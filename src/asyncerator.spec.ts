@@ -1,11 +1,11 @@
-// source/from.spec.ts
+// asyncerator.spec.ts
 
 import * as assert from 'assert';
 
-import { from } from '../index';
+import { from, pipeline, toArray } from './index';
 
-describe('from', () => {
-  it('a custom iterator', async () => {
+describe('asyncerator', () => {
+  it('from a custom iterator', async () => {
     let count = 0;
     const range: Iterator<number> = {
       next() {
@@ -15,10 +15,10 @@ describe('from', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepStrictEqual(await from(range).toArray(), [0, 1, 2, 3]);
+    assert.deepStrictEqual(await pipeline(from(range), toArray), [0, 1, 2, 3]);
   });
 
-  it('a custom iterable', async () => {
+  it('from a custom iterable', async () => {
     let count = 0;
     // this doesn't have the Symbol.asyncIterator so can't be used with 'for await', but we're cool with it
     const iterator: Iterator<number> = {
@@ -32,10 +32,10 @@ describe('from', () => {
     const iterable: Iterable<number> = {
       [Symbol.iterator]: () => iterator,
     };
-    assert.deepStrictEqual(await from(iterable).toArray(), [0, 1, 2, 3]);
+    assert.deepStrictEqual(await pipeline(from(iterable), toArray), [0, 1, 2, 3]);
   });
 
-  it('a custom async iterator', async () => {
+  it('from a custom async iterator', async () => {
     let count = 0;
     // this doesn't have the Symbol.asyncIterator so can't be used with 'for await', but we're cool with it
     const asyncIterator: AsyncIterator<number> = {
@@ -46,10 +46,10 @@ describe('from', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepStrictEqual(await from(asyncIterator).toArray(), [0, 1, 2, 3]);
+    assert.deepStrictEqual(await pipeline(from(asyncIterator), toArray), [0, 1, 2, 3]);
   });
 
-  it('a custom async iterable', async () => {
+  it('from a custom async iterable', async () => {
     let count = 0;
     // this doesn't have the Symbol.asyncIterator so can't be used with 'for await', but we're cool with it
     const asyncIterator: AsyncIterator<number> = {
@@ -63,7 +63,7 @@ describe('from', () => {
     const asyncIterable: AsyncIterable<number> = {
       [Symbol.asyncIterator]: () => asyncIterator,
     };
-    assert.deepStrictEqual(await from(asyncIterable).toArray(), [0, 1, 2, 3]);
+    assert.deepStrictEqual(await pipeline(from(asyncIterable), toArray), [0, 1, 2, 3]);
   });
 
   it('a custom async iterable iterator with throw and return defined', async () => {
@@ -83,8 +83,8 @@ describe('from', () => {
         return { done: true, value: 'return' };
       },
     };
-    const asyncerator = from(asyncIterableIterator);
-    assert.deepStrictEqual(await asyncerator.toArray(), [0, 1, 2, 3]);
+    const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
+    assert.deepStrictEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     if (asyncerator.throw === undefined || asyncerator.return === undefined) {
       throw Error();
     }
@@ -103,8 +103,8 @@ describe('from', () => {
         return { done: false, value: count++ };
       },
     };
-    const asyncerator = from(asyncIterableIterator);
-    assert.deepStrictEqual(await asyncerator.toArray(), [0, 1, 2, 3]);
+    const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
+    assert.deepStrictEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     // eslint-disable-next-line @typescript-eslint/unbound-method
     assert.strictEqual(asyncerator.throw, undefined);
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -112,9 +112,7 @@ describe('from', () => {
   });
 
   it('an async iterable iterator', async () => {
-    const iterable: AsyncIterableIterator<string | Promise<string>> = from(
-      from(['abc', Promise.resolve('def'), 'ghi'])
-    );
+    const iterable = from(from(['abc', Promise.resolve('def'), 'ghi']));
     const items = [];
     for await (const item of iterable) {
       items.push(item);
@@ -123,11 +121,13 @@ describe('from', () => {
   });
 
   it('an async generator function', async () => {
-    const iterable: AsyncIterableIterator<string | Promise<string>> = from(async function* () {
-      yield 'abc';
-      yield 'def';
-      yield 'ghi';
-    });
+    const iterable = from(
+      (async function* () {
+        yield 'abc';
+        yield 'def';
+        yield 'ghi';
+      })()
+    );
     const items = [];
     for await (const item of iterable) {
       items.push(item);
@@ -136,6 +136,6 @@ describe('from', () => {
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(from([Promise.reject(new Error('Reject'))]).next(), /^Error: Reject$/u);
+    await assert.rejects(pipeline(from([Promise.reject(new Error('Reject'))]), toArray), /^Error: Reject$/u);
   });
 });

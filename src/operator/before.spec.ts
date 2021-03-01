@@ -2,42 +2,48 @@
 
 import * as assert from 'assert';
 
-import { all, from } from '../index';
+import { all, before, forEach, from, pipeline, toArray } from '../index';
 
 describe('before', () => {
   it('works for an empty array', async () => {
     let completed = false;
-    await all([])
-      .before(() => {
+    await pipeline(
+      all([]),
+      before(() => {
         completed = true;
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.strictEqual(completed, true);
   });
 
   it('operates on sequence', async () => {
     let count = 0;
     let beforeCount = 0;
-    const results = await from([3, 4, 5])
-      .before(() => 2)
-      .forEach(() => {
+    const results = await pipeline(
+      from([3, 4, 5]),
+      before(() => 2),
+      forEach(() => {
         count += 1;
-      })
-      .before(() => {
+      }),
+      before(() => {
         beforeCount = count;
         return 1;
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.deepStrictEqual(results, [1, 2, 3, 4, 5]);
     assert.strictEqual(count, 4);
     assert.strictEqual(beforeCount, 0);
   });
 
   it('do not reject if before function throws an exception', async () => {
-    await from([1])
-      .before(() => {
+    await pipeline(
+      from([1]),
+      before(() => {
         throw Error('Reject');
-      })
-      .toArray();
+      }),
+      toArray
+    );
   });
 });

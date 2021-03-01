@@ -1,16 +1,19 @@
 // operator/flat.ts
 
-export default async function* <T>(
-  iterator: AsyncIterable<T>,
-  depth = 1
-): AsyncGenerator<T extends (infer U)[] ? U : T, void, undefined> {
-  for await (const item of iterator) {
-    if (depth >= 1 && Array.isArray(item)) {
-      for (const element of item.flat(depth - 1)) {
-        yield element as T extends (infer U)[] ? U : T;
+import type { Asyncerator } from '../asyncerator';
+
+import type { Operator } from './index';
+
+export default function <Input>(depth = 1): Operator<Input, Input extends (infer T)[] ? T : Input> {
+  return async function* (iterator: Asyncerator<Input>) {
+    for await (const item of iterator) {
+      if (depth >= 1 && Array.isArray(item)) {
+        for (const element of item.flat(depth - 1)) {
+          yield element as Input extends (infer T)[] ? T : Input;
+        }
+      } else {
+        yield item as Input extends (infer T)[] ? T : Input;
       }
-    } else {
-      yield item as T extends (infer U)[] ? U : T;
     }
-  }
+  };
 }

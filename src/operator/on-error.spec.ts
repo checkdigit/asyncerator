@@ -1,27 +1,31 @@
-// operator/error.spec.ts
+// operator/on-error.spec.ts
 
 import * as assert from 'assert';
 
-import { all, from } from '../index';
+import { after, all, from, onError, pipeline, toArray } from '../index';
 
-describe('error', () => {
+describe('onError', () => {
   it('works for an empty array', async () => {
     let errored = false;
-    await all([])
-      .error(() => {
+    await pipeline(
+      all([]),
+      onError(() => {
         errored = true;
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.strictEqual(errored, false);
   });
 
   it('operates on sequence', async () => {
     let errored = false;
-    const results = await all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)])
-      .error(() => {
+    const results = await pipeline(
+      all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]),
+      onError(() => {
         errored = true;
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.deepStrictEqual(results.sort(), [1, 2, 3]);
     assert.strictEqual(errored, false);
   });
@@ -29,15 +33,17 @@ describe('error', () => {
   it('do not reject if error function throws an exception', async () => {
     let completed = false;
     let errored = false;
-    await from([Promise.reject(new Error('Reject'))])
-      .after(() => {
+    await pipeline(
+      from([Promise.reject(new Error('Reject'))]),
+      after(() => {
         completed = true;
-      })
-      .error(() => {
+      }),
+      onError(() => {
         errored = true;
         throw Error('Reject');
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.strictEqual(completed, false);
     assert.strictEqual(errored, true);
   });
@@ -45,14 +51,16 @@ describe('error', () => {
   it('called if array item is a promise that rejects', async () => {
     let completed = false;
     let errorObject: Error = new Error();
-    await from([Promise.reject(new Error('Reject'))])
-      .after(() => {
+    await pipeline(
+      from([Promise.reject(new Error('Reject'))]),
+      after(() => {
         completed = true;
-      })
-      .error((error) => {
+      }),
+      onError((error) => {
         errorObject = error;
-      })
-      .toArray();
+      }),
+      toArray
+    );
     assert.strictEqual(completed, false);
     assert.strictEqual(errorObject.message, 'Reject');
   });
