@@ -1,4 +1,4 @@
-// sink/drop.ts
+// sink/to-null.ts
 
 import asyncerator, { Asyncable } from '../asyncerator';
 
