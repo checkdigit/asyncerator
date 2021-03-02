@@ -4,14 +4,6 @@ import debug from 'debug';
 
 const log = debug('checkdigit:retry');
 
-const MINIMUM_WAIT_RATIO = 0;
-const DEFAULT_WAIT_RATIO = 100;
-const MAXIMUM_WAIT_RATIO = 60000;
-
-const MINIMUM_RETRIES = 0;
-const DEFAULT_RETRIES = 8;
-const MAXIMUM_RETRIES = 64;
-
 /**
  * A Retryable is an async function that given an item of type T, will asynchronously produce an item of type U with
  * standard Check Digit retry logic.  (8 retries, no more than 60 seconds per attempt)
@@ -22,6 +14,17 @@ export interface RetryOptions {
   waitRatio?: number;
   retries?: number;
 }
+
+const MINIMUM_WAIT_RATIO = 0;
+const MAXIMUM_WAIT_RATIO = 60000;
+
+const MINIMUM_RETRIES = 0;
+const MAXIMUM_RETRIES = 64;
+
+const DEFAULT_OPTIONS: Required<RetryOptions> = {
+  waitRatio: 100,
+  retries: 8,
+};
 
 export class RetryError extends Error {
   constructor(public retries: number, public lastError: Error) {
@@ -38,10 +41,7 @@ export class RetryError extends Error {
  */
 export default function <Input, Output>(
   retryable: Retryable<Input, Output>,
-  { waitRatio = DEFAULT_WAIT_RATIO, retries = DEFAULT_RETRIES }: RetryOptions = {
-    waitRatio: DEFAULT_WAIT_RATIO,
-    retries: DEFAULT_RETRIES,
-  }
+  { waitRatio = DEFAULT_OPTIONS.waitRatio, retries = DEFAULT_OPTIONS.retries }: RetryOptions = DEFAULT_OPTIONS
 ): (item: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
