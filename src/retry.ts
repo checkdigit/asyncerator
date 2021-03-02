@@ -16,7 +16,7 @@ const MAXIMUM_RETRIES = 64;
  * A Retryable is an async function that given an item of type T, will asynchronously produce an item of type U with
  * standard Check Digit retry logic.  (8 retries, no more than 60 seconds per attempt)
  */
-export type Retryable<T, U> = (item: T) => Promise<U>;
+export type Retryable<Input, Output> = (item: Input) => Promise<Output>;
 
 export interface RetryOptions {
   waitRatio?: number;
@@ -32,15 +32,17 @@ export class RetryError extends Error {
 /**
  * Item processor, with retry logic
  *
+ * @param retryable
  * @param waitRatio how much to multiply 2^attempts by
  * @param maximumRetries maximum number of retries before throwing a RetryError
  */
-export default function <T, U>(
+export default function <Input, Output>(
+  retryable: Retryable<Input, Output>,
   { waitRatio = DEFAULT_WAIT_RATIO, retries = DEFAULT_RETRIES }: RetryOptions = {
     waitRatio: DEFAULT_WAIT_RATIO,
     retries: DEFAULT_RETRIES,
   }
-): (retryable: Retryable<T, U>) => (item: T) => Promise<U> {
+): (item: Input) => Promise<Output> {
   if (waitRatio < MINIMUM_WAIT_RATIO || waitRatio > MAXIMUM_WAIT_RATIO) {
     throw RangeError(`waitRatio must be >= ${MINIMUM_WAIT_RATIO} and <= ${MAXIMUM_WAIT_RATIO}`);
   }
@@ -48,8 +50,8 @@ export default function <T, U>(
     throw RangeError(`retries must be >= ${MINIMUM_RETRIES} and <= ${MAXIMUM_RETRIES}`);
   }
 
-  return (retryable: Retryable<T, U>) => (item) =>
-    (async function work(attempts = 0): Promise<U> {
+  return (item) =>
+    (async function work(attempts = 0): Promise<Output> {
       if (attempts > 0) {
         // wait for (2^attempts * 100) milliseconds (per AWS recommendation)
         const waitTime = 2 ** attempts * waitRatio;

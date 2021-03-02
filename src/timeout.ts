@@ -17,42 +17,42 @@ export class TimeoutError extends Error {
 /**
  * Promise with timeout implementation.  If promise takes longer than timeout milliseconds to resolve, reject with
  * a TimeoutError.
+ * @param promise
  * @param timeout
  */
-export default function (
+export default async function <Type>(
+  promise: Promise<Type>,
   { timeout = DEFAULT_TIMEOUT }: TimeoutOptions = {
     timeout: DEFAULT_TIMEOUT,
   }
-): <T>(promise: Promise<T>) => Promise<T> {
+): Promise<Type> {
   if (timeout < MINIMUM_TIMEOUT || timeout > MAXIMUM_TIMEOUT) {
     // Node's built-in setTimeout will default the delay to 1ms if the delay is larger than 2147483647ms or less than 1ms.
     // Instead, we error if the argument is invalid.
     throw RangeError(`The argument must be >= ${MINIMUM_TIMEOUT} and <= ${MAXIMUM_TIMEOUT}`);
   }
 
-  return async function <T>(promise: Promise<T>): Promise<T> {
-    let handle: NodeJS.Timeout | undefined;
-    try {
-      return (await Promise.race([
-        (async () => {
-          const result = await promise;
-          if (handle !== undefined) {
-            clearTimeout(handle);
-            handle = undefined;
-          }
-          return result;
-        })(),
-        new Promise((_, reject) => {
-          handle = setTimeout(() => {
-            reject(new TimeoutError(timeout));
-          }, timeout);
-        }),
-      ])) as T;
-    } finally {
-      if (handle !== undefined) {
-        clearTimeout(handle);
-        handle = undefined;
-      }
+  let handle: NodeJS.Timeout | undefined;
+  try {
+    return (await Promise.race([
+      (async () => {
+        const result = await promise;
+        if (handle !== undefined) {
+          clearTimeout(handle);
+          handle = undefined;
+        }
+        return result;
+      })(),
+      new Promise((_, reject) => {
+        handle = setTimeout(() => {
+          reject(new TimeoutError(timeout));
+        }, timeout);
+      }),
+    ])) as Type;
+  } finally {
+    if (handle !== undefined) {
+      clearTimeout(handle);
+      handle = undefined;
     }
-  };
+  }
 }

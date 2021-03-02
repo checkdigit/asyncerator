@@ -7,10 +7,11 @@ import timeout, { TimeoutError } from './timeout';
 describe('timeout', () => {
   it('returns resolved value if promise execution is less than timeout', async () => {
     assert.strictEqual(
-      await timeout({ timeout: 5 })(
+      await timeout(
         new Promise((resolve) => {
           setTimeout(() => resolve('abc'), 1);
-        })
+        }),
+        { timeout: 5 }
       ),
       'abc'
     );
@@ -19,10 +20,11 @@ describe('timeout', () => {
   it('returns with reject error if promise execution is less than timeout', async () => {
     await assert.rejects(
       async () =>
-        timeout({ timeout: 5 })(
+        timeout(
           new Promise((_, reject) => {
             reject(new Error('Rejected'));
-          })
+          }),
+          { timeout: 5 }
         ),
       /^Error: Rejected$/u
     );
@@ -30,10 +32,11 @@ describe('timeout', () => {
 
   it('returns resolved value if promise execution resolves immediately', async () => {
     assert.strictEqual(
-      await timeout({ timeout: 5 })(
+      await timeout(
         new Promise((resolve) => {
           resolve('abc');
-        })
+        }),
+        { timeout: 5 }
       ),
       'abc'
     );
@@ -43,10 +46,11 @@ describe('timeout', () => {
     let reached = false;
     await assert.rejects(
       async () =>
-        timeout({ timeout: 2 })(
+        timeout(
           new Promise(() => {
             setTimeout(() => (reached = true), 10);
-          })
+          }),
+          { timeout: 2 }
         ),
       /^Error: Timeout after 2ms$/u
     );
@@ -54,10 +58,11 @@ describe('timeout', () => {
 
     let returnedError;
     try {
-      await timeout({ timeout: 3 })(
+      await timeout(
         new Promise(() => {
           setTimeout(() => (reached = true), 10);
-        })
+        }),
+        { timeout: 3 }
       );
     } catch (error: unknown) {
       returnedError = error;
@@ -69,24 +74,23 @@ describe('timeout', () => {
 
   it('throws RangeError on invalid timeout values', async () => {
     const expectedRangeError = /^RangeError: The argument must be >= 1 and <= 900000$/u;
-    assert.throws(() => timeout({ timeout: -1 }), expectedRangeError);
-    assert.throws(() => timeout({ timeout: 0 }), expectedRangeError);
-    assert.throws(() => timeout({ timeout: 900001 }), expectedRangeError);
+    await assert.rejects(() => timeout(Promise.resolve(), { timeout: -1 }), expectedRangeError);
+    await assert.rejects(() => timeout(Promise.resolve(), { timeout: 0 }), expectedRangeError);
+    await assert.rejects(() => timeout(Promise.resolve(), { timeout: 900001 }), expectedRangeError);
   });
 
   it('does not throw RangeError on valid timeout values', async () => {
-    timeout();
-    timeout({});
-    timeout({ timeout: 1 });
-    timeout({ timeout: 900000 });
+    await timeout(Promise.resolve());
+    await timeout(Promise.resolve(), {});
+    await timeout(Promise.resolve(), { timeout: 1 });
+    await timeout(Promise.resolve(), { timeout: 900000 });
   });
 
   it('works in parallel', async () => {
     const range = [...Array(10000).keys()].map((index) => index.toString().padStart(4, '0'));
-    const timer = timeout();
     const results = await Promise.all(
       range.map(async (index) =>
-        timer(
+        timeout(
           new Promise((resolve) => {
             setImmediate(() => resolve(index), 1);
           })

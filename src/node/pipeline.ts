@@ -284,6 +284,91 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   sink: (input: Asyncerator<TransformSink>) => AsyncIterable<Sink>
 ): Readable;
 
+// 9 transforms
+export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, TransformSink>,
+  sink: Writable
+): Promise<void>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => AsyncIterable<Sink>
+): Readable;
+
+// 10 transforms
+export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, T9>,
+  transform10: PipelineTransformer<T9, TransformSink>,
+  sink: Writable
+): Promise<void>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, T9>,
+  transform10: PipelineTransformer<T9, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, T9>,
+  transform10: PipelineTransformer<T9, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => AsyncIterable<Sink>
+): Readable;
+
 /**
  * Wrapped version of stream.pipeline.  We do this for two reasons:
  * 1) auto-promisify, if the sink is an async function or a WritableStream
