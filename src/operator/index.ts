@@ -10,5 +10,4 @@ export { default as filter } from './filter';
 export { default as flat } from './flat';
 export { default as after } from './after';
 export { default as before } from './before';
-export { default as onError } from './on-error';
 export { default as split } from './split';

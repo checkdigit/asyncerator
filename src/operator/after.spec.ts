@@ -2,30 +2,26 @@
 
 import * as assert from 'assert';
 
-import { after, all, from, pipeline, toArray } from '../index';
+import { after, all, forEach, from, pipeline, toArray } from '../index';
 
 describe('after', () => {
   it('works for an empty array', async () => {
-    let completed = false;
-    const result = await pipeline(
-      all([]),
-      after(() => {
-        completed = true;
-      }),
-      toArray
-    );
-    assert.deepStrictEqual(result, []);
-    assert.strictEqual(completed, true);
+    const result = await pipeline(all([]), after('abc'), toArray);
+    assert.deepStrictEqual(result, ['abc']);
   });
 
-  it('do not reject if after function throws an exception', async () => {
-    const result = await pipeline(
-      from([1]),
-      after(() => {
-        // throw Error('Reject');
+  it('operates on sequence', async () => {
+    let count = 0;
+    const results = await pipeline(
+      from([1, 2, 3]),
+      after(4),
+      forEach(() => {
+        count += 1;
       }),
+      after(5),
       toArray
     );
-    assert.deepStrictEqual(result, [1]);
+    assert.deepStrictEqual(results, [1, 2, 3, 4, 5]);
+    assert.strictEqual(count, 4);
   });
 });
