@@ -12,46 +12,15 @@ const promisifiedPipeline = util.promisify(stream.pipeline);
 
 export type PipelineSource<Source> = string | Readable | Iterable<Source> | AsyncIterable<Source> | Asyncerator<Source>;
 
-// export type PipelineDestination<Source, Sink = Buffer> =
-//   | Writable
-//   | ((input: Asyncerator<Source>) => Promise<Sink>)
-//   | ((input: Asyncerator<Source>) => AsyncIterable<Sink>);
-
 export type PipelineTransformer<Input, Output> = Transform | ((input: Asyncerator<Input>) => Asyncerator<Output>);
 
-// export type PipelineTransformation<Source, Sink, T1, T2, T3, T4, T5> =
-//   | [PipelineTransformer<Source, Sink>]
-//   | [PipelineTransformer<Source, T1>, PipelineTransformer<T1, Sink>]
-//   | [PipelineTransformer<Source, T1>, PipelineTransformer<T1, T2>, PipelineTransformer<T2, Sink>]
-//   | [
-//       PipelineTransformer<Source, T1>,
-//       PipelineTransformer<T1, T2>,
-//       PipelineTransformer<T2, T3>,
-//       PipelineTransformer<T3, Sink>
-//     ]
-//   | [
-//       PipelineTransformer<Source, T1>,
-//       PipelineTransformer<T1, T2>,
-//       PipelineTransformer<T2, T3>,
-//       PipelineTransformer<T3, T4>,
-//       PipelineTransformer<T4, Sink>
-//     ]
-//   | [
-//       PipelineTransformer<Source, T1>,
-//       PipelineTransformer<T1, T2>,
-//       PipelineTransformer<T2, T3>,
-//       PipelineTransformer<T3, T4>,
-//       PipelineTransformer<T4, T5>,
-//       PipelineTransformer<T5, Sink>
-//     ];
-
-// export type Pipeline<Source, Sink, TransformSink, T1, T2, T3, T4, T5> =
-//   | [source: PipelineSource<Source>, destination: PipelineDestination<Source, Sink>]
-//   | [
-//       source: PipelineSource<Source>,
-//       ...transforms: PipelineTransformation<Source, TransformSink, T1, T2, T3, T4, T5>,
-//       destination: PipelineDestination<TransformSink, Sink>
-//     ];
+/**
+ * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
+ * is defined by the type of the last parameter, and there are zero or more transform parameters in between the
+ * source and the destination.  Also, the output of each parameter in the pipeline must match the input type of the
+ * subsequent parameter.  TBD if this can be typed using some cool variadic thing in the current latest (4.2) version
+ * of Typescript.
+ */
 
 // zero transforms
 export default function <Source>(source: PipelineSource<Source>, sink: Writable): Promise<void>;

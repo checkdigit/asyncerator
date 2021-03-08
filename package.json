@@ -1,7 +1,7 @@
 {
   "name": "asyncerator",
   "version": "0.0.1",
-  "description": "Extends AsyncIterableIterator to provide standard Array-like utility operators, sources and sinks",
+  "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "typings": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "prettier": "@checkdigit/prettier-config",
@@ -13,7 +13,7 @@
     "node": ">=14"
   },
   "author": "Check Digit, LLC",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/checkdigit/asyncerator/issues"
   },
