@@ -104,6 +104,18 @@ describe('pipeline', () => {
     assert.deepStrictEqual(errorThrown.message, 'The _write() method is not implemented');
   });
 
+  it('returns a stream if last parameter is a transform', async () => {
+    const result = pipeline('hello', zlib.createGzip());
+    assert.ok(result.readable === true);
+    assert.strictEqual(await pipeline(result, base64Encode, toString), 'H4sIAAAAAAAAE8tIzcnJBwCGphA2BQAAAA==');
+  });
+
+  it('returns a stream if last parameter is an async generator function', async () => {
+    const result = pipeline('hello', zlib.createGzip(), base64Encode);
+    assert.ok(result.readable === true);
+    assert.strictEqual(await pipeline(result, toString), 'H4sIAAAAAAAAE8tIzcnJBwCGphA2BQAAAA==');
+  });
+
   it('can pipe through gzip', async () => {
     assert.strictEqual(
       await pipeline('hello', zlib.createGzip(), base64Encode, toString),

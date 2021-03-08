@@ -44,6 +44,33 @@ Specifically:
 
 ## `asyncerator.pipeline`
 
+
+`asyncerator.pipeline` is a strongly typed, promisified version of Node's
+[`stream.pipeline`](https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback) function.
+
+Its typing is complicated, but the basic form of the function is:
+```
+pipeline(
+  source, // string | Readable | Iterable | AsyncIterable | Asyncerator
+  ...transforms, // zero or more Transform | ((input: Asyncerator) => Asyncerator)
+  sink // Writable | Transform | ((input: Asyncerator) => Promise<Sink>) | ((input: Asyncerator) => AsyncIterable)
+): Readable | Promise<Sink> | Promise<void>; {
+```
+
+The main advantage of the typings is that at compile-time, the outputs of each source or transformation must match the
+input of the subsequent transformation or sink.  This makes working with complex pipelines much less error-prone.
+
+In addition, the standard Node typings (`@types/node`) for `stream.pipeline` are woefully incorrect (as of 14.14.32)
+to the point of being unusable.
+
+Functionally, the Asyncerator `pipeline` function differs from the built-in `stream.pipeline` in that it returns a promise, or a
+stream, depending on the type of the sink (last argument):
+- if the sink is a Writable stream, return a `Promise<void>`.
+- if the sink is an async function that returns a `Promise<T>`, return that promise.
+- if the sink is an async generator function or a stream `Transform`, return a `Readable` stream.
+
+Despite these differences Under the hood, `stream.pipeline` is still used to perform the actual work.
+
 ### Simple example
 
 ```ts
@@ -60,7 +87,7 @@ await pipeline(
 );
 ```
 
-### Extended example
+## Extended example
 
 Read a CSV file, output a new CSV file based on some logic:
 ```ts
@@ -73,29 +100,35 @@ import retry from '@checkdigit/retry';
 async function main() {
   await pipeline(
     fs.createReadStream('./input.csv'),
+    // turn buffers into string chunks
     map((buffer: Buffer) => buffer.toString()),
+    // split chunks into lines
     split('\n'),
-    // remove empty lines, and head
+    // remove empty lines, and CSV header line
     filter((string) => string !== '' && string !== '"header1","header2","header3","header4"'),
+    // transform string into an object
     map((line: string) => ({
-      field1: (line.split(',')[0] as string).slice(1, -1),
-      field4: BigInt((line.split(',')[3] as string).slice(1, -1)),
+      field1: line.split(',')[0] as string,
+      field4: BigInt((line.split(',')[3] as string)),
     })),
+    // perform concurrent requests (up to 128 by default) - Note: DOES NOT PRESERVE ORDER
     race(
       retry((item) =>
         timeout(
           (async ({field1, field4}) => ({
-            calculated: await someAsyncFunction(field1),
+            calculated: await someAsyncNetworkAPIFunction(field1),
             field1,
-            field4
+            field4 // type is infered to be a BigInt, because Typescript is awesome
           }))(item)
         )
       )
     ),
+    // demonstrate use of an async generator to filter and transform objects into a string
+    // (FYI could be done more easily using map and filter)
     async function* (iterator) {
       for await (const item of iterator) {
-        if (item.field1 !== item.field4) {
-          yield `${field1},${field2},${calculated}\n`;
+        if (doWeOutput(item)) {
+          yield `${item.field1},${item.field2},${item.calculated}\n`;
         }
       }
     },
@@ -103,6 +136,9 @@ async function main() {
   );
 }
 ```
+
+Note this code, in addition to the built-in asyncerator functionality, also uses `@checkdigit/timeout` and
+`@checkdigit/retry` to implement retries with timeouts and exponential back-off.
 
 ## License
 
