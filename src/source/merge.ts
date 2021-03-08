@@ -2,6 +2,11 @@
 
 import from, { Asyncable, Asyncerator } from '../asyncerator';
 
+async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
+  const iterator = asyncerator[Symbol.asyncIterator]();
+  return { index, iterator, result: await iterator.next() };
+}
+
 /**
  * Merge multiple asyncables into a single Asyncerator.  If an iterator yields another Asyncerator,
  * merge it's output into the stream.
@@ -10,11 +15,6 @@ import from, { Asyncable, Asyncerator } from '../asyncerator';
  */
 export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>>[]): Asyncerator<T> {
   const wrappedIterators = iterators.map(from);
-
-  async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
-    const iterator = asyncerator[Symbol.asyncIterator]();
-    return { index, iterator, result: await iterator.next() };
-  }
 
   const pending = wrappedIterators.map(createPending);
   const indexMap = wrappedIterators.map((_, index) => index);
@@ -32,7 +32,7 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
     } else {
       if ((result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator]) {
         // this is another async iterable iterator, so merge its output into the pending
-        pending.push(createPending(merge(from(result.value as Asyncerator<T>)), indexMap.length));
+        pending.push(createPending(from(result.value as AsyncIterableIterator<T>), indexMap.length));
         indexMap.push(pending.length - 1);
       } else {
         yield result.value as T;
