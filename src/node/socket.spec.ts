@@ -5,7 +5,7 @@ import net from 'net';
 
 import portfinder from 'portfinder';
 
-import { closeBefore, filter, map, split, toArray } from '../index';
+import { filter, map, split, toArray, toString } from '../index';
 
 import pipeline from './pipeline';
 
@@ -36,9 +36,8 @@ describe('socket', () => {
       .createServer((socket) =>
         pipeline(
           socket,
-          map((buffer) => buffer.toString()),
           split('\n'),
-          closeBefore((command) => command === 'exit'),
+          // closeBefore((command) => command === 'exit'),
           map((command) => `echo:${command}\n`),
           socket
         )
@@ -47,7 +46,7 @@ describe('socket', () => {
 
     // echo client
     const received = await pipeline(
-      'Hello Mr Server!\nRegards, Client.\nexit\n',
+      'Hello Mr Server!\nRegards, Client.\n',
       new net.Socket().connect(port, '127.0.0.1'),
       split('\n'),
       filter((line) => line !== ''),
@@ -56,14 +55,10 @@ describe('socket', () => {
     assert.deepStrictEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 
     // another echo client
-    const received2 = await pipeline(
-      '1\n2\n3\nexit\n',
-      new net.Socket().connect(port, '127.0.0.1'),
-      split('\n'),
-      filter((line) => line !== ''),
-      toArray
+    assert.strictEqual(
+      await pipeline('1\n2\n3\nhello\nworld\n', new net.Socket().connect(port, '127.0.0.1'), toString),
+      'echo:1\necho:2\necho:3\necho:hello\necho:world\n'
     );
-    assert.deepStrictEqual(received2, ['echo:1', 'echo:2', 'echo:3']);
 
     // close the server
     await new Promise((resolve) => {
