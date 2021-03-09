@@ -42,6 +42,7 @@
   "jest": {
     "collectCoverage": true,
     "preset": "ts-jest",
+    "testMatch": [ "<rootDir>/src/**/?(*.)spec.ts" ],
     "testPathIgnorePatterns": [
       "<rootDir>/build",
       "<rootDir>/coverage",

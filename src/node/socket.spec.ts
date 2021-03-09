@@ -3,29 +3,10 @@
 import assert from 'assert';
 import net from 'net';
 
-import portfinder from 'portfinder';
-
 import { filter, map, split, toArray, toString } from '../index';
 
+import findPort from './find-port.test';
 import pipeline from './pipeline';
-
-export async function findPort(): Promise<number> {
-  const PORT_NUMBER = 49152;
-  const RANDOM_PORT_NUMBER_CEILING = 16000;
-  return new Promise<number>((resolve, reject) => {
-    // pick a base port randomly from the un-assignable port range, and search from there
-    portfinder.getPort(
-      { port: PORT_NUMBER + Math.floor(Math.random() * RANDOM_PORT_NUMBER_CEILING) },
-      (err: Error, port: number) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(port);
-        }
-      }
-    );
-  });
-}
 
 describe('socket', () => {
   it('can implement a simple socket client/server', async () => {
