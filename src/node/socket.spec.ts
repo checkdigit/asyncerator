@@ -37,7 +37,6 @@ describe('socket', () => {
         pipeline(
           socket,
           split('\n'),
-          // closeBefore((command) => command === 'exit'),
           map((command) => `echo:${command}\n`),
           socket
         )
