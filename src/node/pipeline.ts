@@ -1,6 +1,6 @@
 // node/pipeline.ts
 
-import stream, { Readable, Transform, Writable } from 'stream';
+import stream, { Duplex, Readable, Writable } from 'stream';
 import util from 'util';
 import debug from 'debug';
 
@@ -12,7 +12,7 @@ const promisifiedPipeline = util.promisify(stream.pipeline);
 
 export type PipelineSource<Source> = string | Readable | Iterable<Source> | AsyncIterable<Source> | Asyncerator<Source>;
 
-export type PipelineTransformer<Input, Output> = Transform | ((input: Asyncerator<Input>) => Asyncerator<Output>);
+export type PipelineTransformer<Input, Output> = Duplex | ((input: Asyncerator<Input>) => Asyncerator<Output>);
 
 /**
  * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
@@ -30,7 +30,7 @@ export default function <Source, Sink>(
 ): Promise<Sink>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
-  sink: Transform | ((input: Asyncerator<Source>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<Source>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 1 transform
@@ -47,7 +47,7 @@ export default function <Source, Sink, TransformSink>(
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 2 transforms
@@ -67,7 +67,7 @@ export default function <Source, Sink, TransformSink, T1>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 3 transforms
@@ -90,7 +90,7 @@ export default function <Source, Sink, TransformSink, T1, T2>(
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 4 transforms
@@ -116,7 +116,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3>(
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 5 transforms
@@ -145,7 +145,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 6 transforms
@@ -177,7 +177,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 7 transforms
@@ -212,7 +212,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 8 transforms
@@ -250,7 +250,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 9 transforms
@@ -291,7 +291,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 10 transforms
@@ -335,7 +335,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, T9>,
   transform10: PipelineTransformer<T9, TransformSink>,
-  sink: Transform | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 /**

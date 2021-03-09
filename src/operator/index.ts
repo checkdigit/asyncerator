@@ -3,6 +3,8 @@
 import type { Asyncerator } from '../asyncerator';
 export type Operator<Input, Output> = (input: Asyncerator<Input>) => Asyncerator<Output>;
 
+export { default as closeAfter } from './close-after';
+export { default as closeBefore } from './close-before';
 export { default as forEach } from './for-each';
 export { default as map } from './map';
 export { default as race } from './race';
