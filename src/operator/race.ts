@@ -10,6 +10,12 @@ const log = debug('asyncerator:operator:race');
 
 const DEFAULT_CONCURRENT = 128;
 
+/**
+ * Apply stream of values to the raceFunction, emitting output values in order of completion.  By default, allows
+ * up to 128 concurrent values to be processed.
+ * @param raceFunction
+ * @param concurrent
+ */
 export default function <Input, Output>(
   raceFunction: (value: Input) => Promise<Output>,
   concurrent = DEFAULT_CONCURRENT
