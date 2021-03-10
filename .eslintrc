@@ -1,8 +1,5 @@
 {
   "extends": [
     "@checkdigit"
-  ],
-  "rules": {
-    "deprecate/function": "error"
-  }
+  ]
 }
