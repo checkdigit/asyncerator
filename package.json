@@ -32,10 +32,11 @@
   "devDependencies": {
     "@checkdigit/eslint-config": "^3.4.0",
     "@checkdigit/prettier-config": "^1.0.1",
+    "@checkdigit/publish": "^1.0.18",
     "@checkdigit/typescript-config": "1.0.5",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.32",
+    "@types/node": "^14.14.33",
     "@types/uuid": "^8.3.0",
     "eslint": "^7.21.0",
     "jest": "^26.6.3",
@@ -50,7 +51,9 @@
   "jest": {
     "collectCoverage": true,
     "preset": "ts-jest",
-    "testMatch": [ "<rootDir>/src/**/?(*.)spec.ts" ],
+    "testMatch": [
+      "<rootDir>/src/**/?(*.)spec.ts"
+    ],
     "testPathIgnorePatterns": [
       "<rootDir>/build",
       "<rootDir>/coverage",
@@ -58,6 +61,10 @@
     ]
   },
   "scripts": {
+    "prepublishOnly": "publish",
+    "postpublish": "rimraf dist .npmignore",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags",
     "lint": "eslint -f unix --ext .js,.ts src/**",
     "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
     "prettier": "prettier --list-different src/**/*.ts",
