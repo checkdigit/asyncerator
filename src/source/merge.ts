@@ -1,5 +1,11 @@
 // source/merge.ts
 
+/*
+ * Copyright (c) 2021 Check Digit, LLC
+ *
+ * This code is licensed under the MIT license (see LICENSE.txt for details).
+ */
+
 import from, { Asyncable, Asyncerator } from '../asyncerator';
 
 async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {

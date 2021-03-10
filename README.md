@@ -1,5 +1,7 @@
 # asyncerator
 
+Copyright (c) 2021 [Check Digit, LLC](https://checkdigit.com)
+
 ## Introduction
 
 The `asyncerator` module provides three central capabilities:

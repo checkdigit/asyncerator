@@ -1,5 +1,11 @@
 // node/zlib.spec.ts
 
+/*
+ * Copyright (c) 2021 Check Digit, LLC
+ *
+ * This code is licensed under the MIT license (see LICENSE.txt for details).
+ */
+
 import assert from 'assert';
 import fs from 'fs';
 import os from 'os';

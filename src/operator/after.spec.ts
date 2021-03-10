@@ -1,5 +1,11 @@
 // operator/after.spec.ts
 
+/*
+ * Copyright (c) 2021 Check Digit, LLC
+ *
+ * This code is licensed under the MIT license (see LICENSE.txt for details).
+ */
+
 import * as assert from 'assert';
 
 import { after, all, forEach, from, pipeline, toArray } from '../index';

@@ -18,6 +18,14 @@
     "url": "https://github.com/checkdigit/asyncerator/issues"
   },
   "homepage": "https://github.com/checkdigit/asyncerator#readme",
+  "keywords": [
+    "stream",
+    "pipeline",
+    "stream.pipeline",
+    "AsyncIterator",
+    "AsyncIterable",
+    "AsyncIterableIterator"
+  ],
   "dependencies": {
     "debug": "^4.3.1"
   },

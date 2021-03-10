@@ -1,6 +1,12 @@
 // asyncerator.ts
 
 /*
+ * Copyright (c) 2021 Check Digit, LLC
+ *
+ * This code is licensed under the MIT license (see LICENSE.txt for details).
+ */
+
+/*
  * An Asyncerator is the minimum common `for-await` compatible interface that both NodeJS.ReadableStream and
  * AsyncIterableIterator implement.  It's a useful construct to be used with the pipeline function, since it allows
  * AsyncIterables and Node stream-based objects to be combined in various convenient ways.
