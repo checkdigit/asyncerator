@@ -178,11 +178,13 @@ function map<Input, Output>(mapFunction: (value: Input) => Output): Operator<Inp
 }
 ```
 
-It is straightforward to create custom operators, but it is important to note how they relate to streams:
-- returning (exiting) out of the function is equivalent to the `end` event of a stream.
-- `throw`-ing an error is equivalent to the `error` event of a stream.
-
-In either of these cases, the pipeline containing the operator will either complete or throw the error.
+It is straightforward to create custom operators, and mix with streams, but it is important to note how they relate to
+streams:
+- returning (exiting) out of the function is equivalent to the `end` event of a stream.  The pipeline will complete.
+- `throw`-ing an error is equivalent to the `error` event of a stream.  The pipeline will throw the error.
+- streams in object mode will swallow `undefined` values emitted by sources and prior operators.
+- streams in object mode will error on `null` values emitted by sources and prior operators.
+- non-object mode streams will error on any value that is not a string, Buffer or Uint8Array.
 
 ### `after<Input>(value: Input): Operator<Input, Input>`
 
