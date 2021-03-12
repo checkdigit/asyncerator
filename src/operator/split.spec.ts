@@ -28,6 +28,10 @@ describe('split', () => {
         );
       }
     }
+    await check([], '');
+    await check([''], '');
+    await check([''], '\n');
+    await check(['', ''], ' ');
     await check(['X', ''], '');
     await check('X', '');
     await check('X', 'X');
@@ -41,8 +45,8 @@ describe('split', () => {
   });
 
   it('supports limit', async () => {
-    assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', 0), toArray), []);
     assert.deepStrictEqual(await pipeline(from([]), split('\n', 1), toArray), []);
+    assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', 0), toArray), []);
     assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', 2), toArray), ['a', 'b']);
     assert.deepStrictEqual(await pipeline(from(['a\nb', '\nc', '\nd']), split('\n', 3), toArray), ['a', 'b', 'c']);
     assert.deepStrictEqual(await pipeline(from(['a\nb', '\nc', '\nd']), split('\n', 4), toArray), ['a', 'b', 'c', 'd']);

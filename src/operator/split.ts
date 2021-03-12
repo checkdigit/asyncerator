@@ -29,6 +29,8 @@ export default function <Input extends { toString: () => string }>(
 
     let previous = '';
     let count = 0;
+    let receivedChunks = false;
+
     for await (const chunk of iterator) {
       if (
         typeof chunk === 'undefined' ||
@@ -37,6 +39,7 @@ export default function <Input extends { toString: () => string }>(
       ) {
         throw Error(`${JSON.stringify(chunk)} not convertible to a string`);
       }
+      receivedChunks = true;
       previous += chunk.toString();
       let index;
       while (previous.length > 0 && (index = separator === '' ? 1 : previous.indexOf(separator)) >= 0) {
@@ -48,7 +51,8 @@ export default function <Input extends { toString: () => string }>(
         previous = previous.slice(index + (separator === '' ? 0 : 1));
       }
     }
-    if ((separator !== '' && count > 0) || (previous.length > 0 && count < limit)) {
+
+    if ((separator !== '' && receivedChunks) || (previous.length > 0 && count < limit)) {
       yield previous;
     }
   };
