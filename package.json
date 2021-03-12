@@ -10,7 +10,7 @@
     "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=14.16"
   },
   "author": "Check Digit, LLC",
   "license": "MIT",
