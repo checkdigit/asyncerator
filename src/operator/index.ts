@@ -17,3 +17,4 @@ export { default as flat } from './flat';
 export { default as after } from './after';
 export { default as before } from './before';
 export { default as split } from './split';
+export { default as skip } from './skip';

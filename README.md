@@ -215,6 +215,10 @@ Similar to Array.map, transform each value using mapFunction.
 Apply stream of values to the `raceFunction`, emitting output values in order of completion.  By default, allows
 up to 128 `concurrent` values to be processed.
 
+### `skip<Input>(numberToSkip = 1): Operator<Input, Input>`
+
+Skip numberToSkip values at the start of a stream.
+
 ### `split<Input extends { toString: () => string }>(separator: string, limit?: number): Operator<Input, string>`
 
 Equivalent of the Javascript `Array.split` method.
