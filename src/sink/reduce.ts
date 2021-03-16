@@ -14,8 +14,8 @@ import asyncerator, { Asyncerator } from '../asyncerator';
  * Equivalent to the Javascript Array.reduce() method.
  *
  * @param reduceFunction The reduce method calls the reduceFunction function one time for each element in the stream.
- * @param initialValue If initialValue is specified, it is used as the initial value to start the accumulation.
- * The first call to reduceFunction provides this value as an argument instead of an array value.
+ * @param initialValue If initialValue is specified, it is used as the previousValue to start the accumulation.
+ * Otherwise, the initial previousValue will be undefined.
  */
 
 export type ReduceFunction<Input, Output> = (
