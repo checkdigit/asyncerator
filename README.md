@@ -144,6 +144,13 @@ last argument to `pipeline`, which causes it to return a `Promise`, along with:
 - `Duplex` (pipeline returns a `Readable` stream)
 - `((input: Asyncerator<Source>) => AsyncIterable<Sink>)` (pipeline returns a `Readable` stream)
 
+### `reduce<Input, Output>(reduceFunction: (previousValue: Output, currentValue: Input, currentIndex: number) => Output, initialValue?: Input | Output): Promise<Input | Output | undefined>`
+
+Calls the specified callback function for all the elements in a stream. The return value of the callback function
+is the accumulated result, and is provided as an argument in the next call to the callback function.
+
+Equivalent to the Javascript `Array.reduce()` method.
+
 ### `toArray<T>(iterator: Asyncable<T>): Promise<T[]>`
 
 Turns a completed `Asyncerator` into an Array.
