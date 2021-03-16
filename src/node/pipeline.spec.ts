@@ -6,8 +6,6 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-/* eslint-disable deprecate/function */
-
 import assert from 'assert';
 import { PassThrough, Readable, Writable } from 'stream';
 
@@ -34,11 +32,13 @@ async function validateReadable(stream: Readable, expected: string) {
     finished = true;
   });
 
+  // eslint-disable-next-line deprecate/function
   assert.strictEqual(await toString(stream), expected);
 
   assert.ok(finished);
   assert.ok(ended);
 
+  // eslint-disable-next-line deprecate/function
   assert.strictEqual(await toString(stream), '');
 }
 
