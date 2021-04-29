@@ -23,7 +23,10 @@ export default function <Input extends { toString: () => string }>(
   limit = Infinity
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
-    if (limit === 0) {
+    // this behavior dealing with fractional and negative limits is weird, but matches string.split
+    // eslint-disable-next-line no-nested-ternary
+    const actualLimit = limit <= -1 ? Infinity : limit <= 0 ? 0 : Math.floor(limit);
+    if (actualLimit === 0) {
       return;
     }
 
@@ -45,14 +48,14 @@ export default function <Input extends { toString: () => string }>(
       while (previous.length > 0 && (index = separator === '' ? 1 : previous.indexOf(separator)) >= 0) {
         const line = previous.slice(0, index);
         yield line;
-        if (++count >= limit) {
+        if (++count >= actualLimit) {
           return;
         }
         previous = previous.slice(index + (separator === '' ? 0 : 1));
       }
     }
 
-    if ((separator !== '' && receivedChunks) || (previous.length > 0 && count < limit)) {
+    if ((separator !== '' && receivedChunks) || (previous.length > 0 && count < actualLimit)) {
       yield previous;
     }
   };
