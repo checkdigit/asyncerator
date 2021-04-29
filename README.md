@@ -201,7 +201,7 @@ Emit a value after stream completes.  Useful for adding a footer to a stream.
 
 Emit a value before a stream starts.  Useful for adding a header to a stream.
 
-### `filter<Input>(filterFunction: (value: Input) => boolean): Operator<Input, Input>`
+### `filter<Input>(filterFunction: (value: Input, index: number) => boolean): Operator<Input, Input>`
 
 Similar to `Array.filter`, only emit values from input for which `filterFunction` returns `true`.
 
@@ -209,11 +209,11 @@ Similar to `Array.filter`, only emit values from input for which `filterFunction
 
 Similar to `Array.flat`, flatten array inputs into a single sequence of values.
 
-### `forEach<Input>(forEachFunction: (value: Input) => void): Operator<Input, Input>`
+### `forEach<Input>(forEachFunction: (value: Input, index: number) => void): Operator<Input, Input>`
 
 Similar to Array.forEach, call forEachFunction for each value in the stream.
 
-### `map<Input, Output>(mapFunction: (value: Input) => Output): Operator<Input, Output>`
+### `map<Input, Output>(mapFunction: (value: Input, index: number) => Output): Operator<Input, Output>`
 
 Similar to Array.map, transform each value using mapFunction.
 

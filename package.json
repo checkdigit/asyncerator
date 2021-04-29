@@ -30,22 +30,22 @@
     "debug": "^4.3.1"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^3.4.1",
-    "@checkdigit/prettier-config": "^1.0.1",
-    "@checkdigit/publish": "^1.0.18",
+    "@checkdigit/eslint-config": "^3.4.2",
+    "@checkdigit/prettier-config": "^1.0.2",
+    "@checkdigit/publish": "^1.0.19",
     "@checkdigit/typescript-config": "1.0.5",
     "@types/debug": "^4.1.5",
-    "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.35",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.1",
     "@types/uuid": "^8.3.0",
-    "eslint": "^7.22.0",
+    "eslint": "^7.25.0",
     "jest": "^26.6.3",
     "portfinder": "^1.0.28",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.5.3",
+    "ts-jest": "^26.5.5",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.3",
+    "typescript": "^4.2.4",
     "uuid": "^8.3.2"
   },
   "jest": {
@@ -69,6 +69,6 @@
     "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
     "prettier": "prettier --list-different src/**/*.ts",
     "prettier:fix": "prettier --write src/**/*.ts",
-    "test": "tsc && jest && npm run lint && npm run prettier"
+    "test": "tsc -noEmit && jest && npm run lint && npm run prettier"
   }
 }

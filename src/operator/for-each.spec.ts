@@ -37,10 +37,10 @@ describe('forEach', () => {
     const iterable = from(['a', 'bb', 'ccc']);
     await pipeline(
       iterable,
-      forEach((value) => results.push(value)),
+      forEach((value, index) => results.push(`${value}${index}`)),
       toArray
     );
-    assert.deepStrictEqual(results, ['a', 'bb', 'ccc']);
+    assert.deepStrictEqual(results, ['a0', 'bb1', 'ccc2']);
   });
 
   it('is chain-able', async () => {

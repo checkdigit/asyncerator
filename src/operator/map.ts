@@ -14,10 +14,11 @@ import type { Operator } from './index';
  * Similar to Array.map, transform each value using mapFunction.
  * @param mapFunction
  */
-export default function <Input, Output>(mapFunction: (value: Input) => Output): Operator<Input, Output> {
+export default function <Input, Output>(mapFunction: (value: Input, index: number) => Output): Operator<Input, Output> {
   return async function* (iterator: Asyncerator<Input>) {
+    let currentIndex = 0;
     for await (const item of iterator) {
-      yield mapFunction(item);
+      yield mapFunction(item, currentIndex++);
     }
   };
 }
