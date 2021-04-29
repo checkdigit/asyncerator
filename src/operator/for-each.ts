@@ -14,10 +14,11 @@ import type { Operator } from './index';
  * Similar to Array.forEach, call forEachFunction for each value in the stream.
  * @param forEachFunction
  */
-export default function <Input>(forEachFunction: (value: Input) => void): Operator<Input, Input> {
+export default function <Input>(forEachFunction: (value: Input, index: number) => void): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
+    let currentIndex = 0;
     for await (const item of iterator) {
-      forEachFunction(item);
+      forEachFunction(item, currentIndex++);
       yield item;
     }
   };

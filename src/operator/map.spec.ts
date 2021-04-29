@@ -43,10 +43,10 @@ describe('map', () => {
     assert.deepStrictEqual(
       await pipeline(
         iterable,
-        map((value) => value.length),
+        map((value, index) => value.length + index),
         toArray
       ),
-      [1, 2, 3]
+      [1, 3, 5]
     );
   });
 

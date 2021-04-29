@@ -55,7 +55,7 @@ describe('filter', () => {
     assert.deepStrictEqual(
       await pipeline(
         iterable,
-        filter((value) => value !== 'a'),
+        filter((_, index) => index !== 0),
         filter((value) => value !== 'ccc'),
         toArray
       ),
