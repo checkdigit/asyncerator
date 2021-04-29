@@ -37,6 +37,16 @@ describe('split', () => {
     await check('X', 'X');
     await check(['', '', ''], '');
     await check('X', 'Y');
+    await check(['a\nb\nc', 'd', 'e'], '\n', -100);
+    await check(['a\nb\nc', 'd', 'e'], '\n', -1.1);
+    await check(['a\nb\nc', 'd', 'e'], '\n', -1);
+    await check(['a\nb\nc', 'd', 'e'], '\n', -0.9);
+    await check(['a\nb\nc', 'd', 'e'], '\n', -0.5);
+    await check(['a\nb\nc', 'd', 'e'], '\n', -0);
+    await check(['a\nb\nc', 'd', 'e'], '\n', 0.1);
+    await check(['a\nb\nc', 'd', 'e'], '\n', 0.5);
+    await check(['a\nb\nc', 'd', 'e'], '\n', 1.1);
+    await check(['a\nb\nc', 'd', 'e'], '\n', 2.9);
     await check(['This is\na buffer than', ' needs to be split\ninto multiple lines\n'], '', 30);
     await check('This is\na buffer than needs to be split\ninto multiple lines\n', '');
     await check('This is\na buffer than needs to be split\ninto multiple lines\n', '', 15);
@@ -46,6 +56,7 @@ describe('split', () => {
 
   it('supports limit', async () => {
     assert.deepStrictEqual(await pipeline(from([]), split('\n', 1), toArray), []);
+    assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', -1), toArray), ['a', 'b', 'cde']);
     assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', 0), toArray), []);
     assert.deepStrictEqual(await pipeline(from(['a\nb\nc', 'd', 'e']), split('\n', 2), toArray), ['a', 'b']);
     assert.deepStrictEqual(await pipeline(from(['a\nb', '\nc', '\nd']), split('\n', 3), toArray), ['a', 'b', 'c']);
