@@ -89,9 +89,7 @@ export default function <Input, Output>(
         }
 
         // one or more promises have completed, so yield everything in the queue
-        while (queue.length > 0) {
-          yield queue.pop() as Output;
-        }
+        yield* queue.splice(0, queue.length);
       }
     }
     if (errorThrown) {
