@@ -18,4 +18,4 @@ export { default as after } from './after';
 export { default as before } from './before';
 export { default as split } from './split';
 export { default as skip } from './skip';
-export { default as timer } from './timer';
+export { default as sequence } from './sequence';

@@ -1,4 +1,4 @@
-// operator/timer.ts
+// operator/sequence.ts
 
 /*
  * Copyright (c) 2021 Check Digit, LLC
@@ -6,20 +6,19 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-// import debug from 'debug';
-
 import type { Asyncerator } from '../asyncerator';
 
 import type { Operator } from './index';
 
-// const log = debug('asyncerator:operator:timer');
-
 /**
- * Apply stream of values to the raceFunction, emitting output values in order of completion.  By default, allows
- * up to 128 concurrent values to be processed.
- * @param timerFunction
+ * The sequenceFunction will be called repeatedly with an incrementing numerical parameter, returning a Promise
+ * that resolves with the same type as Input and is inserted into the stream.  The sequence operator
+ * passes through all other values.  Because the sequenceFunction returns a Promise, it
+ * can delay its response (using setTimeout) to emit values on a regular schedule, e.g. once a second.
+ *
+ * @param sequenceFunction
  */
-export default function <Input>(timerFunction: (sequence: number) => Promise<Input>): Operator<Input, Input> {
+export default function <Input>(sequenceFunction: (index: number) => Promise<Input>): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Input[] = [];
     let complete = false;
@@ -27,13 +26,13 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
     let completionError: unknown;
 
     /**
-     * timer producer
+     * sequence producer
      */
 
     try {
       (async () => {
         // before we do anything, allow the event loop to process.  If the iterator completes immediately, we do not
-        // want any timerFunction execution.
+        // want any sequenceFunction execution.
         await new Promise((resolve) => {
           setTimeout(resolve, 0);
         });
@@ -42,9 +41,9 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
         // eslint-disable-next-line no-unmodified-loop-condition
         while (!complete) {
           // eslint-disable-next-line no-await-in-loop
-          queue.push(await timerFunction(currentIndex++));
+          queue.push(await sequenceFunction(currentIndex++));
 
-          // timerFunction may resolve immediately, so we need to allow the event loop to process before repeating
+          // sequenceFunction may resolve immediately, so we need to allow the event loop to process before repeating
           // eslint-disable-next-line no-await-in-loop,no-loop-func
           await new Promise((resolve) => {
             setTimeout(resolve, 0);
@@ -56,7 +55,7 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
       });
 
       /**
-       * queue producer, implemented using for-await
+       * pass-through producer
        */
 
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -64,20 +63,23 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
         for await (const item of iterator) {
           queue.push(item);
         }
-        complete = true;
-      })().catch((error: unknown) => {
-        errorThrown = true;
-        completionError = error;
-      });
+      })()
+        .catch((error: unknown) => {
+          errorThrown = true;
+          completionError = error;
+        })
+        .finally(() => {
+          complete = true;
+        });
 
       /**
-       * queue consumer, runs concurrently with the for-await producer above
+       * queue consumer, runs concurrently with the producers above
        */
 
       // eslint-disable-next-line no-unmodified-loop-condition
       while (!complete && !errorThrown) {
         if (queue.length === 0) {
-          // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
+          // there's nothing pending yet, so let's allow some IO to occur...
           // eslint-disable-next-line no-await-in-loop,no-loop-func
           await new Promise((resolve) => {
             setTimeout(resolve, 0);

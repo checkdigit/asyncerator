@@ -1,4 +1,4 @@
-// operator/timer.spec.ts
+// operator/sequence.spec.ts
 
 /*
  * Copyright (c) 2021 Check Digit, LLC
@@ -8,14 +8,14 @@
 
 import * as assert from 'assert';
 
-import { all, from, pipeline, timer, toArray } from '../index';
+import { all, from, pipeline, sequence, toArray } from '../index';
 
-describe('timer', () => {
+describe('sequence', () => {
   it('produces no values on an empty array', async () => {
     assert.deepStrictEqual(
       await pipeline(
         all([]),
-        timer(async (sequence) => sequence),
+        sequence(async (index) => index),
         toArray
       ),
       []
@@ -26,7 +26,7 @@ describe('timer', () => {
     assert.deepStrictEqual(
       await pipeline(
         from([-1, -2, -3]),
-        timer(async (sequence) => sequence),
+        sequence(async (index) => index),
         toArray
       ),
       [-1, -2, -3]
@@ -44,11 +44,11 @@ describe('timer', () => {
             setTimeout(() => resolve(456), 40);
           }),
         ]),
-        timer(async (sequence) => {
+        sequence(async (index) => {
           await new Promise((resolve) => {
             setTimeout(resolve, 17);
           });
-          return sequence;
+          return index;
         }),
         toArray
       ),
