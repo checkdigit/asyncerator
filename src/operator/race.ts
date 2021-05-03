@@ -41,8 +41,10 @@ export default function <Input, Output>(
     (async () => {
       for await (const item of iterator) {
         while (pending.size >= concurrent) {
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise(setImmediate);
+          // eslint-disable-next-line no-await-in-loop,no-loop-func
+          await new Promise((resolve) => {
+            setTimeout(resolve, 0);
+          });
         }
 
         const promise = raceFunction(item);
@@ -78,8 +80,10 @@ export default function <Input, Output>(
     while (!complete && !errorThrown) {
       if (pending.size === 0) {
         // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(setImmediate);
+        // eslint-disable-next-line no-await-in-loop,no-loop-func
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
       }
 
       while (pending.size > 0 || queue.length > 0) {

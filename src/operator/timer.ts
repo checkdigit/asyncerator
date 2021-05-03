@@ -34,7 +34,9 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
       (async () => {
         // before we do anything, allow the event loop to process.  If the iterator completes immediately, we do not
         // want any timerFunction execution.
-        await new Promise(setImmediate);
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
 
         let currentIndex = 0;
         // eslint-disable-next-line no-unmodified-loop-condition
@@ -43,8 +45,10 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
           queue.push(await timerFunction(currentIndex++));
 
           // timerFunction may resolve immediately, so we need to allow the event loop to process before repeating
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise(setImmediate);
+          // eslint-disable-next-line no-await-in-loop,no-loop-func
+          await new Promise((resolve) => {
+            setTimeout(resolve, 0);
+          });
         }
       })().catch((error: unknown) => {
         errorThrown = true;
@@ -74,11 +78,13 @@ export default function <Input>(timerFunction: (sequence: number) => Promise<Inp
       while (!complete && !errorThrown) {
         if (queue.length === 0) {
           // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise(setImmediate);
+          // eslint-disable-next-line no-await-in-loop,no-loop-func
+          await new Promise((resolve) => {
+            setTimeout(resolve, 0);
+          });
         }
 
-        // one or more promises have completed, so yield everything in the queue
+        // one or more promises may have completed, so yield everything in the queue
         yield* queue.splice(0, queue.length);
       }
       if (errorThrown) {

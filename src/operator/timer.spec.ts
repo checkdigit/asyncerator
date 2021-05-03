@@ -38,15 +38,15 @@ describe('timer', () => {
       await pipeline(
         all([
           new Promise((resolve) => {
-            setTimeout(() => resolve(123), 10);
+            setTimeout(() => resolve(123), 25);
           }),
           new Promise((resolve) => {
-            setTimeout(() => resolve(456), 20);
+            setTimeout(() => resolve(456), 40);
           }),
         ]),
         timer(async (sequence) => {
           await new Promise((resolve) => {
-            setTimeout(resolve, 8);
+            setTimeout(resolve, 17);
           });
           return sequence;
         }),
