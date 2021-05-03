@@ -22,8 +22,8 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Input[] = [];
     let complete = false;
-    let errorThrown = false;
-    let completionError: unknown;
+    let hasThrown = false;
+    let errorThrown: unknown;
 
     /**
      * sequence producer
@@ -39,7 +39,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
 
         let currentIndex = 0;
         // eslint-disable-next-line no-unmodified-loop-condition
-        while (!complete) {
+        while (!complete && !hasThrown) {
           // eslint-disable-next-line no-await-in-loop
           queue.push(await sequenceFunction(currentIndex++));
 
@@ -50,8 +50,8 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
           });
         }
       })().catch((error: unknown) => {
-        errorThrown = true;
-        completionError = error;
+        hasThrown = true;
+        errorThrown = error;
       });
 
       /**
@@ -65,8 +65,8 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
         }
       })()
         .catch((error: unknown) => {
-          errorThrown = true;
-          completionError = error;
+          hasThrown = true;
+          errorThrown = error;
         })
         .finally(() => {
           complete = true;
@@ -77,7 +77,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
        */
 
       // eslint-disable-next-line no-unmodified-loop-condition
-      while (!complete && !errorThrown) {
+      while (!complete && !hasThrown) {
         if (queue.length === 0) {
           // there's nothing pending yet, so let's allow some IO to occur...
           // eslint-disable-next-line no-await-in-loop,no-loop-func
@@ -89,8 +89,8 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
         // one or more promises may have completed, so yield everything in the queue
         yield* queue.splice(0, queue.length);
       }
-      if (errorThrown) {
-        throw completionError;
+      if (hasThrown) {
+        throw errorThrown;
       }
     } finally {
       complete = true;
