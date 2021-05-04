@@ -41,8 +41,6 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
   while (pending.size > 0) {
     // eslint-disable-next-line no-await-in-loop
     await Promise.race(pending);
-    while (queue.length > 0) {
-      yield queue.pop() as T;
-    }
+    yield* queue.splice(0, queue.length);
   }
 }

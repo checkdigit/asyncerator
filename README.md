@@ -222,6 +222,26 @@ Similar to Array.map, transform each value using mapFunction.
 Apply stream of values to the `raceFunction`, emitting output values in order of completion.  By default, allows
 up to 128 `concurrent` values to be processed.
 
+### `sequence<Input>(sequenceFunction: (index: number) => Promise<Input>): Operator<Input, Input>`
+
+The `sequenceFunction` will be called repeatedly with an incrementing numerical parameter, returning a Promise
+that resolves with the same type as Input and is inserted into the stream.  The sequence operator
+passes through all other values.  Because the `sequenceFunction` returns a Promise, it
+can delay its response (using setTimeout) to emit values on a regular schedule, e.g. once a second:
+
+```
+pipeline(
+  ...
+  sequence(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+    return 'this value is emitted once a second!';
+  })
+  ...
+);
+```
+
 ### `skip<Input>(numberToSkip = 1): Operator<Input, Input>`
 
 Skip numberToSkip values at the start of a stream.
