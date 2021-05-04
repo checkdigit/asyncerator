@@ -59,6 +59,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
 
     const passThroughProducer = (async () => {
       for await (const item of iterator) {
+        // if the sequence producer throws an error, exit immediately (effectively cancel this promise)
         if (hasThrown) {
           break;
         }
