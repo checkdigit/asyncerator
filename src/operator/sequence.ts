@@ -29,71 +29,72 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
      * sequence producer
      */
 
-    try {
-      (async () => {
-        // before we do anything, allow the event loop to process.  If the iterator completes immediately, we do not
-        // want any sequenceFunction execution.
+    (async () => {
+      // before we do anything, allow the event loop to process.  If the iterator completes immediately, we do not
+      // want any sequenceFunction execution.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
+      let currentIndex = 0;
+      // eslint-disable-next-line no-unmodified-loop-condition
+      while (!complete && !hasThrown) {
+        // eslint-disable-next-line no-await-in-loop
+        queue.push(await sequenceFunction(currentIndex++));
+
+        // sequenceFunction may resolve immediately, so we need to allow the event loop to process before repeating
+        // eslint-disable-next-line no-await-in-loop,no-loop-func
         await new Promise((resolve) => {
           setTimeout(resolve, 0);
         });
+      }
+    })().catch((error: unknown) => {
+      hasThrown = true;
+      errorThrown = error;
+    });
 
-        let currentIndex = 0;
-        // eslint-disable-next-line no-unmodified-loop-condition
-        while (!complete && !hasThrown) {
-          // eslint-disable-next-line no-await-in-loop
-          queue.push(await sequenceFunction(currentIndex++));
+    /**
+     * pass-through producer
+     */
 
-          // sequenceFunction may resolve immediately, so we need to allow the event loop to process before repeating
-          // eslint-disable-next-line no-await-in-loop,no-loop-func
-          await new Promise((resolve) => {
-            setTimeout(resolve, 0);
-          });
+    const passThroughProducer = (async () => {
+      for await (const item of iterator) {
+        if (hasThrown) {
+          break;
         }
-      })().catch((error: unknown) => {
+        queue.push(item);
+      }
+    })()
+      .catch((error: unknown) => {
         hasThrown = true;
         errorThrown = error;
+      })
+      .finally(() => {
+        complete = true;
       });
 
-      /**
-       * pass-through producer
-       */
+    /**
+     * queue consumer, runs concurrently with the producers above
+     */
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      (async () => {
-        for await (const item of iterator) {
-          queue.push(item);
-        }
-      })()
-        .catch((error: unknown) => {
-          hasThrown = true;
-          errorThrown = error;
-        })
-        .finally(() => {
-          complete = true;
+    // eslint-disable-next-line no-unmodified-loop-condition
+    while (!complete && !hasThrown) {
+      if (queue.length === 0) {
+        // there's nothing pending yet, so let's allow some IO to occur...
+        // eslint-disable-next-line no-await-in-loop,no-loop-func
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
         });
-
-      /**
-       * queue consumer, runs concurrently with the producers above
-       */
-
-      // eslint-disable-next-line no-unmodified-loop-condition
-      while (!complete && !hasThrown) {
-        if (queue.length === 0) {
-          // there's nothing pending yet, so let's allow some IO to occur...
-          // eslint-disable-next-line no-await-in-loop,no-loop-func
-          await new Promise((resolve) => {
-            setTimeout(resolve, 0);
-          });
-        }
-
-        // one or more promises may have completed, so yield everything in the queue
-        yield* queue.splice(0, queue.length);
       }
-      if (hasThrown) {
-        throw errorThrown;
-      }
-    } finally {
-      complete = true;
+
+      // one or more promises may have completed, so yield everything in the queue
+      yield* queue.splice(0, queue.length);
+    }
+
+    await passThroughProducer;
+
+    if (hasThrown) {
+      throw errorThrown;
     }
   };
 }

@@ -232,7 +232,7 @@ can delay its response (using setTimeout) to emit values on a regular schedule, 
 ```
 pipeline(
   ...
-  .sequence(async () => {
+  sequence(async () => {
     await new Promise((resolve) => {
       setTimeout(resolve, 1000);
     });

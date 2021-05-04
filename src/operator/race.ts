@@ -37,8 +37,7 @@ export default function <Input, Output>(
      * queue producer, implemented using for-await
      */
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
+    const producer = (async () => {
       for await (const item of iterator) {
         while (pending.size >= concurrent) {
           // eslint-disable-next-line no-await-in-loop,no-loop-func
@@ -96,6 +95,9 @@ export default function <Input, Output>(
         yield* queue.splice(0, queue.length);
       }
     }
+
+    await producer;
+
     if (errorThrown) {
       throw completionError;
     }
