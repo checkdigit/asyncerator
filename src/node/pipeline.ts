@@ -47,8 +47,7 @@ export default function <Source, Sink>(
 ): Promise<Sink>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
-  sink: Duplex | ((input: Asyncerator<Source>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<Source>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 1 transform
@@ -67,8 +66,7 @@ export default function <Source, Sink, TransformSink>(
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 2 transforms
@@ -90,8 +88,7 @@ export default function <Source, Sink, TransformSink, T1>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 3 transforms
@@ -116,8 +113,7 @@ export default function <Source, Sink, TransformSink, T1, T2>(
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 4 transforms
@@ -145,8 +141,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3>(
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 5 transforms
@@ -177,8 +172,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 6 transforms
@@ -212,8 +206,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 7 transforms
@@ -250,8 +243,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 8 transforms
@@ -291,8 +283,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 9 transforms
@@ -335,8 +326,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 // 10 transforms
@@ -382,8 +372,7 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, T9>,
   transform10: PipelineTransformer<T9, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
-  options?: PipelineOptions
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
 ): Readable;
 
 /**
