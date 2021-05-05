@@ -27,7 +27,8 @@
     "AsyncIterableIterator"
   ],
   "dependencies": {
-    "debug": "^4.3.1"
+    "debug": "^4.3.1",
+    "npm-check-updates": "^11.5.10"
   },
   "devDependencies": {
     "@checkdigit/eslint-config": "^3.4.2",
