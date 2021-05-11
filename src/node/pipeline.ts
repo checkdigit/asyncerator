@@ -12,8 +12,6 @@ import debug from 'debug';
 
 import type { Asyncerator } from '../asyncerator';
 
-// import type { AbortSignal } from './abort-signal';
-
 const log = debug('asyncerator:pipeline');
 
 const promisifiedPipeline = util.promisify(stream.pipeline);
@@ -35,11 +33,7 @@ export interface PipelineOptions {
  */
 
 // zero transforms
-export default function <Source>(
-  source: PipelineSource<Source>,
-  sink: Writable,
-  options?: PipelineOptions
-): Promise<void>;
+export default function <Source>(source: PipelineSource<Source>, sink: Writable): Promise<void>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
   sink: (input: Asyncerator<Source>) => Promise<Sink>,
@@ -54,8 +48,7 @@ export default function <Source, Sink>(
 export default function <Source, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
@@ -74,8 +67,7 @@ export default function <Source, TransformSink, T1>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1>(
   source: PipelineSource<Source>,
@@ -97,8 +89,7 @@ export default function <Source, TransformSink, T1, T2>(
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2>(
   source: PipelineSource<Source>,
@@ -123,8 +114,7 @@ export default function <Source, TransformSink, T1, T2, T3>(
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3>(
   source: PipelineSource<Source>,
@@ -152,8 +142,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4>(
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
   source: PipelineSource<Source>,
@@ -184,8 +173,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5>(
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
   source: PipelineSource<Source>,
@@ -219,8 +207,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6>(
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
   source: PipelineSource<Source>,
@@ -257,8 +244,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
   source: PipelineSource<Source>,
@@ -298,8 +284,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
   source: PipelineSource<Source>,
@@ -342,8 +327,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, 
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, T9>,
   transform10: PipelineTransformer<T9, TransformSink>,
-  sink: Writable,
-  options?: PipelineOptions
+  sink: Writable
 ): Promise<void>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
   source: PipelineSource<Source>,
@@ -387,11 +371,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  */
 
 export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Readable {
-  // console.log(Object.keys((args[args.length - 1] ?? {})));
   let options: PipelineOptions | undefined = (args[args.length - 1] ?? {}) as PipelineOptions;
-  if (Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal') {
-    // console.log(options);
-  } else {
+  if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
     options = undefined;
   }
 

@@ -57,7 +57,8 @@ describe('socket', () => {
     );
   });
 
-  it('supports abort', async () => {
+  // AbortControllers are supported starting in Node 16+
+  (process.version < 'v16' ? xit : it)('supports abort', async () => {
     let aborted = false;
     const port = await findPort();
     const abortController = new AbortController();

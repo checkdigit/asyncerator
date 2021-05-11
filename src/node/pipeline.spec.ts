@@ -43,8 +43,10 @@ async function validateReadable(stream: Readable, expected: string) {
 }
 
 describe('pipeline', () => {
-  xit('throws error if source is a Buffer object', async () => {
-    // tracking this behavior.  I don't believe this should crash, possibly a bug in node stream.pipeline implementation.
+  // bug fixed in Node 16+, so disable test in that case
+  (process.version < 'v16' ? it : xit)('throws error if source is a Buffer object in Node < v16', async () => {
+    // tracking this behavior in Node 14.  This is a bug in node stream.pipeline implementation:
+    // https://github.com/nodejs/node/issues/37731
     await assert.rejects(async () => pipeline(Buffer.from('crash'), passThru, toString));
   });
 
@@ -173,7 +175,8 @@ describe('pipeline', () => {
     );
   });
 
-  it('supports abort', async () => {
+  // AbortControllers are supported starting in Node 16+
+  (process.version < 'v16' ? xit : it)('supports abort', async () => {
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
@@ -194,6 +197,5 @@ describe('pipeline', () => {
         message: 'The operation was aborted',
       }
     );
-    // await validateReadable(pipeline([undefined, 1, 2, true, 3], passThru, options), '12true3');
   });
 });
