@@ -9,7 +9,7 @@
 import assert from 'assert';
 import { PassThrough, Readable, Writable } from 'stream';
 
-import { toString } from '../sink';
+import { all, toString } from '../index';
 
 import pipeline from './pipeline';
 
@@ -43,8 +43,10 @@ async function validateReadable(stream: Readable, expected: string) {
 }
 
 describe('pipeline', () => {
-  it('throws error if source is a Buffer object', async () => {
-    // tracking this behavior.  I don't believe this should crash, possibly a bug in node stream.pipeline implementation.
+  // bug fixed in Node 16+, so disable test in that case
+  (process.version < 'v16' ? it : xit)('throws error if source is a Buffer object in Node < v16', async () => {
+    // tracking this behavior in Node 14.  This is a bug in node stream.pipeline implementation:
+    // https://github.com/nodejs/node/issues/37731
     await assert.rejects(async () => pipeline(Buffer.from('crash'), passThru, toString));
   });
 
@@ -170,6 +172,30 @@ describe('pipeline', () => {
         toString
       ),
       '0123'
+    );
+  });
+
+  // AbortControllers are supported starting in Node 16+
+  (process.version < 'v16' ? xit : it)('supports abort', async () => {
+    const abortController = new AbortController();
+    const options = {
+      signal: abortController.signal,
+    };
+    setTimeout(() => abortController.abort(), 1);
+    await assert.rejects(
+      pipeline(
+        all([
+          new Promise((resolve) => {
+            setTimeout(() => resolve('never resolves'), 10);
+          }),
+        ]),
+        toString,
+        options
+      ),
+      {
+        name: 'AbortError',
+        message: 'The operation was aborted',
+      }
     );
   });
 });

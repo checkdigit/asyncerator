@@ -1,5 +1,8 @@
 # asyncerator
 
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/checkdigit/asyncerator/blob/master/LICENSE.txt)
+[![David](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)
+
 Copyright (c) 2021 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
@@ -55,7 +58,8 @@ Its typing is complicated, but the basic form of the function is:
 pipeline(
   source, // string | Readable | Iterable | AsyncIterable | Asyncerator
   ...transforms, // zero or more Transform | ((input: Asyncerator) => Asyncerator)
-  sink // Writable | Transform | ((input: Asyncerator) => Promise<Sink>) | ((input: Asyncerator) => AsyncIterable)
+  sink // Writable | Transform | ((input: Asyncerator) => Promise<Sink>) | ((input: Asyncerator) => AsyncIterable),
+  options?: PipelineOptions // only supported in Node 16 when returning Promise<Sink>, equivalent to Node 16 implementation
 ): Readable | Promise<Sink> | Promise<void>; {
 ```
 

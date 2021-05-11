@@ -20,6 +20,10 @@ export type PipelineSource<Source> = string | Readable | Iterable<Source> | Asyn
 
 export type PipelineTransformer<Input, Output> = Duplex | ((input: Asyncerator<Input>) => Asyncerator<Output>);
 
+export interface PipelineOptions {
+  signal: AbortSignal;
+}
+
 /**
  * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
  * is defined by the type of the last parameter, and there are zero or more transform parameters in between the
@@ -32,7 +36,8 @@ export type PipelineTransformer<Input, Output> = Duplex | ((input: Asyncerator<I
 export default function <Source>(source: PipelineSource<Source>, sink: Writable): Promise<void>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
-  sink: (input: Asyncerator<Source>) => Promise<Sink>
+  sink: (input: Asyncerator<Source>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
@@ -48,7 +53,8 @@ export default function <Source, TransformSink>(
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
@@ -67,7 +73,8 @@ export default function <Source, Sink, TransformSink, T1>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1>(
   source: PipelineSource<Source>,
@@ -89,7 +96,8 @@ export default function <Source, Sink, TransformSink, T1, T2>(
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2>(
   source: PipelineSource<Source>,
@@ -114,7 +122,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3>(
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3>(
   source: PipelineSource<Source>,
@@ -142,7 +151,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
   source: PipelineSource<Source>,
@@ -173,7 +183,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
   source: PipelineSource<Source>,
@@ -207,7 +218,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
   source: PipelineSource<Source>,
@@ -244,7 +256,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
   source: PipelineSource<Source>,
@@ -284,7 +297,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
   source: PipelineSource<Source>,
@@ -327,7 +341,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, T9>,
   transform10: PipelineTransformer<T9, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
   source: PipelineSource<Source>,
@@ -356,8 +371,13 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  */
 
 export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Readable {
+  let options: PipelineOptions | undefined = (args[args.length - 1] ?? {}) as PipelineOptions;
+  if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
+    options = undefined;
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-types
-  const sink = (args[args.length - 1] ?? {}) as object;
+  const sink = (args[args.length - (options === undefined ? 1 : 2)] ?? {}) as object;
 
   /**
    * The sink is an async function, so return a promise
@@ -365,7 +385,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
   if (sink.constructor.name === 'AsyncFunction') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (promisifiedPipeline(...args) as unknown) as Promise<Sink>;
+    return promisifiedPipeline(...args) as unknown as Promise<Sink>;
   }
 
   /**
