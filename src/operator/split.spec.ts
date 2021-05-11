@@ -75,11 +75,11 @@ describe('split', () => {
 
   it('reject if item is not convertible to string', async () => {
     await assert.rejects(
-      pipeline(from(([null] as unknown) as string[]), split('\n'), toArray),
+      pipeline(from([null] as unknown as string[]), split('\n'), toArray),
       /^Error: null not convertible to a string$/u
     );
     await assert.rejects(
-      pipeline(from(([undefined] as unknown) as string[]), split('\n'), toArray),
+      pipeline(from([undefined] as unknown as string[]), split('\n'), toArray),
       /^Error: undefined not convertible to a string$/u
     );
     await assert.rejects(

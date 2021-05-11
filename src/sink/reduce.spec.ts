@@ -32,7 +32,7 @@ describe('reduce', () => {
       let implementationError;
       try {
         implementation = await reduce(
-          (reduceFunction as unknown) as ReduceFunction<T, T>,
+          reduceFunction as unknown as ReduceFunction<T, T>,
           initialValue as T
         )(from(array)); // ?
       } catch (error) {
@@ -41,7 +41,7 @@ describe('reduce', () => {
       let arrayReduce;
       let arrayReduceError;
       try {
-        arrayReduce = array.reduce((reduceFunction as unknown) as ReduceFunction<T, T>, initialValue as T); // ?
+        arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T); // ?
       } catch (error) {
         arrayReduceError = error; // ?
       }

@@ -404,7 +404,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
   if (sink.constructor.name === 'AsyncFunction') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (promisifiedPipeline(...args) as unknown) as Promise<Sink>;
+    return promisifiedPipeline(...args) as unknown as Promise<Sink>;
   }
 
   /**

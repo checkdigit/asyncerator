@@ -141,11 +141,11 @@ describe('merge', () => {
         return from([]);
       }
       if (elements.length === 1) {
-        return from<number>(([
+        return from<number>([
           new Promise<number>((resolve) => {
             setTimeout(() => resolve(elements[0] as number), elements[0]);
           }),
-        ] as unknown) as Asyncerator<number>);
+        ] as unknown as Asyncerator<number>);
       }
       const splitInto = elements[0] as number;
       const chunkSize = Math.ceil((elements.length - 1) / splitInto);
