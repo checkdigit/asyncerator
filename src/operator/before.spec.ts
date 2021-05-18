@@ -7,8 +7,11 @@
  */
 
 import * as assert from 'assert';
+import net from 'net';
+import { PassThrough } from 'stream';
 
-import { all, before, forEach, from, pipeline, toArray } from '../index';
+import { all, before, forEach, from, pipeline, toArray, toNull, toString } from '../index';
+import findPort from '../node/find-port.test';
 
 describe('before', () => {
   it('works for an empty array', async () => {
@@ -29,5 +32,33 @@ describe('before', () => {
     );
     assert.deepStrictEqual(results, [1, 2, 3, 4, 5]);
     assert.strictEqual(count, 4);
+  });
+
+  it('works with a socket client/server pipeline', async () => {
+    const port = await findPort();
+
+    // echo server
+    const server = net
+      .createServer((socket) => {
+        pipeline(socket, new PassThrough(), before('before '), socket, toNull).catch(assert.fail);
+      })
+      .listen(port, '127.0.0.1');
+
+    // send no data
+    assert.deepStrictEqual(
+      await pipeline(Buffer.from(''), new net.Socket().connect(port, '127.0.0.1'), toString),
+      'before '
+    );
+
+    // send some data
+    assert.deepStrictEqual(
+      await pipeline('client', new net.Socket().connect(port, '127.0.0.1'), toString),
+      'before client'
+    );
+
+    // close the server
+    await new Promise((resolve) => {
+      server.close(resolve);
+    });
   });
 });

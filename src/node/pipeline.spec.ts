@@ -50,6 +50,12 @@ describe('pipeline', () => {
     await assert.rejects(async () => pipeline(Buffer.from('crash'), passThru, toString));
   });
 
+  it('throws error if source is an empty string', async () => {
+    // tracking this behavior in Node.  This is a bug in node stream.pipeline implementation:
+    // https://github.com/nodejs/node/issues/38721
+    await assert.rejects(async () => pipeline('', passThru, toString));
+  });
+
   it('returns promise if last parameter is an async function', async () => {
     const result1 = pipeline([undefined, 1, null, 2, true, 3, [4, [5], 6, 7]], passThru, toString);
     const result2 = pipeline(Buffer.from('hello').values(), toString);
