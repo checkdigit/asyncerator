@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "typings": "./dist/index.d.ts",
   "main": "./dist/index.js",
