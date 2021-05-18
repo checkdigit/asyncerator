@@ -46,7 +46,7 @@ describe('before', () => {
 
     // send no data
     assert.deepStrictEqual(
-      await pipeline(Buffer.from(''), new net.Socket().connect(port, '127.0.0.1'), toString),
+      await pipeline(Buffer.from('').values(), new net.Socket().connect(port, '127.0.0.1'), toString),
       'before '
     );
 
