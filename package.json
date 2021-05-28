@@ -32,7 +32,7 @@
   "devDependencies": {
     "@checkdigit/eslint-config": "^4.1.0",
     "@checkdigit/prettier-config": "^1.0.2",
-    "@checkdigit/publish": "^1.0.19",
+    "@checkdigit/publish": "^1.0.20",
     "@checkdigit/typescript-config": "2.1.0",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.23",
