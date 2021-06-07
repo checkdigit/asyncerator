@@ -30,20 +30,19 @@
     "debug": "^4.3.1"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^4.1.0",
+    "@checkdigit/eslint-config": "^4.1.1",
     "@checkdigit/prettier-config": "^1.0.2",
-    "@checkdigit/publish": "^1.0.20",
     "@checkdigit/typescript-config": "2.1.0",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.23",
-    "@types/node": "^15.6.1",
+    "@types/node": "^15.12.1",
     "@types/uuid": "^8.3.0",
-    "eslint": "^7.27.0",
-    "jest": "^27.0.1",
+    "eslint": "^7.28.0",
+    "jest": "^27.0.4",
     "portfinder": "^1.0.28",
-    "prettier": "^2.3.0",
+    "prettier": "^2.3.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.1",
+    "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2",
     "uuid": "^8.3.2"
@@ -61,8 +60,6 @@
     ]
   },
   "scripts": {
-    "prepublishOnly": "publish",
-    "postpublish": "rimraf dist .npmignore",
     "preversion": "npm test",
     "postversion": "git push && git push --tags",
     "lint": "eslint -f unix --ext .js,.ts src/**",
