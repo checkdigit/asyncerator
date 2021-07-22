@@ -9,7 +9,7 @@
 import assert from 'assert';
 import net from 'net';
 
-import { all, filter, map, split, toArray, toNull, toString } from '../index';
+import { filter, map, split, toArray, toNull, toString } from '../index';
 
 import findPort from './find-port.test';
 import pipeline from './pipeline';
@@ -65,7 +65,9 @@ describe('socket', () => {
     const options = {
       signal: abortController.signal,
     };
-    setTimeout(() => abortController.abort(), 50);
+    setTimeout(() => {
+      abortController.abort();
+    }, 50);
 
     // echo server
     const server = net
@@ -100,24 +102,25 @@ describe('socket', () => {
     assert.ok(!aborted);
     assert.ok(server.listening);
 
-    // echo client 2, post-abort
-    const received2 = await pipeline(
-      all([
-        new Promise((resolve) => {
-          setTimeout(() => resolve('hello\n'), 100);
-        }),
-      ]),
-      new net.Socket().connect(port, '127.0.0.1'),
-      toArray
-    );
-    assert.deepStrictEqual(received2, []);
+    // wait for abort to happen
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000);
+    });
+
+    // echo client 2, post-abort, will get an initial connection but the abort is triggered
+    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray), {
+      code: 'ECONNRESET',
+    });
 
     // the server should be closed
     assert.ok(aborted);
     assert.ok(!server.listening);
-    await assert.rejects(
-      pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray),
-      /^Error: connect ECONNREFUSED/u
-    );
+
+    // can't connect
+    await assert.rejects(pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray), {
+      code: 'ECONNREFUSED',
+    });
   });
 });
