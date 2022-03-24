@@ -376,7 +376,6 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
     options = undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   const sink = (args[args.length - (options === undefined ? 1 : 2)] ?? {}) as object;
 
   /**
@@ -410,7 +409,6 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
    */
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   return stream.pipeline(...args, (error) => {
     if (error) {
       log('error', error);

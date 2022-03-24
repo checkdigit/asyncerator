@@ -123,4 +123,35 @@ describe('socket', () => {
       code: 'ECONNREFUSED',
     });
   });
+
+  it('can send/receive buffers from simple socket client/server', async () => {
+    const port = await findPort();
+
+    // echo server
+    const server = net
+      .createServer((socket) =>
+        pipeline(
+          socket,
+          split('\n'),
+          map((command) => `echo:${command}\n`),
+          socket
+        )
+      )
+      .listen(port, '127.0.0.1');
+
+    // echo client
+    const received = await pipeline(
+      [Buffer.from('Hello Mr Server!\nRegards, Client.\n')],
+      new net.Socket().connect(port, '127.0.0.1'),
+      split('\n'),
+      filter((line) => line !== ''),
+      toArray
+    );
+    assert.deepStrictEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+
+    // close the server
+    await new Promise((resolve) => {
+      server.close(resolve);
+    });
+  });
 });

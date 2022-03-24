@@ -150,9 +150,9 @@ describe('pipeline', () => {
     try {
       await pipeline(['a', 'b', 'c'], new Writable());
     } catch (error) {
-      errorThrown = error;
+      errorThrown = error as Error;
     }
-    assert.deepStrictEqual(errorThrown.message, 'The _write() method is not implemented');
+    assert.deepStrictEqual(errorThrown?.message, 'The _write() method is not implemented');
   });
 
   it('can support nested pipelines as sources', async () => {

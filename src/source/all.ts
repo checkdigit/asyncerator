@@ -23,7 +23,7 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
   const queue: T[] = [];
   const pending = new Set(promises);
 
-  [...promises].map((promise, index) =>
+  [...promises].forEach((promise, index) => {
     promise
       .then((value) => {
         queue.push(value);
@@ -34,8 +34,8 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
         // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
         // future versions of Node will process.exit().
         log(`[${index}]`, reason);
-      })
-  );
+      });
+  });
 
   // wait for the results to come in...
   while (pending.size > 0) {
