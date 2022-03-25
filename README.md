@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/checkdigit/asyncerator/blob/master/LICENSE.txt)
 [![David](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)
 
-Copyright (c) 2021 [Check Digit, LLC](https://checkdigit.com)
+Copyright (c) 2021-2022 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
 

@@ -1,5 +1,11 @@
 // node/stream-consumers.spec.ts
 
+/*
+ * Copyright (c) 2021-2022 Check Digit, LLC
+ *
+ * This code is licensed under the MIT license (see LICENSE.txt for details).
+ */
+
 import assert from 'assert';
 import * as stream from 'stream';
 import { arrayBuffer } from 'stream/consumers';
