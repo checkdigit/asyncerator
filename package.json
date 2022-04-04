@@ -30,6 +30,9 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.58.0",
+    "@aws-sdk/lib-storage": "^3.58.0",
+    "@checkdigit/aws-nock": "^3.8.6",
     "@checkdigit/eslint-config": "^6.0.0",
     "@checkdigit/prettier-config": "^1.0.2",
     "@checkdigit/typescript-config": "2.2.0",
@@ -40,7 +43,7 @@
     "eslint": "^8.12.0",
     "jest": "^27.5.1",
     "portfinder": "^1.0.28",
-    "prettier": "^2.6.1",
+    "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0",
