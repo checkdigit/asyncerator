@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 
 import { from, pipeline, toNull } from '../index';
 

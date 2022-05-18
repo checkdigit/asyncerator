@@ -6,17 +6,18 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import http, { IncomingMessage, ServerResponse } from 'http';
+import assert from 'node:assert';
+import http, { IncomingMessage, ServerResponse } from 'node:http';
+
+import getPort from 'get-port';
 
 import { map, split, toString } from '../index';
 
 import pipeline from './pipeline';
-import findPort from './find-port.test';
 
 describe('http', () => {
   it('can implement a simple http client/server', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // http server
     const server = http

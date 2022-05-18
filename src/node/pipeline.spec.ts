@@ -6,8 +6,8 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import { PassThrough, Readable, Writable } from 'stream';
+import assert from 'node:assert';
+import { PassThrough, Readable, Writable } from 'node:stream';
 
 import { all, toString } from '../index';
 

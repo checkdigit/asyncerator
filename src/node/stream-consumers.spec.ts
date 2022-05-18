@@ -6,9 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import * as stream from 'stream';
-import { arrayBuffer, buffer, text } from 'stream/consumers';
+import assert from 'node:assert';
+import * as stream from 'node:stream';
+import { arrayBuffer, buffer, text } from 'node:stream/consumers';
 
 import { from } from '../index';
 import { pipeline } from './index';

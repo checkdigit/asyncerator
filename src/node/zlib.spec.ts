@@ -6,11 +6,12 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import zlib from 'zlib';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import zlib from 'node:zlib';
+
 import { v4 as uuid } from 'uuid';
 
 import { filter, map, split } from '../operator';

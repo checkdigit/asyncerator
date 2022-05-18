@@ -7,6 +7,7 @@
  */
 
 import debug from 'debug';
+
 import type { Asyncerator } from '../asyncerator';
 
 const log = debug('asyncerator:source:all');

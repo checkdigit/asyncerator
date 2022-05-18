@@ -9,14 +9,15 @@
 import assert from 'assert';
 import net from 'net';
 
+import getPort from 'get-port';
+
 import { filter, map, split, toArray, toNull, toString } from '../index';
 
-import findPort from './find-port.test';
 import pipeline from './pipeline';
 
 describe('socket', () => {
   it('can implement a simple socket client/server', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // echo server
     const server = net
@@ -60,7 +61,7 @@ describe('socket', () => {
   // AbortControllers are supported starting in Node 16+
   (process.version < 'v16' ? xit : it)('supports abort', async () => {
     let aborted = false;
-    const port = await findPort();
+    const port = await getPort();
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
@@ -125,7 +126,7 @@ describe('socket', () => {
   });
 
   it('can send/receive buffers from simple socket client/server', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // echo server
     const server = net

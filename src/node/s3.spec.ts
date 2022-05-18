@@ -6,8 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import { Readable } from 'stream';
+import assert from 'node:assert';
+import { Readable } from 'node:stream';
+
 import { CreateBucketCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import awsNock from '@checkdigit/aws-nock';
@@ -86,6 +87,13 @@ describe('s3', () => {
   });
 
   it('can stream to and from PGP encrypted object', async () => {
+    const bucketName = uuid();
+    await s3.send(
+      new CreateBucketCommand({
+        Bucket: bucketName,
+      })
+    );
+
     const { privateKey: armoredPrivateKey, publicKey: armoredPublicKey } = await openpgp.generateKey({
       type: 'rsa',
       rsaBits: 4096,
@@ -98,19 +106,50 @@ describe('s3', () => {
       passphrase: 'gumby',
     });
 
-    const encrypted = await openpgp.encrypt({
+    const encryptedStream = (await openpgp.encrypt({
       message: await openpgp.createMessage({ text: 'hello world' }),
       encryptionKeys: publicKey,
+    })) as ReadableStream;
+
+    const uploadInbound = new Upload({
+      client: s3,
+      params: {
+        Bucket: bucketName,
+        Key: 'in.txt.pgp',
+        Body: encryptedStream,
+        ContentType: 'text/plain',
+      },
     });
+    await uploadInbound.done();
+
+    const getInbound = await s3.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: 'in.txt.pgp',
+      })
+    );
+    const inOutStream = pipeline(
+      getInbound.Body as unknown as Buffer,
+      map((string) => `${string}\n`),
+      filter((string) => string !== '')
+    );
+
+    const encryptedOutStream = (await openpgp.encrypt({
+      message: await openpgp.createMessage({ text: 'hello world' }),
+      encryptionKeys: publicKey,
+    })) as ReadableStream;
 
     const { data: decrypted } = await openpgp.decrypt({
       message: await openpgp.readMessage({
-        armoredMessage: encrypted,
+        armoredMessage: encryptedStream,
       }),
       verificationKeys: publicKey,
       decryptionKeys: privateKey,
     });
 
     assert.strictEqual(decrypted, 'hello world');
+
+    assert.ok(inOutStream);
+    assert.ok(encryptedOutStream);
   });
 });

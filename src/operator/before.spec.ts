@@ -6,12 +6,13 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
-import net from 'net';
-import { PassThrough } from 'stream';
+import * as assert from 'node:assert';
+import net from 'node:net';
+import { PassThrough } from 'node:stream';
+
+import getPort from 'get-port';
 
 import { all, before, forEach, from, pipeline, toArray, toNull, toString } from '../index';
-import findPort from '../node/find-port.test';
 
 describe('before', () => {
   it('works for an empty array', async () => {
@@ -35,7 +36,7 @@ describe('before', () => {
   });
 
   it('works with a socket client/server pipeline', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // echo server
     const server = net

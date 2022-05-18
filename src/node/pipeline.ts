@@ -6,8 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import stream, { Duplex, Readable, Writable } from 'stream';
-import util from 'util';
+import stream, { Duplex, Readable, Writable } from 'node:stream';
+import util from 'node:util';
+
 import debug from 'debug';
 
 import type { Asyncerator } from '../asyncerator';
