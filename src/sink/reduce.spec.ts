@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 
 import { after, before, from, pipeline, reduce } from '../index';
 import type { ReduceFunction } from './reduce';
@@ -16,10 +16,10 @@ describe('reduce', () => {
   const addIndex = (current: number, previous: number, index: number) => current + previous + index;
 
   it('works in a pipeline', async () => {
-    assert.strictEqual(await pipeline([1, 2, 3], reduce(adder, 0)), 6);
-    assert.strictEqual(await pipeline([2, 3], before(1), reduce(adder, 0)), 6);
-    assert.strictEqual(await pipeline([1, 2, 3], reduce(addIndex, 0)), 9);
-    assert.strictEqual(await pipeline([1, 2, 3], after(4), reduce(addIndex, 0)), 16);
+    assert.equal(await pipeline([1, 2, 3], reduce(adder, 0)), 6);
+    assert.equal(await pipeline([2, 3], before(1), reduce(adder, 0)), 6);
+    assert.equal(await pipeline([1, 2, 3], reduce(addIndex, 0)), 9);
+    assert.equal(await pipeline([1, 2, 3], after(4), reduce(addIndex, 0)), 16);
   });
 
   it('has identical behavior to Array.reduce', async () => {
@@ -45,8 +45,8 @@ describe('reduce', () => {
       } catch (error) {
         arrayReduceError = error; // ?
       }
-      assert.deepStrictEqual(implementation, arrayReduce);
-      assert.deepStrictEqual(implementationError, arrayReduceError);
+      assert.deepEqual(implementation, arrayReduce);
+      assert.deepEqual(implementationError, arrayReduceError);
     }
 
     await check([], () => '');

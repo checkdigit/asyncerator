@@ -6,13 +6,13 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 
 import { all, filter, from, pipeline, toArray } from '../index';
 
 describe('filter', () => {
   it('works for an empty array', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([]),
         filter(() => {
@@ -26,7 +26,7 @@ describe('filter', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -40,7 +40,7 @@ describe('filter', () => {
 
   it('operates on sequence of non-promises', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         iterable,
         filter(() => true),
@@ -52,7 +52,7 @@ describe('filter', () => {
 
   it('is chain-able', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         iterable,
         filter((_, index) => index !== 0),

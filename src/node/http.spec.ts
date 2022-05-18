@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 
 import getPort from 'get-port';
@@ -43,7 +43,7 @@ describe('http', () => {
       );
     });
 
-    assert.deepStrictEqual(received, 'echo:hello\necho:world\n');
+    assert.deepEqual(received, 'echo:hello\necho:world\n');
 
     // close the server
     await new Promise((resolve) => {

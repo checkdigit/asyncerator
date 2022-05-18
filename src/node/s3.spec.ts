@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import { Readable } from 'node:stream';
 
 import { CreateBucketCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -83,7 +83,7 @@ describe('s3', () => {
 
     assert(getOutbound.Body instanceof Readable);
     const outbound = await pipeline(getOutbound.Body, toString);
-    assert.strictEqual(outbound, 'hello world\n');
+    assert.equal(outbound, 'hello world\n');
   });
 
   it('can stream to and from PGP encrypted object', async () => {
@@ -147,7 +147,7 @@ describe('s3', () => {
       decryptionKeys: privateKey,
     });
 
-    assert.strictEqual(decrypted, 'hello world');
+    assert.equal(decrypted, 'hello world');
 
     assert.ok(inOutStream);
     assert.ok(encryptedOutStream);

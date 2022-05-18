@@ -6,13 +6,13 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 
 import { all, from, pipeline, race, toArray } from '../index';
 
 describe('race', () => {
   it('works for an empty array', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([]),
         race(() => {
@@ -26,7 +26,7 @@ describe('race', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -40,7 +40,7 @@ describe('race', () => {
 
   it('operates on sequence of non-promises', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -54,7 +54,7 @@ describe('race', () => {
 
   it('is chain-able', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -108,6 +108,6 @@ describe('race', () => {
     );
     const outputArray = await toArray(iterable);
 
-    assert.deepStrictEqual(inputArray.sort(), outputArray.sort());
+    assert.deepEqual(inputArray.sort(), outputArray.sort());
   });
 });

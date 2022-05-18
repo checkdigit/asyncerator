@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 
 import { all, forEach, from, map, pipeline, toArray } from '../index';
 
@@ -18,7 +18,7 @@ describe('forEach', () => {
       forEach((item) => results.push(item)),
       toArray
     );
-    assert.deepStrictEqual(results, []);
+    assert.deepEqual(results, []);
   });
 
   it('operates on sequence of promises', async () => {
@@ -29,7 +29,7 @@ describe('forEach', () => {
       forEach((value) => results.push(value)),
       toArray
     );
-    assert.deepStrictEqual(results.sort(), [1, 2, 3]);
+    assert.deepEqual(results.sort(), [1, 2, 3]);
   });
 
   it('operates on sequence of non-promises', async () => {
@@ -40,7 +40,7 @@ describe('forEach', () => {
       forEach((value, index) => results.push(`${value}${index}`)),
       toArray
     );
-    assert.deepStrictEqual(results, ['a0', 'bb1', 'ccc2']);
+    assert.deepEqual(results, ['a0', 'bb1', 'ccc2']);
   });
 
   it('is chain-able', async () => {
@@ -54,7 +54,7 @@ describe('forEach', () => {
       forEach((value) => results.push(value)),
       toArray
     );
-    assert.deepStrictEqual(results, ['  ', '    ', '      ']);
+    assert.deepEqual(results, ['  ', '    ', '      ']);
   });
 
   it('reject if forEach function throws an exception', async () => {

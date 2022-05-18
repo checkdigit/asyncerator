@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
 
 import { all, toString } from '../index';
@@ -69,7 +69,7 @@ describe('pipeline', () => {
   });
 
   it('works consistently with streams', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline([undefined, 1, 2, true, 3, [4, [5], 6, 7]], new PassThrough({ objectMode: true }), toString),
       '12true34,5,6,7'
     );
@@ -109,7 +109,7 @@ describe('pipeline', () => {
       message:
         'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type bigint (1n)',
     });
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: true }),
@@ -117,7 +117,7 @@ describe('pipeline', () => {
       ),
       'hello32world'
     );
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: false }),
@@ -144,7 +144,7 @@ describe('pipeline', () => {
     );
 
     assert.ok(result === undefined);
-    assert.deepStrictEqual(written, 'abc');
+    assert.deepEqual(written, 'abc');
 
     let errorThrown;
     try {
@@ -152,7 +152,7 @@ describe('pipeline', () => {
     } catch (error) {
       errorThrown = error as Error;
     }
-    assert.deepStrictEqual(errorThrown?.message, 'The _write() method is not implemented');
+    assert.deepEqual(errorThrown?.message, 'The _write() method is not implemented');
   });
 
   it('can support nested pipelines as sources', async () => {

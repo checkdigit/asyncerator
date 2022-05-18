@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -58,7 +58,7 @@ describe('zlib', () => {
       filter((string) => string !== ''),
       toArray
     );
-    assert.deepStrictEqual(result, input);
+    assert.deepEqual(result, input);
   });
 
   it('read/write gzipped file', async () => {
@@ -83,6 +83,6 @@ describe('zlib', () => {
       toArray
     );
 
-    assert.deepStrictEqual(result, input);
+    assert.deepEqual(result, input);
   });
 });

@@ -6,13 +6,13 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 
 import { all, from, pipeline, sequence, toArray } from '../index';
 
 describe('sequence', () => {
   it('produces no values on an empty array', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([]),
         sequence(async (index) => index),
@@ -23,7 +23,7 @@ describe('sequence', () => {
   });
 
   it('produces no values on non-async input', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         from([-1, -2, -3]),
         sequence(async (index) => index),
@@ -34,7 +34,7 @@ describe('sequence', () => {
   });
 
   it('produces values on async input', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([
           new Promise((resolve) => {
@@ -83,7 +83,7 @@ describe('sequence', () => {
         message: 456,
       }
     );
-    assert.deepStrictEqual(results, [0, 1, 2]);
+    assert.deepEqual(results, [0, 1, 2]);
   });
 
   it('throws error correctly when sequence promise rejects', async () => {
@@ -113,11 +113,11 @@ describe('sequence', () => {
         message: 'abc',
       }
     );
-    assert.deepStrictEqual(results, [0]);
+    assert.deepEqual(results, [0]);
   });
 
   it('do not throw error if sequence promise rejects after input is complete', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([
           new Promise((resolve) => {
