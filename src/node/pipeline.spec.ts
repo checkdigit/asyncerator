@@ -43,19 +43,6 @@ async function validateReadable(stream: Readable, expected: string) {
 }
 
 describe('pipeline', () => {
-  // bug fixed in Node 16+, so disable test in that case
-  (process.version < 'v16' ? it : xit)('throws error if source is a Buffer object in Node < v16', async () => {
-    // tracking this behavior in Node 14.  This is a bug in node stream.pipeline implementation:
-    // https://github.com/nodejs/node/issues/37731
-    await assert.rejects(async () => pipeline(Buffer.from('crash'), passThru, toString));
-  });
-
-  (process.version < 'v16' ? it : xit)('throws error if source is an empty string in Node < v16', async () => {
-    // tracking this behavior in Node.  This is a bug in node stream.pipeline implementation:
-    // https://github.com/nodejs/node/issues/38721
-    await assert.rejects(async () => pipeline('', passThru, toString));
-  });
-
   it('returns promise if last parameter is an async function', async () => {
     const result1 = pipeline([undefined, 1, null, 2, true, 3, [4, [5], 6, 7]], passThru, toString);
     const result2 = pipeline(Buffer.from('hello').values(), toString);
@@ -182,7 +169,7 @@ describe('pipeline', () => {
   });
 
   // AbortControllers are supported starting in Node 16+
-  (process.version < 'v16' ? xit : it)('supports abort', async () => {
+  it('supports abort', async () => {
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
