@@ -1,6 +1,8 @@
 {
   "extends": "@checkdigit/typescript-config",
   "compilerOptions": {
+    "module": "node16",
+    "target": "es2022",
     "rootDir": "src",
     "outDir": "build"
   },
