@@ -69,7 +69,7 @@ describe('map', () => {
       pipeline(
         from([1]),
         map(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -79,7 +79,7 @@ describe('map', () => {
       pipeline(
         all([Promise.resolve(1)]),
         map(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),

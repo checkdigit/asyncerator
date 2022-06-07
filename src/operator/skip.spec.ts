@@ -22,7 +22,7 @@ describe('skip', () => {
     assert.deepEqual(await pipeline(from(['a', 'b', 'c']), skip(), toArray), ['b', 'c']);
     assert.deepEqual(await pipeline(from(['a', 'b', 'c']), skip(2), toArray), ['c']);
     assert.deepEqual(await pipeline(from(['a', 'b', 'c']), skip(3), toArray), []);
-    assert.deepEqual(await pipeline(from(['a', 'b', 'c']), skip(Infinity), toArray), []);
+    assert.deepEqual(await pipeline(from(['a', 'b', 'c']), skip(Number.POSITIVE_INFINITY), toArray), []);
   });
 
   it('is chain-able', async () => {

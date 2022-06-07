@@ -68,7 +68,7 @@ describe('filter', () => {
       pipeline(
         from([1]),
         filter(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -78,7 +78,7 @@ describe('filter', () => {
       pipeline(
         all([Promise.resolve(1)]),
         filter(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),

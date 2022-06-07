@@ -54,10 +54,10 @@ describe('reduce', () => {
     await check([undefined], (_previous: string, _current) => '');
     await check([null], () => '');
     await check([1], () => {
-      throw Error('Should be executed');
+      throw new Error('Should be executed');
     });
     await check([], () => {
-      throw Error('Should not be executed');
+      throw new Error('Should not be executed');
     });
     await check([1, 2, 3], (current, previous) => `${current}${previous}`, '!');
     await check([1, 2, 3], adder, 0);

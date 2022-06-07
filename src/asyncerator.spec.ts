@@ -92,7 +92,7 @@ describe('asyncerator', () => {
     const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
     assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     if (asyncerator.throw === undefined || asyncerator.return === undefined) {
-      throw Error();
+      throw new Error();
     }
     assert.deepEqual(await asyncerator.throw(), { done: true, value: 'throw' });
     assert.deepEqual(await asyncerator.return(), { done: true, value: 'return' });

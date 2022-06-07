@@ -73,7 +73,7 @@ describe('race', () => {
       pipeline(
         from([1]),
         race(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -83,7 +83,7 @@ describe('race', () => {
       pipeline(
         all([Promise.resolve(1)]),
         race(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -92,18 +92,18 @@ describe('race', () => {
   });
 
   it('does something big', async () => {
-    const inputArray = new Array(1000);
+    const inputArray = Array.from({ length: 1000 });
     for (let index = 0; index < inputArray.length; index++) {
       inputArray[index] = index;
     }
 
     const iterable = pipeline(
       from(inputArray),
-      race(async (num) => {
+      race(async (number_) => {
         await new Promise((resolve) => {
           setTimeout(resolve, Math.floor(Math.random() * 10));
         });
-        return num;
+        return number_;
       })
     );
     const outputArray = await toArray(iterable);

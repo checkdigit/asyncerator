@@ -56,10 +56,10 @@ export default function <Input, Output>(
             pending.delete(promise);
             return value;
           })
-          .catch((reason: unknown) => {
+          .catch((error: unknown) => {
             // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
             // future versions of Node will process.exit().
-            log(reason);
+            log(error);
           });
       }
     })()

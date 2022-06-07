@@ -6,8 +6,8 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import net from 'net';
+import assert from 'node:assert';
+import net from 'node:net';
 
 import getPort from 'get-port';
 

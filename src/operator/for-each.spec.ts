@@ -62,7 +62,7 @@ describe('forEach', () => {
       pipeline(
         from([1]),
         forEach(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -72,7 +72,7 @@ describe('forEach', () => {
       pipeline(
         all([Promise.resolve(1)]),
         forEach(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),

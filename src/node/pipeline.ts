@@ -368,16 +368,16 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  * Note this type definition does not match the full extent of the flexibility of stream.pipeline (e.g. you
  * can pass arrays of iterables, etc) but just the expected usage with the asyncerator library.
  *
- * @param args
+ * @param argumentList
  */
 
-export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Readable {
-  let options: PipelineOptions | undefined = (args[args.length - 1] ?? {}) as PipelineOptions;
+export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void> | Readable {
+  let options: PipelineOptions | undefined = (argumentList[argumentList.length - 1] ?? {}) as PipelineOptions;
   if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
     options = undefined;
   }
 
-  const sink = (args[args.length - (options === undefined ? 1 : 2)] ?? {}) as object;
+  const sink = (argumentList[argumentList.length - (options === undefined ? 1 : 2)] ?? {}) as object;
 
   /**
    * The sink is an async function, so return a promise
@@ -385,7 +385,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
   if (sink.constructor.name === 'AsyncFunction') {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return promisifiedPipeline(...args) as unknown as Promise<Sink>;
+    return promisifiedPipeline(...argumentList) as unknown as Promise<Sink>;
   }
 
   /**
@@ -395,7 +395,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      stream.pipeline(...args, (error: unknown) => {
+      stream.pipeline(...argumentList, (error: unknown) => {
         if (error) {
           reject(error);
         } else {
@@ -410,7 +410,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
    */
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return stream.pipeline(...args, (error) => {
+  return stream.pipeline(...argumentList, (error) => {
     if (error) {
       log('error', error);
     } else {

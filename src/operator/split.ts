@@ -20,12 +20,12 @@ import type { Operator } from './index';
 
 export default function <Input extends { toString: () => string }>(
   separator: string,
-  limit = Infinity
+  limit = Number.POSITIVE_INFINITY
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
     // this behavior dealing with fractional and negative limits is weird, but matches string.split
-    // eslint-disable-next-line no-nested-ternary
-    const actualLimit = limit <= -1 ? Infinity : limit <= 0 ? 0 : Math.floor(limit);
+
+    const actualLimit = limit <= -1 ? Number.POSITIVE_INFINITY : limit <= 0 ? 0 : Math.floor(limit);
     if (actualLimit === 0) {
       return;
     }
@@ -40,7 +40,7 @@ export default function <Input extends { toString: () => string }>(
         chunk === null ||
         typeof (chunk as { toString: () => string }).toString !== 'function'
       ) {
-        throw Error(`${JSON.stringify(chunk)} not convertible to a string`);
+        throw new Error(`${JSON.stringify(chunk)} not convertible to a string`);
       }
       receivedChunks = true;
       previous += chunk.toString();
