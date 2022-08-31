@@ -58,8 +58,7 @@ describe('socket', () => {
     );
   });
 
-  // AbortControllers are supported starting in Node 16+
-  (process.version < 'v16' ? xit : it)('supports abort', async () => {
+  it('supports abort', async () => {
     let aborted = false;
     const port = await getPort();
     const abortController = new AbortController();
@@ -110,10 +109,9 @@ describe('socket', () => {
       }, 1000);
     });
 
-    // echo client 2, post-abort, will get an initial connection but the abort is triggered
-    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray), {
-      code: 'ECONNRESET',
-    });
+    // echo client 2, post-abort, will get an initial connection but the abort is triggered.
+    // note: on Linux, will reject with EPIPE, but on Mac, will reject with ECONNRESET.
+    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray));
 
     // the server should be closed
     assert.ok(aborted);
