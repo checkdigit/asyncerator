@@ -383,9 +383,7 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
    * The sink is an async function, so return a promise
    */
   if (sink.constructor.name === 'AsyncFunction') {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return promisifiedPipeline(...argumentList) as unknown as Promise<Sink>;
+    return promisifiedPipeline(...(argumentList as Parameters<typeof promisifiedPipeline>)) as unknown as Promise<Sink>;
   }
 
   /**
@@ -393,9 +391,7 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
    */
   if ((sink as Writable).writable && !(sink as Readable).readable) {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      stream.pipeline(...argumentList, (error: unknown) => {
+      stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error: unknown) => {
         if (error) {
           reject(error);
         } else {
@@ -408,13 +404,11 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
   /**
    * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a ReadWriteStream.
    */
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return stream.pipeline(...argumentList, (error) => {
+  return stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error) => {
     if (error) {
       log('error', error);
     } else {
       log('complete');
     }
-  });
+  }) as unknown as Readable;
 }
