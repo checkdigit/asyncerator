@@ -42,6 +42,11 @@
   "jest": {
     "preset": "@checkdigit/jest-config"
   },
+  "eslintConfig": {
+    "extends": [
+      "@checkdigit/eslint-config"
+    ]
+  },
   "scripts": {
     "postversion": "git push && git push --tags",
     "lint": "eslint -f unix --ext .js,.ts src/**",
