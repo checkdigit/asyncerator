@@ -1,7 +1,8 @@
 # asyncerator
 
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/checkdigit/asyncerator/blob/master/LICENSE.txt)
-[![David](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)](https://status.david-dm.org/gh/checkdigit/asyncerator.svg)
+[![Dependency Status](https://img.shields.io/npm/l/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
+[![Dependency Status](https://img.shields.io/npm/v/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
+[![Dependency Status](https://img.shields.io/npm/dt/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 
 Copyright (c) 2021-2022 [Check Digit, LLC](https://checkdigit.com)
 
