@@ -26,6 +26,8 @@ jobs:
         run: npm ci
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Audit Signatures
+        run: npm audit signatures
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
@@ -54,6 +56,8 @@ jobs:
         run: npm ci
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Audit Signatures
+        run: npm audit signatures
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
