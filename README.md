@@ -122,7 +122,7 @@ that implements the `Readable`, `Iterable` and `AsyncIterable` interfaces.
 Note: due to an apparent bug in the Node 14 `stream.pipeline` implementation, a `Buffer` cannot be used as a source,
 even though it is iterable. Instead, use the result of the `.values()` method as a source.
 
-Some of the built-in source functions take an argument of type `Asyncable<T>`. Asyncables are anything that can be
+Some built-in source functions take an argument of type `Asyncable<T>`. Asyncables are anything that can be
 turned into an Asyncerator: normal iterators and iterables, AsyncIterators, AsyncIterables, AsyncGenerators,
 AsyncIterableIterators, and of course Asyncerators themselves.
 
@@ -224,7 +224,7 @@ Similar to Array.forEach, call forEachFunction for each value in the stream.
 
 ### `map<Input, Output>(mapFunction: (value: Input, index: number) => Output): Operator<Input, Output>`
 
-Similar to Array.map, transform each value using mapFunction.
+Similar to `Array.map`, transform each value using mapFunction.
 
 ### `race<Input, Output>(raceFunction: (value: Input) => Promise<Output>, concurrent?: number): Operator<Input, Output>`
 

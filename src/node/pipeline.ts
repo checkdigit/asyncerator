@@ -365,8 +365,8 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  * 1) auto-promisify, if the sink is an async function or a WritableStream
  * 2) type the function based on recommended usage, since @types/node does not match current functionality.
  *
- * Note this type definition does not match the full extent of the flexibility of stream.pipeline (e.g. you
- * can pass arrays of iterables, etc) but just the expected usage with the asyncerator library.
+ * Note this type definition does not match the full extent of the flexibility of `stream.pipeline` (e.g. you
+ * can pass arrays of iterables, etc.) but just the expected usage with the asyncerator library.
  *
  * @param argumentList
  */

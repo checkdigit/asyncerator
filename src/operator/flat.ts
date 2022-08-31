@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Similar to Array.flat, flatten array inputs into a single sequence of values.
+ * Similar to `Array.flat`, flatten array inputs into a single sequence of values.
  * @param depth
  */
 export default function <Input>(depth = 1): Operator<Input, Input extends (infer T)[] ? T : Input> {

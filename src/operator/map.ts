@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Similar to Array.map, transform each value using mapFunction.
+ * Similar to `Array.map`, transform each value using mapFunction.
  * @param mapFunction
  */
 export default function <Input, Output>(mapFunction: (value: Input, index: number) => Output): Operator<Input, Output> {

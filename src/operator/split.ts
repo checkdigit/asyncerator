@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Equivalent of the Javascript array split method.  Matches it's behavior/corner cases, which is why the
+ * Equivalent of the Javascript array split method.  Matches its behavior/corner cases, which is why the
  * implementation is more funky than you may expect.
  *
  * @param separator

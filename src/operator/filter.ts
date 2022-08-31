@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Similar to Array.filter, only emit values from input for which filterFunction returns true.
+ * Similar to `Array.filter`, only emit values from input for which filterFunction returns true.
  * @param filterFunction
  */
 export default function <Input>(filterFunction: (value: Input, index: number) => boolean): Operator<Input, Input> {
