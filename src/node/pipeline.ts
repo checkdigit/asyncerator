@@ -402,7 +402,7 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
   }
 
   /**
-   * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a ReadWriteStream.
+   * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a Readable.
    */
   return stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error) => {
     if (error) {
