@@ -47,12 +47,15 @@ describe('pipeline', () => {
     const result1 = pipeline([undefined, 1, null, 2, true, 3, [4, [5], 6, 7]], passThru, toString);
     const result2 = pipeline(Buffer.from('hello').values(), toString);
     const result3 = pipeline('hello', toString);
+    const result4 = pipeline(Buffer.from('abc'), toString);
     assert.ok(typeof result1.then === 'function');
     assert.ok(typeof result2.then === 'function');
     assert.ok(typeof result3.then === 'function');
+    assert.ok(typeof result4.then === 'function');
     assert.strictEqual(await result1, 'undefined1null2true34,5,6,7');
     assert.strictEqual(await result2, '104101108108111');
     assert.strictEqual(await result3, 'hello');
+    assert.strictEqual(await result4, '979899');
   });
 
   it('works consistently with streams', async () => {
