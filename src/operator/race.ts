@@ -1,7 +1,7 @@
 // operator/race.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -56,10 +56,10 @@ export default function <Input, Output>(
             pending.delete(promise);
             return value;
           })
-          .catch((reason: unknown) => {
+          .catch((error: unknown) => {
             // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
             // future versions of Node will process.exit().
-            log(reason);
+            log(error);
           });
       }
     })()

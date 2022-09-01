@@ -1,7 +1,7 @@
 // operator/map.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Similar to Array.map, transform each value using mapFunction.
+ * Similar to `Array.map`, transform each value using mapFunction.
  * @param mapFunction
  */
 export default function <Input, Output>(mapFunction: (value: Input, index: number) => Output): Operator<Input, Output> {

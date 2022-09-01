@@ -1,12 +1,13 @@
 // source/all.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import debug from 'debug';
+
 import type { Asyncerator } from '../asyncerator';
 
 const log = debug('asyncerator:source:all');
@@ -23,19 +24,19 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
   const queue: T[] = [];
   const pending = new Set(promises);
 
-  [...promises].map((promise, index) =>
+  for (const [index, promise] of [...promises].entries()) {
     promise
       .then((value) => {
         queue.push(value);
         pending.delete(promise);
         return value;
       })
-      .catch((reason: unknown) => {
+      .catch((error: unknown) => {
         // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
         // future versions of Node will process.exit().
-        log(`[${index}]`, reason);
-      })
-  );
+        log(`[${index}]`, error);
+      });
+  }
 
   // wait for the results to come in...
   while (pending.size > 0) {

@@ -1,22 +1,23 @@
 // node/socket.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import net from 'net';
+import { strict as assert } from 'node:assert';
+import net from 'node:net';
+
+import getPort from 'get-port';
 
 import { filter, map, split, toArray, toNull, toString } from '../index';
 
-import findPort from './find-port.test';
 import pipeline from './pipeline';
 
 describe('socket', () => {
   it('can implement a simple socket client/server', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // echo server
     const server = net
@@ -38,10 +39,10 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray
     );
-    assert.deepStrictEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 
     // another echo client
-    assert.strictEqual(
+    assert.equal(
       await pipeline('1\n2\n3\nhello\nworld\n', new net.Socket().connect(port, '127.0.0.1'), toString),
       'echo:1\necho:2\necho:3\necho:hello\necho:world\n'
     );
@@ -57,10 +58,9 @@ describe('socket', () => {
     );
   });
 
-  // AbortControllers are supported starting in Node 16+
-  (process.version < 'v16' ? xit : it)('supports abort', async () => {
+  it('supports abort', async () => {
     let aborted = false;
-    const port = await findPort();
+    const port = await getPort();
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
@@ -80,8 +80,8 @@ describe('socket', () => {
           toNull,
           options
         ).catch((error) => {
-          assert.strictEqual(error.name, 'AbortError');
-          assert.strictEqual(error.message, 'The operation was aborted');
+          assert.equal(error.name, 'AbortError');
+          assert.equal(error.message, 'The operation was aborted');
           assert.ok(socket.destroyed);
           server.close();
           aborted = true;
@@ -97,7 +97,7 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray
     );
-    assert.deepStrictEqual(received1, ['echo:hello']);
+    assert.deepEqual(received1, ['echo:hello']);
 
     assert.ok(!aborted);
     assert.ok(server.listening);
@@ -109,10 +109,9 @@ describe('socket', () => {
       }, 1000);
     });
 
-    // echo client 2, post-abort, will get an initial connection but the abort is triggered
-    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray), {
-      code: 'ECONNRESET',
-    });
+    // echo client 2, post-abort, will get an initial connection but the abort is triggered.
+    // note: on Linux, will reject with EPIPE, but on Mac, will reject with ECONNRESET.
+    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray));
 
     // the server should be closed
     assert.ok(aborted);
@@ -121,6 +120,37 @@ describe('socket', () => {
     // can't connect
     await assert.rejects(pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray), {
       code: 'ECONNREFUSED',
+    });
+  });
+
+  it('can send/receive buffers from simple socket client/server', async () => {
+    const port = await getPort();
+
+    // echo server
+    const server = net
+      .createServer((socket) =>
+        pipeline(
+          socket,
+          split('\n'),
+          map((command) => `echo:${command}\n`),
+          socket
+        )
+      )
+      .listen(port, '127.0.0.1');
+
+    // echo client
+    const received = await pipeline(
+      [Buffer.from('Hello Mr Server!\nRegards, Client.\n')],
+      new net.Socket().connect(port, '127.0.0.1'),
+      split('\n'),
+      filter((line) => line !== ''),
+      toArray
+    );
+    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+
+    // close the server
+    await new Promise((resolve) => {
+      server.close(resolve);
     });
   });
 });

@@ -1,12 +1,12 @@
 // source/merge.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { Asyncerator, from, merge, pipeline, toArray } from '../index';
 
@@ -17,7 +17,7 @@ async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
 }
 describe('merge', () => {
   it('allows empty array of async iterable iterators', async () => {
-    assert.deepStrictEqual(await merge()[Symbol.asyncIterator]().next(), {
+    assert.deepEqual(await merge()[Symbol.asyncIterator]().next(), {
       done: true,
       value: undefined,
     });
@@ -25,7 +25,7 @@ describe('merge', () => {
 
   it('works with a single non-promise value', async () => {
     const iterator = merge(['1'])[Symbol.asyncIterator]();
-    assert.deepStrictEqual(
+    assert.deepEqual(
       [await iterator.next(), await iterator.next()],
       [
         { value: '1', done: false },
@@ -35,13 +35,16 @@ describe('merge', () => {
   });
 
   it('works with a recursive sources', async () => {
-    assert.deepStrictEqual(await pipeline(merge(['1', ['2']]), toArray), ['1', ['2']]);
-    assert.deepStrictEqual(await pipeline(merge(from(['1', from(['2'])])), toArray), ['1', '2']);
-    assert.deepStrictEqual(await pipeline(merge(from([from(['1'])])), toArray), ['1']);
-    assert.deepStrictEqual(
-      (await pipeline(merge(from(['1', from(['2', merge(from(['3'])), '4']), '5'])), toArray)).sort(),
-      ['1', '2', '3', '4', '5']
-    );
+    assert.deepEqual(await pipeline(merge(['1', ['2']]), toArray), ['1', ['2']]);
+    assert.deepEqual(await pipeline(merge(from(['1', from(['2'])])), toArray), ['1', '2']);
+    assert.deepEqual(await pipeline(merge(from([from(['1'])])), toArray), ['1']);
+    assert.deepEqual((await pipeline(merge(from(['1', from(['2', merge(from(['3'])), '4']), '5'])), toArray)).sort(), [
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+    ]);
   });
 
   it('reject if array item is a promise that rejects', async () => {
@@ -55,7 +58,7 @@ describe('merge', () => {
   it('works with a multiple identical sources', async () => {
     const source = from(['1']);
     const iterator = merge(source, source, source)[Symbol.asyncIterator]();
-    assert.deepStrictEqual(
+    assert.deepEqual(
       [await iterator.next(), await iterator.next()],
       [
         { value: '1', done: false },
@@ -70,12 +73,12 @@ describe('merge', () => {
     for await (const result of iterator) {
       results.push(result);
     }
-    assert.deepStrictEqual(results, ['abc', 'def']);
+    assert.deepEqual(results, ['abc', 'def']);
   });
 
   it('works with a single promisified value', async () => {
     const iterator = merge(from([Promise.resolve('abc')]))[Symbol.asyncIterator]();
-    assert.deepStrictEqual(
+    assert.deepEqual(
       [await iterator.next(), await iterator.next()],
       [
         { value: 'abc', done: false },
@@ -100,11 +103,11 @@ describe('merge', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepStrictEqual(await pipeline(merge(range), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(merge(range), toArray), [0, 1, 2, 3]);
   });
 
   it('works with a bunch of crazy stuff', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           merge(
@@ -134,7 +137,7 @@ describe('merge', () => {
 
   it('works with a randomized merge tree', async () => {
     const TEST_SIZE = 1037;
-    const input = [...Array(TEST_SIZE)].map(() => Math.ceil(Math.random() * 25));
+    const input = [...Array.from({ length: TEST_SIZE })].map(() => Math.ceil(Math.random() * 25));
 
     function tree(elements: number[]): Asyncerator<number> {
       if (elements.length === 0) {
@@ -157,6 +160,6 @@ describe('merge', () => {
     }
 
     const result = await pipeline(tree(input), toArray);
-    assert.deepStrictEqual(input.sort(), result.sort());
+    assert.deepEqual(input.sort(), result.sort());
   });
 });

@@ -1,7 +1,7 @@
 // asyncerator.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -56,7 +56,7 @@ export default function <T>(source: Asyncable<T> | (() => Asyncerator<T>)): Asyn
       }
     })();
   } else {
-    // could be an Iterator or an AsyncIterator but we can't tell the difference, so treat it as async regardless
+    // could be an Iterator or an AsyncIterator, but we can't tell the difference, so treat it as async regardless
     iterator = source as AsyncIterator<T>;
   }
 

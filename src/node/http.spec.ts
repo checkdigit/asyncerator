@@ -1,22 +1,23 @@
 // node/http.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import http, { IncomingMessage, ServerResponse } from 'http';
+import { strict as assert } from 'node:assert';
+import http, { IncomingMessage, ServerResponse } from 'node:http';
+
+import getPort from 'get-port';
 
 import { map, split, toString } from '../index';
 
 import pipeline from './pipeline';
-import findPort from './find-port.test';
 
 describe('http', () => {
   it('can implement a simple http client/server', async () => {
-    const port = await findPort();
+    const port = await getPort();
 
     // http server
     const server = http
@@ -42,7 +43,7 @@ describe('http', () => {
       );
     });
 
-    assert.deepStrictEqual(received, 'echo:hello\necho:world\n');
+    assert.deepEqual(received, 'echo:hello\necho:world\n');
 
     // close the server
     await new Promise((resolve) => {

@@ -1,18 +1,18 @@
 // operator/race.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { all, from, pipeline, race, toArray } from '../index';
 
 describe('race', () => {
   it('works for an empty array', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([]),
         race(() => {
@@ -26,7 +26,7 @@ describe('race', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -40,7 +40,7 @@ describe('race', () => {
 
   it('operates on sequence of non-promises', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -54,7 +54,7 @@ describe('race', () => {
 
   it('is chain-able', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -73,7 +73,7 @@ describe('race', () => {
       pipeline(
         from([1]),
         race(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -83,7 +83,7 @@ describe('race', () => {
       pipeline(
         all([Promise.resolve(1)]),
         race(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -92,22 +92,22 @@ describe('race', () => {
   });
 
   it('does something big', async () => {
-    const inputArray = new Array(1000);
+    const inputArray = Array.from({ length: 1000 });
     for (let index = 0; index < inputArray.length; index++) {
       inputArray[index] = index;
     }
 
     const iterable = pipeline(
       from(inputArray),
-      race(async (num) => {
+      race(async (number_) => {
         await new Promise((resolve) => {
           setTimeout(resolve, Math.floor(Math.random() * 10));
         });
-        return num;
+        return number_;
       })
     );
     const outputArray = await toArray(iterable);
 
-    assert.deepStrictEqual(inputArray.sort(), outputArray.sort());
+    assert.deepEqual(inputArray.sort(), outputArray.sort());
   });
 });

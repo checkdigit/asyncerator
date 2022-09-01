@@ -1,12 +1,12 @@
 // asyncerator.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { from, pipeline, toArray } from './index';
 
@@ -21,7 +21,7 @@ describe('asyncerator', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepStrictEqual(await pipeline(from(range), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(from(range), toArray), [0, 1, 2, 3]);
   });
 
   it('from a custom iterable', async () => {
@@ -38,7 +38,7 @@ describe('asyncerator', () => {
     const iterable: Iterable<number> = {
       [Symbol.iterator]: () => iterator,
     };
-    assert.deepStrictEqual(await pipeline(from(iterable), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(from(iterable), toArray), [0, 1, 2, 3]);
   });
 
   it('from a custom async iterator', async () => {
@@ -52,7 +52,7 @@ describe('asyncerator', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepStrictEqual(await pipeline(from(asyncIterator), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(from(asyncIterator), toArray), [0, 1, 2, 3]);
   });
 
   it('from a custom async iterable', async () => {
@@ -69,7 +69,7 @@ describe('asyncerator', () => {
     const asyncIterable: AsyncIterable<number> = {
       [Symbol.asyncIterator]: () => asyncIterator,
     };
-    assert.deepStrictEqual(await pipeline(from(asyncIterable), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(from(asyncIterable), toArray), [0, 1, 2, 3]);
   });
 
   it('a custom async iterable iterator with throw and return defined', async () => {
@@ -90,12 +90,12 @@ describe('asyncerator', () => {
       },
     };
     const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
-    assert.deepStrictEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     if (asyncerator.throw === undefined || asyncerator.return === undefined) {
-      throw Error();
+      throw new Error();
     }
-    assert.deepStrictEqual(await asyncerator.throw(), { done: true, value: 'throw' });
-    assert.deepStrictEqual(await asyncerator.return(), { done: true, value: 'return' });
+    assert.deepEqual(await asyncerator.throw(), { done: true, value: 'throw' });
+    assert.deepEqual(await asyncerator.return(), { done: true, value: 'return' });
   });
 
   it('a custom async iterable iterator without throw and return', async () => {
@@ -110,11 +110,11 @@ describe('asyncerator', () => {
       },
     };
     const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
-    assert.deepStrictEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
+    assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    assert.strictEqual(asyncerator.throw, undefined);
+    assert.equal(asyncerator.throw, undefined);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    assert.strictEqual(asyncerator.return, undefined);
+    assert.equal(asyncerator.return, undefined);
   });
 
   it('an async iterable iterator', async () => {
@@ -123,7 +123,7 @@ describe('asyncerator', () => {
     for await (const item of iterable) {
       items.push(item);
     }
-    assert.deepStrictEqual(items, ['abc', 'def', 'ghi']);
+    assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 
   it('an async generator function', async () => {
@@ -138,7 +138,7 @@ describe('asyncerator', () => {
     for await (const item of iterable) {
       items.push(item);
     }
-    assert.deepStrictEqual(items, ['abc', 'def', 'ghi']);
+    assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 
   it('reject if array item is a promise that rejects', async () => {

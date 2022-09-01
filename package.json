@@ -10,7 +10,7 @@
     "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
   "engines": {
-    "node": ">=14.16"
+    "node": ">=16"
   },
   "author": "Check Digit, LLC",
   "license": "MIT",
@@ -27,45 +27,37 @@
     "AsyncIterableIterator"
   ],
   "dependencies": {
-    "debug": "^4.3.1"
+    "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^4.1.1",
-    "@checkdigit/prettier-config": "^1.0.2",
-    "@checkdigit/typescript-config": "2.1.0",
-    "@types/debug": "^4.1.5",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.12.1",
-    "@types/uuid": "^8.3.0",
-    "eslint": "^7.28.0",
-    "jest": "^27.0.4",
-    "portfinder": "^1.0.28",
-    "prettier": "^2.3.1",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.3",
-    "ts-node": "^10.0.0",
-    "typescript": "^4.3.2",
+    "@checkdigit/eslint-config": "^7.2.2",
+    "@checkdigit/jest-config": "^1.0.1",
+    "@checkdigit/prettier-config": "^3.0.0",
+    "@checkdigit/typescript-config": "3.1.0",
+    "@types/debug": "^4.1.7",
+    "@types/uuid": "^8.3.4",
+    "get-port": "^5.1.1",
     "uuid": "^8.3.2"
   },
   "jest": {
-    "collectCoverage": true,
-    "preset": "ts-jest",
-    "testMatch": [
-      "<rootDir>/src/**/?(*.)spec.ts"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/build",
-      "<rootDir>/coverage",
-      "<rootDir>/node_modules"
+    "preset": "@checkdigit/jest-config"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@checkdigit/eslint-config"
     ]
   },
   "scripts": {
-    "preversion": "npm test",
     "postversion": "git push && git push --tags",
     "lint": "eslint -f unix --ext .js,.ts src/**",
     "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
-    "prettier": "prettier --list-different src/**/*.ts",
-    "prettier:fix": "prettier --write src/**/*.ts",
-    "test": "tsc --noEmit && jest && npm run lint && npm run prettier"
+    "prettier": "prettier --list-different .",
+    "prettier:fix": "prettier --write .",
+    "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
+    "ci:compile": "tsc --noEmit",
+    "ci:test": "jest --coverage=false",
+    "ci:coverage": "jest --coverage=true",
+    "ci:lint": "npm run lint",
+    "ci:style": "npm run prettier"
   }
 }

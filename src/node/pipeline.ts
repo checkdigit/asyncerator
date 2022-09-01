@@ -1,13 +1,14 @@
 // node/pipeline.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import stream, { Duplex, Readable, Writable } from 'stream';
-import util from 'util';
+import stream, { Duplex, Readable, Writable } from 'node:stream';
+import util from 'node:util';
+
 import debug from 'debug';
 
 import type { Asyncerator } from '../asyncerator';
@@ -364,28 +365,25 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  * 1) auto-promisify, if the sink is an async function or a WritableStream
  * 2) type the function based on recommended usage, since @types/node does not match current functionality.
  *
- * Note this type definition does not match the full extent of the flexibility of stream.pipeline (e.g. you
- * can pass arrays of iterables, etc) but just the expected usage with the asyncerator library.
+ * Note this type definition does not match the full extent of the flexibility of `stream.pipeline` (e.g. you
+ * can pass arrays of iterables, etc.) but just the expected usage with the asyncerator library.
  *
- * @param args
+ * @param argumentList
  */
 
-export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Readable {
-  let options: PipelineOptions | undefined = (args[args.length - 1] ?? {}) as PipelineOptions;
+export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void> | Readable {
+  let options: PipelineOptions | undefined = (argumentList[argumentList.length - 1] ?? {}) as PipelineOptions;
   if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
     options = undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  const sink = (args[args.length - (options === undefined ? 1 : 2)] ?? {}) as object;
+  const sink = (argumentList[argumentList.length - (options === undefined ? 1 : 2)] ?? {}) as object;
 
   /**
    * The sink is an async function, so return a promise
    */
   if (sink.constructor.name === 'AsyncFunction') {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return promisifiedPipeline(...args) as unknown as Promise<Sink>;
+    return promisifiedPipeline(...(argumentList as Parameters<typeof promisifiedPipeline>)) as unknown as Promise<Sink>;
   }
 
   /**
@@ -393,9 +391,7 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
    */
   if ((sink as Writable).writable && !(sink as Readable).readable) {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      stream.pipeline(...args, (error: unknown) => {
+      stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error: unknown) => {
         if (error) {
           reject(error);
         } else {
@@ -406,16 +402,13 @@ export default function <Sink>(...args: unknown[]): Promise<Sink | void> | Reada
   }
 
   /**
-   * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a ReadWriteStream.
+   * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a Readable.
    */
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  return stream.pipeline(...args, (error) => {
+  return stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error) => {
     if (error) {
       log('error', error);
     } else {
       log('complete');
     }
-  });
+  }) as unknown as Readable;
 }

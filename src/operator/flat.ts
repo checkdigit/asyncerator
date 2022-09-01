@@ -1,7 +1,7 @@
 // operator/flat.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator';
 import type { Operator } from './index';
 
 /**
- * Similar to Array.flat, flatten array inputs into a single sequence of values.
+ * Similar to `Array.flat`, flatten array inputs into a single sequence of values.
  * @param depth
  */
 export default function <Input>(depth = 1): Operator<Input, Input extends (infer T)[] ? T : Input> {

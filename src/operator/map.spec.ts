@@ -1,18 +1,18 @@
 // operator/map.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { all, from, map, pipeline, toArray } from '../index';
 
 describe('map', () => {
   it('works for an empty array', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         all([]),
         map(() => {
@@ -26,7 +26,7 @@ describe('map', () => {
 
   it('operates on sequence of promises', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       (
         await pipeline(
           iterable,
@@ -40,7 +40,7 @@ describe('map', () => {
 
   it('operates on sequence of non-promises', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         iterable,
         map((value, index) => value.length + index),
@@ -52,7 +52,7 @@ describe('map', () => {
 
   it('is chain-able', async () => {
     const iterable = from(['a', 'bb', 'ccc']);
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         iterable,
         map((value) => value.length),
@@ -69,7 +69,7 @@ describe('map', () => {
       pipeline(
         from([1]),
         map(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),
@@ -79,7 +79,7 @@ describe('map', () => {
       pipeline(
         all([Promise.resolve(1)]),
         map(() => {
-          throw Error('Reject');
+          throw new Error('Reject');
         }),
         toArray
       ),

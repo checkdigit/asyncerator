@@ -1,16 +1,17 @@
 // node/zlib.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import zlib from 'zlib';
+import { strict as assert } from 'node:assert';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import zlib from 'node:zlib';
+
 import { v4 as uuid } from 'uuid';
 
 import { filter, map, split } from '../operator';
@@ -57,7 +58,7 @@ describe('zlib', () => {
       filter((string) => string !== ''),
       toArray
     );
-    assert.deepStrictEqual(result, input);
+    assert.deepEqual(result, input);
   });
 
   it('read/write gzipped file', async () => {
@@ -82,6 +83,6 @@ describe('zlib', () => {
       toArray
     );
 
-    assert.deepStrictEqual(result, input);
+    assert.deepEqual(result, input);
   });
 });

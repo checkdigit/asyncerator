@@ -1,13 +1,13 @@
 // node/pipeline.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'assert';
-import { PassThrough, Readable, Writable } from 'stream';
+import { strict as assert } from 'node:assert';
+import { PassThrough, Readable, Writable } from 'node:stream';
 
 import { all, toString } from '../index';
 
@@ -43,33 +43,23 @@ async function validateReadable(stream: Readable, expected: string) {
 }
 
 describe('pipeline', () => {
-  // bug fixed in Node 16+, so disable test in that case
-  (process.version < 'v16' ? it : xit)('throws error if source is a Buffer object in Node < v16', async () => {
-    // tracking this behavior in Node 14.  This is a bug in node stream.pipeline implementation:
-    // https://github.com/nodejs/node/issues/37731
-    await assert.rejects(async () => pipeline(Buffer.from('crash'), passThru, toString));
-  });
-
-  (process.version < 'v16' ? it : xit)('throws error if source is an empty string in Node < v16', async () => {
-    // tracking this behavior in Node.  This is a bug in node stream.pipeline implementation:
-    // https://github.com/nodejs/node/issues/38721
-    await assert.rejects(async () => pipeline('', passThru, toString));
-  });
-
   it('returns promise if last parameter is an async function', async () => {
     const result1 = pipeline([undefined, 1, null, 2, true, 3, [4, [5], 6, 7]], passThru, toString);
     const result2 = pipeline(Buffer.from('hello').values(), toString);
     const result3 = pipeline('hello', toString);
+    const result4 = pipeline(Buffer.from('abc'), toString);
     assert.ok(typeof result1.then === 'function');
     assert.ok(typeof result2.then === 'function');
     assert.ok(typeof result3.then === 'function');
+    assert.ok(typeof result4.then === 'function');
     assert.strictEqual(await result1, 'undefined1null2true34,5,6,7');
     assert.strictEqual(await result2, '104101108108111');
     assert.strictEqual(await result3, 'hello');
+    assert.strictEqual(await result4, '979899');
   });
 
   it('works consistently with streams', async () => {
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline([undefined, 1, 2, true, 3, [4, [5], 6, 7]], new PassThrough({ objectMode: true }), toString),
       '12true34,5,6,7'
     );
@@ -109,7 +99,7 @@ describe('pipeline', () => {
       message:
         'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type bigint (1n)',
     });
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: true }),
@@ -117,7 +107,7 @@ describe('pipeline', () => {
       ),
       'hello32world'
     );
-    assert.deepStrictEqual(
+    assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: false }),
@@ -144,15 +134,15 @@ describe('pipeline', () => {
     );
 
     assert.ok(result === undefined);
-    assert.deepStrictEqual(written, 'abc');
+    assert.deepEqual(written, 'abc');
 
     let errorThrown;
     try {
       await pipeline(['a', 'b', 'c'], new Writable());
     } catch (error) {
-      errorThrown = error;
+      errorThrown = error as Error;
     }
-    assert.deepStrictEqual(errorThrown.message, 'The _write() method is not implemented');
+    assert.deepEqual(errorThrown?.message, 'The _write() method is not implemented');
   });
 
   it('can support nested pipelines as sources', async () => {
@@ -182,7 +172,7 @@ describe('pipeline', () => {
   });
 
   // AbortControllers are supported starting in Node 16+
-  (process.version < 'v16' ? xit : it)('supports abort', async () => {
+  it('supports abort', async () => {
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,

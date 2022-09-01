@@ -1,23 +1,23 @@
 // source/all.spec.ts
 
 /*
- * Copyright (c) 2021 Check Digit, LLC
+ * Copyright (c) 2021-2022 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import * as assert from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { all, pipeline, toArray } from '../index';
 
 describe('all', () => {
   it('works for an empty array', async () => {
-    assert.deepStrictEqual(await pipeline(all([]), toArray), []);
+    assert.deepEqual(await pipeline(all([]), toArray), []);
   });
 
   it('converts array of promises into async iterable iterator', async () => {
     const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
-    assert.deepStrictEqual((await pipeline(iterable, toArray)).sort(), [1, 2, 3]);
+    assert.deepEqual((await pipeline(iterable, toArray)).sort(), [1, 2, 3]);
   });
 
   it('reject if array item is a promise that rejects', async () => {
