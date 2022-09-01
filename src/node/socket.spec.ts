@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import assert from 'node:assert';
+import { strict as assert } from 'node:assert';
 import net from 'node:net';
 
 import getPort from 'get-port';
@@ -39,10 +39,10 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray
     );
-    assert.deepStrictEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 
     // another echo client
-    assert.strictEqual(
+    assert.equal(
       await pipeline('1\n2\n3\nhello\nworld\n', new net.Socket().connect(port, '127.0.0.1'), toString),
       'echo:1\necho:2\necho:3\necho:hello\necho:world\n'
     );
@@ -80,8 +80,8 @@ describe('socket', () => {
           toNull,
           options
         ).catch((error) => {
-          assert.strictEqual(error.name, 'AbortError');
-          assert.strictEqual(error.message, 'The operation was aborted');
+          assert.equal(error.name, 'AbortError');
+          assert.equal(error.message, 'The operation was aborted');
           assert.ok(socket.destroyed);
           server.close();
           aborted = true;
@@ -97,7 +97,7 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray
     );
-    assert.deepStrictEqual(received1, ['echo:hello']);
+    assert.deepEqual(received1, ['echo:hello']);
 
     assert.ok(!aborted);
     assert.ok(server.listening);
@@ -146,7 +146,7 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray
     );
-    assert.deepStrictEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 
     // close the server
     await new Promise((resolve) => {
