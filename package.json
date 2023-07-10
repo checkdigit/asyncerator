@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "type": "module",
   "sideEffects": false,
