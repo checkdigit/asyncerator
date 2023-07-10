@@ -2,15 +2,23 @@
   "name": "asyncerator",
   "version": "2.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
-  "typings": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "require": "./dist-cjs/index.cjs",
+      "import": "./dist-mjs/index.mjs",
+      "default": "./dist-mjs/index.mjs"
+    }
+  },
   "prettier": "@checkdigit/prettier-config",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "author": "Check Digit, LLC",
   "license": "MIT",
@@ -30,14 +38,14 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^7.2.2",
-    "@checkdigit/jest-config": "^1.0.1",
-    "@checkdigit/prettier-config": "^3.0.0",
-    "@checkdigit/typescript-config": "3.1.0",
-    "@types/debug": "^4.1.7",
-    "@types/uuid": "^8.3.4",
-    "get-port": "^5.1.1",
-    "uuid": "^8.3.2"
+    "@checkdigit/eslint-config": "^8.0.0",
+    "@checkdigit/jest-config": "^3.0.0",
+    "@checkdigit/prettier-config": "^4.0.0",
+    "@checkdigit/typescript-config": "4.0.0",
+    "@types/debug": "^4.1.8",
+    "@types/uuid": "^9.0.2",
+    "get-port": "^7.0.0",
+    "uuid": "^9.0.0"
   },
   "jest": {
     "preset": "@checkdigit/jest-config"
@@ -48,16 +56,34 @@
     ]
   },
   "scripts": {
-    "postversion": "git push && git push --tags",
-    "lint": "eslint -f unix --ext .js,.ts src/**",
-    "lint:fix": "eslint -f unix --ext .js,.ts src/** --fix",
-    "prettier": "prettier --list-different .",
-    "prettier:fix": "prettier --write .",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-esm",
+    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
+    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
+    "build:dist-esm": "rimraf dist-esm && npx builder --type=module --sourceMap --outDir=dist-mjs",
+    "lint:fix": "eslint -f unix --ext .ts,.mts src --fix",
+    "lint": "eslint -f unix --ext .ts,.mts src",
+    "prettier": "prettier --ignore-path .gitignore --list-different .",
+    "prettier:fix": "prettier --ignore-path .gitignore --write .",
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
     "ci:compile": "tsc --noEmit",
     "ci:test": "jest --coverage=false",
     "ci:coverage": "jest --coverage=true",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier"
-  }
+  },
+  "files": [
+    "src",
+    "dist-types",
+    "dist-cjs",
+    "dist-mjs",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
+    "!dist-types/**/*.test.d.ts",
+    "!dist-types/**/*.spec.d.ts",
+    "!dist-cjs/**/*.test.cjs",
+    "!dist-cjs/**/*.spec.cjs",
+    "!dist-mjs/**/*.test.mjs",
+    "!dist-mjs/**/*.spec.mjs",
+    "SECURITY.md"
+  ]
 }

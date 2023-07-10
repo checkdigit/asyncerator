@@ -37,7 +37,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
       });
 
       let currentIndex = 0;
-      // eslint-disable-next-line no-unmodified-loop-condition
+      // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
       while (!complete && !hasThrown) {
         // eslint-disable-next-line no-await-in-loop
         queue.push(await sequenceFunction(currentIndex++));
@@ -60,6 +60,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
     const passThroughProducer = (async () => {
       for await (const item of iterator) {
         // if the sequence producer throws an error, exit immediately (effectively cancel this promise)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (hasThrown) {
           break;
         }
@@ -78,7 +79,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
      * queue consumer, runs concurrently with the producers above
      */
 
-    // eslint-disable-next-line no-unmodified-loop-condition
+    // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
     while (!complete && !hasThrown) {
       if (queue.length === 0) {
         // there's nothing pending yet, so let's allow some IO to occur...
@@ -94,6 +95,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
 
     await passThroughProducer;
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (hasThrown) {
       throw errorThrown;
     }

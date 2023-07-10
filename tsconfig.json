@@ -2,7 +2,9 @@
   "extends": "@checkdigit/typescript-config",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
-  "exclude": ["node_modules", "build", "dist"]
+  "exclude": ["node_modules", "build", "coverage"]
 }

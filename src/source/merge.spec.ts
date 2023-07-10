@@ -30,7 +30,7 @@ describe('merge', () => {
       [
         { value: '1', done: false },
         { value: undefined, done: true },
-      ]
+      ],
     );
   });
 
@@ -47,11 +47,15 @@ describe('merge', () => {
     ]);
   });
 
+  it('work if an array item is a promise', async () => {
+    assert.deepEqual(await pipeline(merge(['0', Promise.resolve('2'), '1']), toArray), ['0', '2', '1']);
+  });
+
   it('reject if array item is a promise that rejects', async () => {
     await assert.rejects(pipeline(merge(['0', Promise.reject(new Error('Reject')), '1']), toArray), /^Error: Reject$/u);
     await assert.rejects(
       pipeline(merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])), toArray),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 
@@ -63,7 +67,7 @@ describe('merge', () => {
       [
         { value: '1', done: false },
         { value: undefined, done: true },
-      ]
+      ],
     );
   });
 
@@ -83,7 +87,7 @@ describe('merge', () => {
       [
         { value: 'abc', done: false },
         { value: undefined, done: true },
-      ]
+      ],
     );
   });
 
@@ -126,18 +130,18 @@ describe('merge', () => {
               }),
               '14',
             ]),
-            from(['41'])
+            from(['41']),
           ),
-          toArray
+          toArray,
         )
       ).sort(),
-      ['10', '11', '12', '14', '30', '41', '58', '77']
+      ['10', '11', '12', '14', '30', '41', '58', '77'],
     );
   });
 
   it('works with a randomized merge tree', async () => {
     const TEST_SIZE = 1037;
-    const input = [...Array.from({ length: TEST_SIZE })].map(() => Math.ceil(Math.random() * 25));
+    const input = Array.from({ length: TEST_SIZE }).map(() => Math.ceil(Math.random() * 25));
 
     function tree(elements: number[]): Asyncerator<number> {
       if (elements.length === 0) {
@@ -146,13 +150,13 @@ describe('merge', () => {
       if (elements.length === 1) {
         return from<number>([
           new Promise<number>((resolve) => {
-            setTimeout(() => resolve(elements[0] as number), elements[0]);
+            setTimeout(() => resolve(elements[0]!), elements[0]);
           }),
         ] as unknown as Asyncerator<number>);
       }
-      const splitInto = elements[0] as number;
+      const splitInto = elements[0]!;
       const chunkSize = Math.ceil((elements.length - 1) / splitInto);
-      const mergeables: Array<Asyncerator<number>> = [];
+      const mergeables: Asyncerator<number>[] = [];
       for (let chunk = 0; chunk <= splitInto; chunk++) {
         mergeables.push(tree(elements.slice(chunk * chunkSize, (chunk + 1) * chunkSize)));
       }

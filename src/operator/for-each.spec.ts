@@ -16,7 +16,7 @@ describe('forEach', () => {
     await pipeline(
       all([]),
       forEach((item) => results.push(item)),
-      toArray
+      toArray,
     );
     assert.deepEqual(results, []);
   });
@@ -27,7 +27,7 @@ describe('forEach', () => {
     await pipeline(
       iterable,
       forEach((value) => results.push(value)),
-      toArray
+      toArray,
     );
     assert.deepEqual(results.sort(), [1, 2, 3]);
   });
@@ -38,7 +38,7 @@ describe('forEach', () => {
     await pipeline(
       iterable,
       forEach((value, index) => results.push(`${value}${index}`)),
-      toArray
+      toArray,
     );
     assert.deepEqual(results, ['a0', 'bb1', 'ccc2']);
   });
@@ -52,7 +52,7 @@ describe('forEach', () => {
       map((value) => value * 2),
       map((value) => ''.padStart(value, ' ')),
       forEach((value) => results.push(value)),
-      toArray
+      toArray,
     );
     assert.deepEqual(results, ['  ', '    ', '      ']);
   });
@@ -64,9 +64,9 @@ describe('forEach', () => {
         forEach(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
     await assert.rejects(
       pipeline(
@@ -74,9 +74,9 @@ describe('forEach', () => {
         forEach(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 });

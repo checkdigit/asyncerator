@@ -26,8 +26,8 @@ describe('socket', () => {
           socket,
           split('\n'),
           map((command) => `echo:${command}\n`),
-          socket
-        )
+          socket,
+        ),
       )
       .listen(port, '127.0.0.1');
 
@@ -37,14 +37,14 @@ describe('socket', () => {
       new net.Socket().connect(port, '127.0.0.1'),
       split('\n'),
       filter((line) => line !== ''),
-      toArray
+      toArray,
     );
     assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 
     // another echo client
     assert.equal(
       await pipeline('1\n2\n3\nhello\nworld\n', new net.Socket().connect(port, '127.0.0.1'), toString),
-      'echo:1\necho:2\necho:3\necho:hello\necho:world\n'
+      'echo:1\necho:2\necho:3\necho:hello\necho:world\n',
     );
 
     // close the server
@@ -54,7 +54,7 @@ describe('socket', () => {
 
     await assert.rejects(
       pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray),
-      /^Error: connect ECONNREFUSED/u
+      /^Error: connect ECONNREFUSED/u,
     );
   });
 
@@ -78,7 +78,7 @@ describe('socket', () => {
           map((command) => `echo:${command}\n`),
           socket,
           toNull,
-          options
+          options,
         ).catch((error) => {
           assert.equal(error.name, 'AbortError');
           assert.equal(error.message, 'The operation was aborted');
@@ -95,7 +95,7 @@ describe('socket', () => {
       new net.Socket().connect(port, '127.0.0.1'),
       split('\n'),
       filter((line) => line !== ''),
-      toArray
+      toArray,
     );
     assert.deepEqual(received1, ['echo:hello']);
 
@@ -133,8 +133,8 @@ describe('socket', () => {
           socket,
           split('\n'),
           map((command) => `echo:${command}\n`),
-          socket
-        )
+          socket,
+        ),
       )
       .listen(port, '127.0.0.1');
 
@@ -144,7 +144,7 @@ describe('socket', () => {
       new net.Socket().connect(port, '127.0.0.1'),
       split('\n'),
       filter((line) => line !== ''),
-      toArray
+      toArray,
     );
     assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
 

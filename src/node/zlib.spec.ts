@@ -30,7 +30,7 @@ async function* base64Encode(iterable: AsyncIterable<Buffer>): AsyncGenerator<st
 describe('zlib', () => {
   it('returns a stream if last parameter is a Gzip transform', async () => {
     const result = pipeline('hello', zlib.createGzip());
-    assert.ok(result.readable === true);
+    assert.ok(result.readable);
     assert.ok(typeof (await pipeline(result, base64Encode, toString)) === 'string');
   });
 
@@ -56,7 +56,7 @@ describe('zlib', () => {
       map((buffer: Buffer) => buffer.toString()),
       split('\n'),
       filter((string) => string !== ''),
-      toArray
+      toArray,
     );
     assert.deepEqual(result, input);
   });
@@ -70,9 +70,9 @@ describe('zlib', () => {
       input,
       map((string) => `${string}\n`),
       zlib.createGzip(),
-      fs.createWriteStream(temporaryFile)
+      fs.createWriteStream(temporaryFile),
     );
-    assert.ok(writeResult === undefined);
+    assert.equal(writeResult, undefined);
 
     // read a Gzipped file
     const result = await pipeline(
@@ -80,7 +80,7 @@ describe('zlib', () => {
       zlib.createUnzip(),
       split('\n'),
       filter((string) => string !== ''),
-      toArray
+      toArray,
     );
 
     assert.deepEqual(result, input);

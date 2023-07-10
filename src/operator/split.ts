@@ -20,7 +20,7 @@ import type { Operator } from './index';
 
 export default function <Input extends { toString: () => string }>(
   separator: string,
-  limit = Number.POSITIVE_INFINITY
+  limit = Number.POSITIVE_INFINITY,
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
     // this behavior dealing with fractional and negative limits is weird, but matches string.split
@@ -36,7 +36,9 @@ export default function <Input extends { toString: () => string }>(
 
     for await (const chunk of iterator) {
       if (
-        typeof chunk === 'undefined' ||
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        chunk === undefined ||
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         chunk === null ||
         typeof (chunk as { toString: () => string }).toString !== 'function'
       ) {

@@ -21,20 +21,20 @@ import asyncerator, { Asyncerator } from '../asyncerator';
 export type ReduceFunction<Input, Output> = (
   previousValue: Output,
   currentValue: Input,
-  currentIndex: number
+  currentIndex: number,
 ) => Output;
 
 export default function <Input>(
   reduceFunction: ReduceFunction<Input, Input>,
-  initialValue?: Input
+  initialValue?: Input,
 ): (iterator: Asyncerator<Input>) => Promise<Input | undefined>;
 export default function <Input, Output>(
   reduceFunction: ReduceFunction<Input, Output>,
-  initialValue?: Output
+  initialValue?: Output,
 ): (iterator: Asyncerator<Input>) => Promise<Output | undefined>;
 export default function <Input, Output>(
   reduceFunction: ReduceFunction<Input, Input | Output | undefined>,
-  initialValue?: Input | Output
+  initialValue?: Input | Output,
 ): (iterator: Asyncerator<Input>) => Promise<Input | Output | undefined> {
   return async function (iterator: Asyncerator<Input>): Promise<Input | Output | undefined> {
     let accumulator: Output | Input | undefined = initialValue;

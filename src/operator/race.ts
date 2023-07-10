@@ -24,11 +24,11 @@ const DEFAULT_CONCURRENT = 128;
  */
 export default function <Input, Output>(
   raceFunction: (value: Input) => Promise<Output>,
-  concurrent = DEFAULT_CONCURRENT
+  concurrent = DEFAULT_CONCURRENT,
 ): Operator<Input, Output> {
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Output[] = [];
-    const pending = new Set<Promise<void | Output>>();
+    const pending = new Set<Promise<undefined | Output>>();
     let complete = false;
     let errorThrown = false;
     let completionError: unknown;
@@ -75,7 +75,7 @@ export default function <Input, Output>(
      * queue consumer, runs concurrently with the for-await producer above
      */
 
-    // eslint-disable-next-line no-unmodified-loop-condition
+    // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
     while (!complete && !errorThrown) {
       if (pending.size === 0) {
         // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
@@ -98,6 +98,7 @@ export default function <Input, Output>(
 
     await producer;
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (errorThrown) {
       throw completionError;
     }

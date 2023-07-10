@@ -18,9 +18,9 @@ describe('filter', () => {
         filter(() => {
           throw new Error('This should not happen');
         }),
-        toArray
+        toArray,
       ),
-      []
+      [],
     );
   });
 
@@ -31,10 +31,10 @@ describe('filter', () => {
         await pipeline(
           iterable,
           filter((value) => value !== 2),
-          toArray
+          toArray,
         )
       ).sort(),
-      [1, 3]
+      [1, 3],
     );
   });
 
@@ -44,9 +44,9 @@ describe('filter', () => {
       await pipeline(
         iterable,
         filter(() => true),
-        toArray
+        toArray,
       ),
-      ['a', 'bb', 'ccc']
+      ['a', 'bb', 'ccc'],
     );
   });
 
@@ -57,9 +57,9 @@ describe('filter', () => {
         iterable,
         filter((_, index) => index !== 0),
         filter((value) => value !== 'ccc'),
-        toArray
+        toArray,
       ),
-      ['bb']
+      ['bb'],
     );
   });
 
@@ -70,9 +70,9 @@ describe('filter', () => {
         filter(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
     await assert.rejects(
       pipeline(
@@ -80,9 +80,9 @@ describe('filter', () => {
         filter(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 });

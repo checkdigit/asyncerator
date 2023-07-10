@@ -5,16 +5,13 @@ on:
     branches:
       - 'main'
 
-env:
-  CI: true
-
 jobs:
   pullRequestBuild:
     name: Pull Request Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -22,10 +19,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
+      - name: Check Label
+        uses: checkdigit/github-actions/check-label@main
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
       - name: Audit Signatures
         run: npm audit signatures
       - name: Compile
@@ -42,7 +41,7 @@ jobs:
     name: Branch Build
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -52,10 +51,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
+      - name: Check Label
+        uses: checkdigit/github-actions/check-label@main
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
       - name: Audit Signatures
         run: npm audit signatures
       - name: Compile

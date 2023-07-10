@@ -132,7 +132,7 @@ describe('asyncerator', () => {
         yield 'abc';
         yield 'def';
         yield 'ghi';
-      })()
+      })(),
     );
     const items = [];
     for await (const item of iterable) {

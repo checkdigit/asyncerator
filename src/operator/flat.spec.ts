@@ -34,8 +34,8 @@ describe('flat', () => {
           await check(item, 2);
           await check(item, 3);
           await check(item, Number.POSITIVE_INFINITY);
-        }
-      )
+        },
+      ),
     );
   });
 });
