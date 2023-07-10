@@ -50,6 +50,11 @@ describe('http', () => {
       server.close(resolve);
     });
 
+    // wait an extra 1ms for the server to close, required for Node 20
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1);
+    });
+
     await assert.rejects(
       pipeline('should error', http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' })),
       /^Error: connect ECONNREFUSED/u,
