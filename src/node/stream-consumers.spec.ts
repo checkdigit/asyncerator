@@ -18,7 +18,7 @@ describe('stream/consumers', () => {
     assert.deepEqual(new TextDecoder().decode(await arrayBuffer(from([]) as unknown as AsyncIterator<string>)), '');
     assert.deepEqual(
       new TextDecoder().decode(await arrayBuffer(from(['he', 'llo', ' world']) as unknown as AsyncIterator<string>)),
-      'hello world'
+      'hello world',
     );
     let first = true;
     assert.deepEqual(
@@ -35,14 +35,14 @@ describe('stream/consumers', () => {
               },
             };
           },
-        } as unknown as AsyncIterator<string>)
+        } as unknown as AsyncIterator<string>),
       ),
-      'abc'
+      'abc',
     );
     assert.deepEqual(new TextDecoder().decode(await arrayBuffer(pipeline(from([]), new stream.PassThrough()))), '');
     assert.deepEqual(
       new TextDecoder().decode(await arrayBuffer(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()))),
-      'hello world'
+      'hello world',
     );
   });
 
@@ -50,7 +50,7 @@ describe('stream/consumers', () => {
     assert.deepEqual(new TextDecoder().decode(await buffer(from([]) as unknown as AsyncIterator<string>)), '');
     assert.deepEqual(
       new TextDecoder().decode(await buffer(from(['he', 'llo', ' world']) as unknown as AsyncIterator<string>)),
-      'hello world'
+      'hello world',
     );
     let first = true;
     assert.deepEqual(
@@ -67,14 +67,14 @@ describe('stream/consumers', () => {
               },
             };
           },
-        } as unknown as AsyncIterator<string>)
+        } as unknown as AsyncIterator<string>),
       ),
-      'abc'
+      'abc',
     );
     assert.deepEqual(new TextDecoder().decode(await buffer(pipeline(from([]), new stream.PassThrough()))), '');
     assert.deepEqual(
       new TextDecoder().decode(await buffer(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()))),
-      'hello world'
+      'hello world',
     );
   });
 
@@ -96,7 +96,7 @@ describe('stream/consumers', () => {
           };
         },
       } as unknown as AsyncIterator<string>),
-      'abc'
+      'abc',
     );
     assert.deepEqual(await text(pipeline(from([]), new stream.PassThrough())), '');
     assert.deepEqual(await text(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough())), 'hello world');

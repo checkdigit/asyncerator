@@ -23,17 +23,13 @@ describe('reduce', () => {
   });
 
   it('has identical behavior to Array.reduce', async () => {
-    async function check<T, U>(
-      array: Array<T>,
-      reduceFunction: ReduceFunction<T, U>,
-      initialValue?: T | U
-    ): Promise<void> {
+    async function check<T, U>(array: T[], reduceFunction: ReduceFunction<T, U>, initialValue?: T | U): Promise<void> {
       let implementation;
       let implementationError;
       try {
         implementation = await reduce(
           reduceFunction as unknown as ReduceFunction<T, T>,
-          initialValue as T
+          initialValue as T,
         )(from(array)); // ?
       } catch (error) {
         implementationError = error; // ?
@@ -41,7 +37,8 @@ describe('reduce', () => {
       let arrayReduce;
       let arrayReduceError;
       try {
-        arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T); // ?
+        // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
+        arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T);
       } catch (error) {
         arrayReduceError = error; // ?
       }

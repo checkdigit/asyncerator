@@ -18,9 +18,9 @@ describe('race', () => {
         race(() => {
           throw new Error('This should not happen');
         }),
-        toArray
+        toArray,
       ),
-      []
+      [],
     );
   });
 
@@ -31,10 +31,10 @@ describe('race', () => {
         await pipeline(
           iterable,
           race(async (value) => value * 2),
-          toArray
+          toArray,
         )
       ).sort(),
-      [2, 4, 6]
+      [2, 4, 6],
     );
   });
 
@@ -45,10 +45,10 @@ describe('race', () => {
         await pipeline(
           iterable,
           race(async (value) => value.length),
-          toArray
+          toArray,
         )
       ).sort(),
-      [1, 2, 3]
+      [1, 2, 3],
     );
   });
 
@@ -61,10 +61,10 @@ describe('race', () => {
           race(async (value) => value.length),
           race(async (value) => value * 2),
           race(async (value) => ''.padStart(value, ' ')),
-          toArray
+          toArray,
         )
       ).sort(),
-      ['  ', '    ', '      ']
+      ['  ', '    ', '      '],
     );
   });
 
@@ -75,9 +75,9 @@ describe('race', () => {
         race(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
     await assert.rejects(
       pipeline(
@@ -85,9 +85,9 @@ describe('race', () => {
         race(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 
@@ -104,7 +104,7 @@ describe('race', () => {
           setTimeout(resolve, Math.floor(Math.random() * 10));
         });
         return number_;
-      })
+      }),
     );
     const outputArray = await toArray(iterable);
 

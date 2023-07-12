@@ -61,7 +61,7 @@ describe('pipeline', () => {
   it('works consistently with streams', async () => {
     assert.deepEqual(
       await pipeline([undefined, 1, 2, true, 3, [4, [5], 6, 7]], new PassThrough({ objectMode: true }), toString),
-      '12true34,5,6,7'
+      '12true34,5,6,7',
     );
     await assert.rejects(async () => pipeline([null], new PassThrough({ objectMode: true }), toString), {
       name: 'TypeError',
@@ -87,7 +87,7 @@ describe('pipeline', () => {
         name: 'TypeError',
         message:
           'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type symbol (Symbol(hello))',
-      }
+      },
     );
     await assert.rejects(async () => pipeline([1], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
@@ -103,17 +103,17 @@ describe('pipeline', () => {
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: true }),
-        toString
+        toString,
       ),
-      'hello32world'
+      'hello32world',
     );
     assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
         new PassThrough({ objectMode: false }),
-        toString
+        toString,
       ),
-      'hello world'
+      'hello world',
     );
   });
 
@@ -130,10 +130,10 @@ describe('pipeline', () => {
           written += chunk.toString();
           callback();
         },
-      })
+      }),
     );
 
-    assert.ok(result === undefined);
+    assert.equal(result, undefined);
     assert.deepEqual(written, 'abc');
 
     let errorThrown;
@@ -165,9 +165,9 @@ describe('pipeline', () => {
         {
           [Symbol.asyncIterator]: () => asyncIterableIterator,
         },
-        toString
+        toString,
       ),
-      '0123'
+      '0123',
     );
   });
 
@@ -186,12 +186,12 @@ describe('pipeline', () => {
           }),
         ]),
         toString,
-        options
+        options,
       ),
       {
         name: 'AbortError',
         message: 'The operation was aborted',
-      }
+      },
     );
   });
 });

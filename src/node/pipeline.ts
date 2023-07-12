@@ -34,108 +34,127 @@ export interface PipelineOptions {
  */
 
 // zero transforms
-export default function <Source>(source: PipelineSource<Source>, sink: Writable): Promise<void>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
   sink: (input: Asyncerator<Source>) => Promise<Sink>,
-  options?: PipelineOptions
+  options?: PipelineOptions,
 ): Promise<Sink>;
 export default function <Source, Sink>(
   source: PipelineSource<Source>,
-  sink: Duplex | ((input: Asyncerator<Source>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<Source>) => AsyncIterable<Sink>),
 ): Readable;
+export default function <Source>(source: PipelineSource<Source>, sink: Writable): Promise<void>;
 
 // 1 transform
-export default function <Source, TransformSink>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, TransformSink>,
-  sink: Writable
-): Promise<void>;
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
   sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
+  options?: PipelineOptions,
 ): Promise<Sink>;
 export default function <Source, Sink, TransformSink>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
 ): Readable;
+export default function <Source, TransformSink>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, TransformSink>,
+  sink: Writable,
+): Promise<void>;
 
 // 2 transforms
+export default function <Source, Sink, TransformSink, T1>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 3 transforms
+export default function <Source, Sink, TransformSink, T1, T2>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 4 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
   transform2: PipelineTransformer<T1, T2>,
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 5 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -143,29 +162,31 @@ export default function <Source, TransformSink, T1, T2, T3, T4>(
   transform3: PipelineTransformer<T2, T3>,
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 6 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4, T5>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -174,31 +195,33 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5>(
   transform4: PipelineTransformer<T3, T4>,
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 7 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -208,33 +231,35 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6>(
   transform5: PipelineTransformer<T4, T5>,
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 8 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -245,35 +270,37 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
   transform6: PipelineTransformer<T5, T6>,
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 9 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -285,37 +312,39 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
   transform7: PipelineTransformer<T6, T7>,
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, T8>,
-  transform9: PipelineTransformer<T8, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, T8>,
-  transform9: PipelineTransformer<T8, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 // 10 transforms
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, T9>,
+  transform10: PipelineTransformer<T9, TransformSink>,
+  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
+  options?: PipelineOptions,
+): Promise<Sink>;
+export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+  source: PipelineSource<Source>,
+  transform1: PipelineTransformer<Source, T1>,
+  transform2: PipelineTransformer<T1, T2>,
+  transform3: PipelineTransformer<T2, T3>,
+  transform4: PipelineTransformer<T3, T4>,
+  transform5: PipelineTransformer<T4, T5>,
+  transform6: PipelineTransformer<T5, T6>,
+  transform7: PipelineTransformer<T6, T7>,
+  transform8: PipelineTransformer<T7, T8>,
+  transform9: PipelineTransformer<T8, T9>,
+  transform10: PipelineTransformer<T9, TransformSink>,
+  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>),
+): Readable;
 export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
   source: PipelineSource<Source>,
   transform1: PipelineTransformer<Source, T1>,
@@ -328,37 +357,8 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, 
   transform8: PipelineTransformer<T7, T8>,
   transform9: PipelineTransformer<T8, T9>,
   transform10: PipelineTransformer<T9, TransformSink>,
-  sink: Writable
+  sink: Writable,
 ): Promise<void>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, T8>,
-  transform9: PipelineTransformer<T8, T9>,
-  transform10: PipelineTransformer<T9, TransformSink>,
-  sink: (input: Asyncerator<TransformSink>) => Promise<Sink>,
-  options?: PipelineOptions
-): Promise<Sink>;
-export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-  source: PipelineSource<Source>,
-  transform1: PipelineTransformer<Source, T1>,
-  transform2: PipelineTransformer<T1, T2>,
-  transform3: PipelineTransformer<T2, T3>,
-  transform4: PipelineTransformer<T3, T4>,
-  transform5: PipelineTransformer<T4, T5>,
-  transform6: PipelineTransformer<T5, T6>,
-  transform7: PipelineTransformer<T6, T7>,
-  transform8: PipelineTransformer<T7, T8>,
-  transform9: PipelineTransformer<T8, T9>,
-  transform10: PipelineTransformer<T9, TransformSink>,
-  sink: Duplex | ((input: Asyncerator<TransformSink>) => AsyncIterable<Sink>)
-): Readable;
 
 /**
  * Wrapped version of stream.pipeline.  We do this for two reasons:
@@ -371,8 +371,9 @@ export default function <Source, Sink, TransformSink, T1, T2, T3, T4, T5, T6, T7
  * @param argumentList
  */
 
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void> | Readable {
-  let options: PipelineOptions | undefined = (argumentList[argumentList.length - 1] ?? {}) as PipelineOptions;
+  let options: PipelineOptions | undefined = (argumentList.at(-1) ?? {}) as PipelineOptions;
   if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
     options = undefined;
   }

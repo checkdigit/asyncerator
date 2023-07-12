@@ -29,7 +29,7 @@ describe('before', () => {
         count += 1;
       }),
       before(1),
-      toArray
+      toArray,
     );
     assert.deepEqual(results, [1, 2, 3, 4, 5]);
     assert.equal(count, 4);
@@ -48,7 +48,7 @@ describe('before', () => {
     // send no data
     assert.deepEqual(
       await pipeline(Buffer.from('').values(), new net.Socket().connect(port, '127.0.0.1'), toString),
-      'before '
+      'before ',
     );
 
     // send some data

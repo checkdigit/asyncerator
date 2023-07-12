@@ -16,9 +16,9 @@ describe('sequence', () => {
       await pipeline(
         all([]),
         sequence(async (index) => index),
-        toArray
+        toArray,
       ),
-      []
+      [],
     );
   });
 
@@ -27,9 +27,9 @@ describe('sequence', () => {
       await pipeline(
         from([-1, -2, -3]),
         sequence(async (index) => index),
-        toArray
+        toArray,
       ),
-      [-1, -2, -3]
+      [-1, -2, -3],
     );
   });
 
@@ -50,9 +50,9 @@ describe('sequence', () => {
           });
           return index;
         }),
-        toArray
+        toArray,
       ),
-      [0, 123, 1, 456]
+      [0, 123, 1, 456],
     );
   });
 
@@ -77,11 +77,11 @@ describe('sequence', () => {
             });
             return index;
           }),
-          toArray
+          toArray,
         ),
       {
         message: 456,
-      }
+      },
     );
     assert.deepEqual(results, [0, 1, 2]);
   });
@@ -107,11 +107,11 @@ describe('sequence', () => {
             });
             return index;
           }),
-          toArray
+          toArray,
         ),
       {
         message: 'abc',
-      }
+      },
     );
     assert.deepEqual(results, [0]);
   });
@@ -136,9 +136,9 @@ describe('sequence', () => {
           }
           return index;
         }),
-        toArray
+        toArray,
       ),
-      [0, 123, 456]
+      [0, 123, 456],
     );
   });
 });

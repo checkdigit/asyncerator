@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/npm/v/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 [![Dependency Status](https://img.shields.io/npm/dt/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 
-Copyright (c) 2021-2022 [Check Digit, LLC](https://checkdigit.com)
+Copyright (c) 2021-2023 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
 
@@ -96,7 +96,7 @@ await pipeline(
   ['hello', 'world'],
   map((string) => `${string}\n`),
   zlib.createGzip(),
-  fs.createWriteStream(temporaryFile)
+  fs.createWriteStream(temporaryFile),
 );
 
 // read file using a pipeline
@@ -105,12 +105,12 @@ const result = await pipeline(
   zlib.createUnzip(),
   split('\n'),
   filter((string) => string !== ''),
-  toArray
+  toArray,
 ); // ['hello', 'world']
 
 // read file without pipeline (painful, don't do this!)
 const result2 = await toArray(
-  filter((string) => string !== '')(split('\n')(fs.createReadStream(temporaryFile).pipe(zlib.createUnzip())))
+  filter((string) => string !== '')(split('\n')(fs.createReadStream(temporaryFile).pipe(zlib.createUnzip()))),
 ); // ['hello', 'world']
 ```
 
@@ -294,9 +294,9 @@ async function main() {
             calculated: await someAsyncNetworkAPIFunction(field1),
             field1,
             field4, // type is infered to be a BigInt, because Typescript is awesome
-          }))(item)
-        )
-      )
+          }))(item),
+        ),
+      ),
     ),
     // demonstrate use of an async generator to filter and transform objects into a string
     // (FYI could be done more easily using map and filter)
@@ -307,7 +307,7 @@ async function main() {
         }
       }
     },
-    fs.createWriteStream('./output.csv')
+    fs.createWriteStream('./output.csv'),
   );
 }
 ```
@@ -334,8 +334,8 @@ const server = net
       socket,
       split('\n'),
       map((command) => `echo:${command}\n`),
-      socket
-    )
+      socket,
+    ),
   )
   .listen(1234, '127.0.0.1');
 
@@ -345,7 +345,7 @@ const received = await pipeline(
   new net.Socket().connect(1234, '127.0.0.1'),
   split('\n'),
   filter((line) => line !== ''),
-  toArray
+  toArray,
 ); // ['echo:Hello Mr Server!', 'echo:Regards, Client.']
 ```
 

@@ -27,7 +27,7 @@ describe('http', () => {
           request,
           split('\n'),
           map((command) => `echo:${command}\n`),
-          response
+          response,
         );
       })
       .listen(port, '127.0.0.1');
@@ -38,8 +38,8 @@ describe('http', () => {
       pipeline(
         'hello\nworld',
         http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' }, (response) =>
-          resolve(pipeline(response, toString))
-        )
+          resolve(pipeline(response, toString)),
+        ),
       );
     });
 
@@ -50,9 +50,14 @@ describe('http', () => {
       server.close(resolve);
     });
 
+    // wait an extra 10ms for the server to close, required for Node 20 (possible bug in Node?)
+    await new Promise((resolve) => {
+      setTimeout(resolve, 10);
+    });
+
     await assert.rejects(
       pipeline('should error', http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' })),
-      /^Error: connect ECONNREFUSED/u
+      /^Error: connect ECONNREFUSED/u,
     );
   });
 });

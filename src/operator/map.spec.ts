@@ -18,9 +18,9 @@ describe('map', () => {
         map(() => {
           throw new Error('This should not happen');
         }),
-        toArray
+        toArray,
       ),
-      []
+      [],
     );
   });
 
@@ -31,10 +31,10 @@ describe('map', () => {
         await pipeline(
           iterable,
           map((value) => value * 2),
-          toArray
+          toArray,
         )
       ).sort(),
-      [2, 4, 6]
+      [2, 4, 6],
     );
   });
 
@@ -44,9 +44,9 @@ describe('map', () => {
       await pipeline(
         iterable,
         map((value, index) => value.length + index),
-        toArray
+        toArray,
       ),
-      [1, 3, 5]
+      [1, 3, 5],
     );
   });
 
@@ -58,9 +58,9 @@ describe('map', () => {
         map((value) => value.length),
         map((value) => value * 2),
         map((value) => ''.padStart(value, ' ')),
-        toArray
+        toArray,
       ),
-      ['  ', '    ', '      ']
+      ['  ', '    ', '      '],
     );
   });
 
@@ -71,9 +71,9 @@ describe('map', () => {
         map(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
     await assert.rejects(
       pipeline(
@@ -81,9 +81,9 @@ describe('map', () => {
         map(() => {
           throw new Error('Reject');
         }),
-        toArray
+        toArray,
       ),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 });

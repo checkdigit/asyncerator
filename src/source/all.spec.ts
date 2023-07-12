@@ -24,7 +24,7 @@ describe('all', () => {
     await assert.rejects(pipeline(all([Promise.reject(new Error('Reject'))]), toArray), /^Error: Reject$/u);
     await assert.rejects(
       pipeline(all([Promise.resolve(1), Promise.reject(new Error('Reject')), Promise.resolve(3)]), toArray),
-      /^Error: Reject$/u
+      /^Error: Reject$/u,
     );
   });
 });

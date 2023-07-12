@@ -25,7 +25,7 @@ describe('after', () => {
         count += 1;
       }),
       after(5),
-      toArray
+      toArray,
     );
     assert.deepEqual(results, [1, 2, 3, 4, 5]);
     assert.equal(count, 4);
