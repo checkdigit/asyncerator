@@ -50,9 +50,9 @@ describe('http', () => {
       server.close(resolve);
     });
 
-    // wait an extra 1ms for the server to close, required for Node 20
+    // wait an extra 10ms for the server to close, required for Node 20 (possible bug in Node?)
     await new Promise((resolve) => {
-      setTimeout(resolve, 1);
+      setTimeout(resolve, 10);
     });
 
     await assert.rejects(
