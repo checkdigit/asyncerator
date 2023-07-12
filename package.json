@@ -56,10 +56,10 @@
     ]
   },
   "scripts": {
-    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-esm",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-mjs",
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
     "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
-    "build:dist-esm": "rimraf dist-esm && npx builder --type=module --sourceMap --outDir=dist-mjs",
+    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs",
     "lint:fix": "eslint -f unix --ext .ts,.mts src --fix",
     "lint": "eslint -f unix --ext .ts,.mts src",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
