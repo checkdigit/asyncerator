@@ -111,9 +111,9 @@ describe('asyncerator', () => {
     };
     const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
     assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     assert.equal(asyncerator.throw, undefined);
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     assert.equal(asyncerator.return, undefined);
   });
 

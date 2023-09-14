@@ -30,9 +30,9 @@ describe('reduce', () => {
         implementation = await reduce(
           reduceFunction as unknown as ReduceFunction<T, T>,
           initialValue as T,
-        )(from(array)); // ?
+        )(from(array));
       } catch (error) {
-        implementationError = error; // ?
+        implementationError = error;
       }
       let arrayReduce;
       let arrayReduceError;

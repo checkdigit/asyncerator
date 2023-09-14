@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { Asyncable } from '../asyncerator';
+import asyncerator, { type Asyncable } from '../asyncerator';
 
 /**
  * Drop the results of an asyncable into /dev/null.

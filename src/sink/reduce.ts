@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { Asyncerator } from '../asyncerator';
+import asyncerator, { type Asyncerator } from '../asyncerator';
 
 /**
  * Calls the specified callback function for all the elements in a stream. The return value of the callback function

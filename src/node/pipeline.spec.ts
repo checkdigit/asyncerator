@@ -32,13 +32,11 @@ async function validateReadable(stream: Readable, expected: string) {
     finished = true;
   });
 
-  // eslint-disable-next-line deprecate/function
   assert.strictEqual(await toString(stream), expected);
 
   assert.ok(finished);
   assert.ok(ended);
 
-  // eslint-disable-next-line deprecate/function
   assert.strictEqual(await toString(stream), '');
 }
 
@@ -177,12 +175,16 @@ describe('pipeline', () => {
     const options = {
       signal: abortController.signal,
     };
-    setTimeout(() => abortController.abort(), 1);
+    setTimeout(() => {
+      abortController.abort();
+    }, 1);
     await assert.rejects(
       pipeline(
         all([
           new Promise((resolve) => {
-            setTimeout(() => resolve('never resolves'), 10);
+            setTimeout(() => {
+              resolve('never resolves');
+            }, 10);
           }),
         ]),
         toString,

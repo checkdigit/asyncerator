@@ -37,14 +37,14 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^8.0.0",
-    "@checkdigit/jest-config": "^3.0.0",
-    "@checkdigit/prettier-config": "^4.0.0",
-    "@checkdigit/typescript-config": "4.0.0",
+    "@checkdigit/eslint-config": "8.3.0-PR.122-8549",
+    "@checkdigit/jest-config": "3.1.0-PR.22-bbd8",
+    "@checkdigit/prettier-config": "^4.1.0",
+    "@checkdigit/typescript-config": "5.0.0-PR.41-b783",
     "@types/debug": "^4.1.8",
-    "@types/uuid": "^9.0.2",
+    "@types/uuid": "^9.0.3",
     "get-port": "^5.1.1",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "jest": {
     "preset": "@checkdigit/jest-config"
@@ -59,8 +59,8 @@
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
     "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
     "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs",
-    "lint:fix": "eslint -f unix --ext .ts,.mts src --fix",
-    "lint": "eslint -f unix --ext .ts,.mts src",
+    "lint:fix": "eslint --ignore-path .gitignore . --fix",
+    "lint": "eslint  --max-warnings 0 --ignore-path .gitignore .",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
     "prettier:fix": "prettier --ignore-path .gitignore --write .",
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
