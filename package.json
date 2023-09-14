@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "sideEffects": false,
   "exports": {
@@ -40,7 +40,7 @@
     "@checkdigit/eslint-config": "8.3.0-PR.122-8549",
     "@checkdigit/jest-config": "3.1.0-PR.22-bbd8",
     "@checkdigit/prettier-config": "^4.1.0",
-    "@checkdigit/typescript-config": "5.0.0-PR.41-b783",
+    "@checkdigit/typescript-config": "5.0.0-PR.41-12a2",
     "@types/debug": "^4.1.8",
     "@types/uuid": "^9.0.3",
     "get-port": "^5.1.1",
