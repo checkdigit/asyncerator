@@ -373,12 +373,12 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, 
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void> | Readable {
-  let options: PipelineOptions | undefined = (argumentList.at(-1) ?? {}) as PipelineOptions;
+  let options: PipelineOptions | undefined = argumentList.at(-1) as PipelineOptions;
   if (!(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')) {
     options = undefined;
   }
 
-  const sink = (argumentList[argumentList.length - (options === undefined ? 1 : 2)] ?? {}) as object;
+  const sink = argumentList[argumentList.length - (options === undefined ? 1 : 2)] as object;
 
   /**
    * The sink is an async function, so return a promise

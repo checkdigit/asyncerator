@@ -9,9 +9,7 @@
 import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
 
-import { all, toString } from '../index';
-
-import pipeline from './pipeline';
+import { all, pipeline, toString } from '../index';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {
@@ -32,12 +30,12 @@ async function validateReadable(stream: Readable, expected: string) {
     finished = true;
   });
 
-  assert.strictEqual(await toString(stream), expected);
+  assert.equal(await toString(stream), expected);
 
   assert.ok(finished);
   assert.ok(ended);
 
-  assert.strictEqual(await toString(stream), '');
+  assert.equal(await toString(stream), '');
 }
 
 describe('pipeline', () => {
@@ -50,10 +48,10 @@ describe('pipeline', () => {
     assert.ok(typeof result2.then === 'function');
     assert.ok(typeof result3.then === 'function');
     assert.ok(typeof result4.then === 'function');
-    assert.strictEqual(await result1, 'undefined1null2true34,5,6,7');
-    assert.strictEqual(await result2, '104101108108111');
-    assert.strictEqual(await result3, 'hello');
-    assert.strictEqual(await result4, '979899');
+    assert.equal(await result1, 'undefined1null2true34,5,6,7');
+    assert.equal(await result2, '104101108108111');
+    assert.equal(await result3, 'hello');
+    assert.equal(await result4, '979899');
   });
 
   it('works consistently with streams', async () => {
@@ -115,6 +113,20 @@ describe('pipeline', () => {
     );
   });
 
+  it('correctly emits error on returned stream', async () => {
+    const readable = pipeline([null], new PassThrough({ objectMode: true }), passThru);
+    await assert.rejects(
+      new Promise((_, reject) => {
+        readable.on('error', (error) => {
+          reject(error);
+        });
+      }),
+      {
+        message: 'May not write null values to stream',
+      },
+    );
+  });
+
   it('returns ReadWriteStream if last parameter is an async generator', async () => {
     await validateReadable(pipeline([undefined, 1, 2, true, 3], passThru), '12true3');
   });
@@ -144,7 +156,7 @@ describe('pipeline', () => {
   });
 
   it('can support nested pipelines as sources', async () => {
-    assert.strictEqual(await pipeline(pipeline(pipeline('hello', passThru), passThru), toString), 'hello');
+    assert.equal(await pipeline(pipeline(pipeline('hello', passThru), passThru), toString), 'hello');
   });
 
   it('can support a pure Asyncerator as source', async () => {
@@ -158,7 +170,7 @@ describe('pipeline', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.strictEqual(
+    assert.equal(
       await pipeline(
         {
           [Symbol.asyncIterator]: () => asyncIterableIterator,

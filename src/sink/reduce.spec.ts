@@ -9,6 +9,7 @@
 import { strict as assert } from 'node:assert';
 
 import { after, before, from, pipeline, reduce } from '../index';
+
 import type { ReduceFunction } from './reduce';
 
 describe('reduce', () => {

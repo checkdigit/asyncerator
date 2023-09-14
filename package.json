@@ -57,8 +57,8 @@
   "scripts": {
     "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-mjs",
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
-    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --entryPoint=index.ts --outDir=dist-cjs --outFile=index.cjs",
-    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs",
+    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --outDir=dist-cjs && node dist-cjs/index.cjs",
+    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
     "lint:fix": "eslint --ignore-path .gitignore . --fix",
     "lint": "eslint  --max-warnings 0 --ignore-path .gitignore .",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
