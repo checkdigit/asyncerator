@@ -9,9 +9,6 @@ jobs:
   checkPublished:
     runs-on: ubuntu-latest
     name: Check Published
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
       - uses: actions/checkout@v3
         with:

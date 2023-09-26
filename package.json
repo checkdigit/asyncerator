@@ -37,12 +37,12 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "8.3.0-PR.122-8549",
-    "@checkdigit/jest-config": "3.1.0-PR.22-bbd8",
+    "@checkdigit/eslint-config": "^8.3.0",
+    "@checkdigit/jest-config": "^3.1.0",
     "@checkdigit/prettier-config": "^4.1.0",
-    "@checkdigit/typescript-config": "5.0.0-PR.41-12a2",
-    "@types/debug": "^4.1.8",
-    "@types/uuid": "^9.0.3",
+    "@checkdigit/typescript-config": "^5.0.0",
+    "@types/debug": "^4.1.9",
+    "@types/uuid": "^9.0.4",
     "get-port": "^5.1.1",
     "uuid": "^9.0.1"
   },
