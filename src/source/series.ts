@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { Asyncable, Asyncerator } from '../asyncerator';
+import asyncerator, { type Asyncable, type Asyncerator } from '../asyncerator';
 
 /**
  * Combine the output of iterators in a series.  Requires all the iterators to complete.

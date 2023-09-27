@@ -8,7 +8,7 @@
 
 import { strict as assert } from 'node:assert';
 
-import { Asyncerator, from, merge, pipeline, toArray } from '../index';
+import { type Asyncerator, from, merge, pipeline, toArray } from '../index';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {
@@ -150,7 +150,9 @@ describe('merge', () => {
       if (elements.length === 1) {
         return from<number>([
           new Promise<number>((resolve) => {
-            setTimeout(() => resolve(elements[0]!), elements[0]);
+            setTimeout(() => {
+              resolve(elements[0]!);
+            }, elements[0]);
           }),
         ] as unknown as Asyncerator<number>);
       }

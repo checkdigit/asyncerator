@@ -9,17 +9,14 @@ jobs:
   checkPublished:
     runs-on: ubuntu-latest
     name: Check Published
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
       - name: Check Published
         uses: checkdigit/github-actions/check-published@main

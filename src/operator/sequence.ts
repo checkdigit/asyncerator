@@ -43,7 +43,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
         queue.push(await sequenceFunction(currentIndex++));
 
         // sequenceFunction may resolve immediately, so we need to allow the event loop to process before repeating
-        // eslint-disable-next-line no-await-in-loop,no-loop-func
+        // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
           setTimeout(resolve, 0);
         });
@@ -83,7 +83,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
     while (!complete && !hasThrown) {
       if (queue.length === 0) {
         // there's nothing pending yet, so let's allow some IO to occur...
-        // eslint-disable-next-line no-await-in-loop,no-loop-func
+        // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
           setTimeout(resolve, 0);
         });

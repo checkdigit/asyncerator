@@ -19,10 +19,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Check Label
-        uses: checkdigit/github-actions/check-label@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Audit Signatures
@@ -51,10 +47,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Check Label
-        uses: checkdigit/github-actions/check-label@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Audit Signatures

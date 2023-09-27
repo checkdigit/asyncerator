@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { Asyncable } from '../asyncerator';
+import asyncerator, { type Asyncable } from '../asyncerator';
 
 /**
  * Turn an async iterable iterator into a string.

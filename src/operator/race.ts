@@ -40,7 +40,7 @@ export default function <Input, Output>(
     const producer = (async () => {
       for await (const item of iterator) {
         while (pending.size >= concurrent) {
-          // eslint-disable-next-line no-await-in-loop,no-loop-func
+          // eslint-disable-next-line no-await-in-loop
           await new Promise((resolve) => {
             setTimeout(resolve, 0);
           });
@@ -79,7 +79,7 @@ export default function <Input, Output>(
     while (!complete && !errorThrown) {
       if (pending.size === 0) {
         // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
-        // eslint-disable-next-line no-await-in-loop,no-loop-func
+        // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
           setTimeout(resolve, 0);
         });

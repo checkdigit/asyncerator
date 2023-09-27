@@ -37,9 +37,9 @@ describe('http', () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       pipeline(
         'hello\nworld',
-        http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' }, (response) =>
-          resolve(pipeline(response, toString)),
-        ),
+        http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' }, (response) => {
+          resolve(pipeline(response, toString));
+        }),
       );
     });
 

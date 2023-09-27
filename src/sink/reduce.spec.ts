@@ -9,6 +9,7 @@
 import { strict as assert } from 'node:assert';
 
 import { after, before, from, pipeline, reduce } from '../index';
+
 import type { ReduceFunction } from './reduce';
 
 describe('reduce', () => {
@@ -30,9 +31,9 @@ describe('reduce', () => {
         implementation = await reduce(
           reduceFunction as unknown as ReduceFunction<T, T>,
           initialValue as T,
-        )(from(array)); // ?
+        )(from(array));
       } catch (error) {
-        implementationError = error; // ?
+        implementationError = error;
       }
       let arrayReduce;
       let arrayReduceError;

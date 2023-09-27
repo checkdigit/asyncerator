@@ -38,10 +38,14 @@ describe('sequence', () => {
       await pipeline(
         all([
           new Promise((resolve) => {
-            setTimeout(() => resolve(123), 250);
+            setTimeout(() => {
+              resolve(123);
+            }, 250);
           }),
           new Promise((resolve) => {
-            setTimeout(() => resolve(456), 400);
+            setTimeout(() => {
+              resolve(456);
+            }, 400);
           }),
         ]),
         sequence(async (index) => {
@@ -63,11 +67,14 @@ describe('sequence', () => {
         pipeline(
           all([
             new Promise((resolve) => {
-              setTimeout(() => resolve(123), 250);
+              setTimeout(() => {
+                resolve(123);
+              }, 250);
             }),
             new Promise((_, reject) => {
-              // eslint-disable-next-line prefer-promise-reject-errors
-              setTimeout(() => reject({ message: 456 }), 400);
+              setTimeout(() => {
+                reject({ message: 456 });
+              }, 400);
             }),
           ]),
           sequence(async (index) => {
@@ -93,17 +100,22 @@ describe('sequence', () => {
         pipeline(
           all([
             new Promise((resolve) => {
-              setTimeout(() => resolve(123), 250);
+              setTimeout(() => {
+                resolve(123);
+              }, 250);
             }),
             new Promise((resolve) => {
-              setTimeout(() => resolve(456), 400);
+              setTimeout(() => {
+                resolve(456);
+              }, 400);
             }),
           ]),
           sequence(async (index) => {
             results.push(index);
             await new Promise((_, reject) => {
-              // eslint-disable-next-line prefer-promise-reject-errors
-              setTimeout(() => reject({ message: 'abc' }), 320);
+              setTimeout(() => {
+                reject({ message: 'abc' });
+              }, 320);
             });
             return index;
           }),
@@ -121,17 +133,22 @@ describe('sequence', () => {
       await pipeline(
         all([
           new Promise((resolve) => {
-            setTimeout(() => resolve(123), 250);
+            setTimeout(() => {
+              resolve(123);
+            }, 250);
           }),
           new Promise((resolve) => {
-            setTimeout(() => resolve(456), 400);
+            setTimeout(() => {
+              resolve(456);
+            }, 400);
           }),
         ]),
         sequence(async (index) => {
           if (index !== 0) {
             await new Promise((_, reject) => {
-              // eslint-disable-next-line prefer-promise-reject-errors
-              setTimeout(() => reject({ message: 'abc' }), 500);
+              setTimeout(() => {
+                reject({ message: 'abc' });
+              }, 500);
             });
           }
           return index;
