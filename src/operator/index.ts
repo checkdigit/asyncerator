@@ -7,6 +7,7 @@
  */
 
 import type { Asyncerator } from '../asyncerator';
+
 export type Operator<Input, Output> = (input: Asyncerator<Input>) => Asyncerator<Output>;
 
 export { default as forEach } from './for-each';
