@@ -1,12 +1,14 @@
 // source/all.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+
+import { describe, it } from '@jest/globals';
 
 import { all, pipeline, toArray } from '../index';
 
@@ -21,10 +23,10 @@ describe('all', () => {
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(pipeline(all([Promise.reject(new Error('Reject'))]), toArray), /^Error: Reject$/u);
+    await assert.rejects(pipeline(all([Promise.reject(new Error('Reject'))]), toArray), { message: 'Reject' });
     await assert.rejects(
       pipeline(all([Promise.resolve(1), Promise.reject(new Error('Reject')), Promise.resolve(3)]), toArray),
-      /^Error: Reject$/u,
+      { message: 'Reject' },
     );
   });
 });

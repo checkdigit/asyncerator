@@ -1,12 +1,12 @@
 {
   "name": "asyncerator",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "sideEffects": false,
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist-types/index.d.ts",
-      "require": "./dist-cjs/index.cjs",
       "import": "./dist-mjs/index.mjs",
       "default": "./dist-mjs/index.mjs"
     }
@@ -17,7 +17,7 @@
     "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.10"
   },
   "author": "Check Digit, LLC",
   "license": "MIT",
@@ -37,13 +37,13 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^8.3.0",
-    "@checkdigit/jest-config": "^3.1.0",
-    "@checkdigit/prettier-config": "^4.1.0",
-    "@checkdigit/typescript-config": "^5.0.0",
-    "@types/debug": "^4.1.9",
-    "@types/uuid": "^9.0.4",
-    "get-port": "^5.1.1",
+    "@checkdigit/eslint-config": "^9.1.0",
+    "@checkdigit/jest-config": "^5.0.0",
+    "@checkdigit/prettier-config": "^5.1.0",
+    "@checkdigit/typescript-config": "^6.0.0",
+    "@types/debug": "^4.1.12",
+    "@types/uuid": "^9.0.7",
+    "get-port": "^7.0.0",
     "uuid": "^9.0.1"
   },
   "jest": {
@@ -55,9 +55,8 @@
     ]
   },
   "scripts": {
-    "prepublishOnly": "npm run build:dist-types && npm run build:dist-cjs && npm run build:dist-mjs",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
-    "build:dist-cjs": "rimraf dist-cjs && npx builder --type=commonjs --sourceMap --outDir=dist-cjs && node dist-cjs/index.cjs",
     "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
     "lint:fix": "eslint --ignore-path .gitignore . --fix",
     "lint": "eslint  --max-warnings 0 --ignore-path .gitignore .",
@@ -73,14 +72,11 @@
   "files": [
     "src",
     "dist-types",
-    "dist-cjs",
     "dist-mjs",
     "!src/**/*.test.ts",
     "!src/**/*.spec.ts",
     "!dist-types/**/*.test.d.ts",
     "!dist-types/**/*.spec.d.ts",
-    "!dist-cjs/**/*.test.cjs",
-    "!dist-cjs/**/*.spec.cjs",
     "!dist-mjs/**/*.test.mjs",
     "!dist-mjs/**/*.spec.mjs",
     "SECURITY.md"

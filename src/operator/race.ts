@@ -1,7 +1,7 @@
 // operator/race.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -17,7 +17,7 @@ const log = debug('asyncerator:operator:race');
 const DEFAULT_CONCURRENT = 128;
 
 /**
- * Apply stream of values to the raceFunction, emitting output values in order of completion.  By default, allows
+ * Apply stream of values to the raceFunction, emitting output values in order of completion.  By default, it allows
  * up to 128 concurrent values to be processed.
  * @param raceFunction
  * @param concurrent
@@ -51,7 +51,7 @@ export default function <Input, Output>(
 
         promise
           .then((value) => {
-            // as promises resolve, then remove from pending and add result to the queue
+            // as promises resolve, then remove from pending and add the result to the queue
             queue.push(value);
             pending.delete(promise);
             return value;

@@ -1,12 +1,14 @@
 // operator/filter.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+
+import { describe, it } from '@jest/globals';
 
 import { all, filter, from, pipeline, toArray } from '../index';
 
@@ -72,7 +74,7 @@ describe('filter', () => {
         }),
         toArray,
       ),
-      /^Error: Reject$/u,
+      { message: 'Reject' },
     );
     await assert.rejects(
       pipeline(
@@ -82,7 +84,7 @@ describe('filter', () => {
         }),
         toArray,
       ),
-      /^Error: Reject$/u,
+      { message: 'Reject' },
     );
   });
 });

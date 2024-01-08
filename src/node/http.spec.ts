@@ -1,7 +1,7 @@
 // node/http.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -9,6 +9,7 @@
 import { strict as assert } from 'node:assert';
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 
+import { describe, it } from '@jest/globals';
 import getPort from 'get-port';
 
 import { map, split, toString } from '../index';
@@ -55,9 +56,8 @@ describe('http', () => {
       setTimeout(resolve, 10);
     });
 
-    await assert.rejects(
-      pipeline('should error', http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' })),
-      /^Error: connect ECONNREFUSED/u,
-    );
+    await assert.rejects(pipeline('should error', http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' })), {
+      message: `connect ECONNREFUSED 127.0.0.1:${port}`,
+    });
   });
 });

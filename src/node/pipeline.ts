@@ -1,7 +1,7 @@
 // node/pipeline.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -29,7 +29,7 @@ export interface PipelineOptions {
  * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
  * is defined by the type of the last parameter, and there are zero or more transform parameters in between the
  * source and the destination.  Also, the output of each parameter in the pipeline must match the input type of the
- * subsequent parameter.  TBD if this can be typed using some cool variadic thing in the current latest (4.2) version
+ * subsequent parameter.  TBD if this can be typed using some cool variadic thing in the current latest (5.x) version
  * of Typescript.
  */
 
@@ -365,7 +365,7 @@ export default function <Source, TransformSink, T1, T2, T3, T4, T5, T6, T7, T8, 
  * 1) auto-promisify, if the sink is an async function or a WritableStream
  * 2) type the function based on recommended usage, since @types/node does not match current functionality.
  *
- * Note this type definition does not match the full extent of the flexibility of `stream.pipeline` (e.g. you
+ * Note this type definition does not match the full flexibility of `stream.pipeline` (e.g., you
  * can pass arrays of iterables, etc.) but just the expected usage with the asyncerator library.
  *
  * @param argumentList
@@ -393,17 +393,17 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
   if ((sink as Writable).writable && !(sink as Readable).readable) {
     return new Promise((resolve, reject) => {
       stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error: unknown) => {
-        if (error) {
-          reject(error);
-        } else {
+        if (error === undefined) {
           resolve();
+        } else {
+          reject(error);
         }
       });
     });
   }
 
   /**
-   * The sink is a transform, i.e. AsyncGenerator-like, or a Duplex stream.  In this case we return a Readable.
+   * The sink is a transform, i.e., AsyncGenerator-like, or a Duplex stream.  In this case, we return a Readable.
    */
   return stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error) => {
     if (error) {

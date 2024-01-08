@@ -1,7 +1,7 @@
 // source/merge.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -15,7 +15,7 @@ async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
 
 /**
  * Merge multiple asyncables into a single Asyncerator.  If an iterator yields another Asyncerator,
- * merge it's output into the stream.
+ * merge its output into the stream.
  *
  * @param iterators
  */
@@ -29,7 +29,7 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
     // eslint-disable-next-line no-await-in-loop
     const { result, iterator, index } = await Promise.race(pending);
 
-    if (result.done) {
+    if (result.done === true) {
       // delete this iterable from pending
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
       pending.splice(indexMap[index] as number, 1);
@@ -38,12 +38,12 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
       }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if ((result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator]) {
+      if ((result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator] === undefined) {
+        yield result.value as T;
+      } else {
         // this is another async iterable iterator, so merge its output into the pending
         pending.push(createPending(from(result.value as AsyncIterableIterator<T>), indexMap.length));
         indexMap.push(pending.length - 1);
-      } else {
-        yield result.value as T;
       }
 
       // start waiting for the next result from this iterable

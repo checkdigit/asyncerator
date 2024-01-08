@@ -1,13 +1,15 @@
 // node/pipeline.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
+
+import { describe, it } from '@jest/globals';
 
 import { all, pipeline, toString } from '../index';
 
