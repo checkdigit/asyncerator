@@ -1,7 +1,7 @@
 // operator/sequence.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -14,7 +14,7 @@ import type { Operator } from './index';
  * The sequenceFunction will be called repeatedly with an incrementing numerical parameter, returning a Promise
  * that resolves with the same type as Input and is inserted into the stream.  The sequence operator
  * passes through all other values.  Because the sequenceFunction returns a Promise, it
- * can delay its response (using setTimeout) to emit values on a regular schedule, e.g. once a second.
+ * can delay its response (using setTimeout) to emit values on a regular schedule, e.g., once a second.
  *
  * @param sequenceFunction
  */
@@ -30,7 +30,8 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
      */
 
     (async () => {
-      // before we do anything, allow the event loop to process.  If the iterator completes immediately, we do not
+      // before we do anything, allow the event loop to process.
+      // if the iterator completes immediately, we do not
       // want any sequenceFunction execution.
       await new Promise((resolve) => {
         setTimeout(resolve, 0);

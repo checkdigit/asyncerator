@@ -1,12 +1,14 @@
 // operator/split.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+
+import { describe, it } from '@jest/globals';
 
 import { from, pipeline, split, toArray } from '../index';
 
@@ -71,17 +73,14 @@ describe('split', () => {
   });
 
   it('reject if item is not convertible to string', async () => {
-    await assert.rejects(
-      pipeline(from([null] as unknown as string[]), split('\n'), toArray),
-      /^Error: null not convertible to a string$/u,
-    );
-    await assert.rejects(
-      pipeline(from([undefined] as unknown as string[]), split('\n'), toArray),
-      /^Error: undefined not convertible to a string$/u,
-    );
-    await assert.rejects(
-      pipeline(from([Object.create(null)]), split('\n'), toArray),
-      /^Error: \{\} not convertible to a string$/u,
-    );
+    await assert.rejects(pipeline(from([null] as unknown as string[]), split('\n'), toArray), {
+      message: 'null not convertible to a string',
+    });
+    await assert.rejects(pipeline(from([undefined] as unknown as string[]), split('\n'), toArray), {
+      message: 'undefined not convertible to a string',
+    });
+    await assert.rejects(pipeline(from([Object.create(null)]), split('\n'), toArray), {
+      message: '{} not convertible to a string',
+    });
   });
 });

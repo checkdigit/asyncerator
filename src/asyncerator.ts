@@ -1,7 +1,7 @@
 // asyncerator.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -14,7 +14,7 @@
  * The follow Node built-ins implement the Asyncerator interface:
  * - AsyncIterableIterator
  * - AsyncGenerator (aka async generator functions)
- * - NodeJS.ReadableStream (internal Node implementations include stream.Readable, readline, fs.createReadStream, etc)
+ * - NodeJS.ReadableStream (internal Node implementations include stream.Readable, readline, fs.createReadStream, etc.)
  * - the standard Javascript `for await...of` statement will accept an Asyncerator
  *
  * Notes:
@@ -51,7 +51,7 @@ export default function <T>(source: Asyncable<T> | (() => Asyncerator<T>)): Asyn
     // we know for sure this is a normal, synchronous iterator
     const synchronousIterator = (source as IterableIterator<T>)[Symbol.iterator]();
     return (async function* () {
-      for (let item = synchronousIterator.next(); !item.done; item = synchronousIterator.next()) {
+      for (let item = synchronousIterator.next(); item.done !== true; item = synchronousIterator.next()) {
         yield item.value;
       }
     })();
@@ -62,7 +62,7 @@ export default function <T>(source: Asyncable<T> | (() => Asyncerator<T>)): Asyn
 
   return (async function* () {
     // eslint-disable-next-line no-await-in-loop
-    for (let item = await iterator.next(); !item.done; item = await iterator.next()) {
+    for (let item = await iterator.next(); item.done !== true; item = await iterator.next()) {
       yield item.value;
     }
   })();

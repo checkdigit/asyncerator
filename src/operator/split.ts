@@ -1,7 +1,7 @@
 // operator/split.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -23,7 +23,7 @@ export default function <Input extends { toString: () => string }>(
   limit = Number.POSITIVE_INFINITY,
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
-    // this behavior dealing with fractional and negative limits is weird, but matches string.split
+    // this behavior dealing with fractional and negative limits is unique, but matches string.split
 
     const actualLimit = limit <= -1 ? Number.POSITIVE_INFINITY : limit <= 0 ? 0 : Math.floor(limit);
     if (actualLimit === 0) {

@@ -1,7 +1,7 @@
 // node/zlib.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
+import { describe, it } from '@jest/globals';
 import { v4 as uuid } from 'uuid';
 
 import { filter, map, split } from '../operator';

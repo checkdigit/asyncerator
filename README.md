@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/npm/v/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 [![Dependency Status](https://img.shields.io/npm/dt/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 
-Copyright (c) 2021-2023 [Check Digit, LLC](https://checkdigit.com)
+Copyright (c) 2021–2024 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
 
@@ -136,7 +136,7 @@ will be first, the slowest last.
 ### `merge<T>(...iterators: Asyncable<T | Asyncable<T>>[]): Asyncerator<T>`
 
 Merge multiple asyncables into a single Asyncerator. If an iterator yields another Asyncerator,
-merge it's output into the stream.
+merge its output into the stream.
 
 ### `series<T>(...iterators: Asyncable<T>[]): Asyncerator<T>`
 
@@ -194,7 +194,7 @@ function map<Input, Output>(mapFunction: (value: Input) => Output): Operator<Inp
 }
 ```
 
-It is straightforward to create custom operators, and mix with streams, but it is important to note how they relate to
+It is straightforward to create custom operators and mix with streams, but it is important to note how they relate to
 streams:
 
 - returning (exiting) out of the function is equivalent to the `end` event of a stream. The pipeline will complete.
@@ -237,7 +237,7 @@ up to 128 `concurrent` values to be processed.
 The `sequenceFunction` will be called repeatedly with an incrementing numerical parameter, returning a Promise
 that resolves with the same type as Input and is inserted into the stream. The sequence operator
 passes through all other values. Because the `sequenceFunction` returns a Promise, it
-can delay its response (using setTimeout) to emit values on a regular schedule, e.g. once a second:
+can delay its response (using setTimeout) to emit values on a regular schedule, e.g., once a second:
 
 ```
 pipeline(

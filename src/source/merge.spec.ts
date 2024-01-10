@@ -1,12 +1,14 @@
 // source/merge.spec.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+
+import { describe, it } from '@jest/globals';
 
 import { type Asyncerator, from, merge, pipeline, toArray } from '../index';
 
@@ -52,11 +54,12 @@ describe('merge', () => {
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(pipeline(merge(['0', Promise.reject(new Error('Reject')), '1']), toArray), /^Error: Reject$/u);
-    await assert.rejects(
-      pipeline(merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])), toArray),
-      /^Error: Reject$/u,
-    );
+    await assert.rejects(pipeline(merge(['0', Promise.reject(new Error('Reject')), '1']), toArray), {
+      message: 'Reject',
+    });
+    await assert.rejects(pipeline(merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])), toArray), {
+      message: 'Reject',
+    });
   });
 
   it('works with a multiple identical sources', async () => {
@@ -93,7 +96,7 @@ describe('merge', () => {
 
   it('works with a single promisified value that rejects', async () => {
     const iterator = merge(from([Promise.reject(new Error('Reject'))]))[Symbol.asyncIterator]();
-    await assert.rejects(iterator.next(), /^Error: Reject$/u);
+    await assert.rejects(iterator.next(), { message: 'Reject' });
   });
 
   it('works with a custom async iterable', async () => {

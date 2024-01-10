@@ -1,7 +1,7 @@
 // source/all.ts
 
 /*
- * Copyright (c) 2021-2022 Check Digit, LLC
+ * Copyright (c) 2021-2024 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -20,7 +20,7 @@ const log = debug('asyncerator:source:all');
  * @param promises
  */
 export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<T> {
-  // as promises resolve, then remove from pending and add result to the queue
+  // as promises resolve, then remove from pending and add the result to the queue
   const queue: T[] = [];
   const pending = new Set(promises);
 
