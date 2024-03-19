@@ -31,7 +31,7 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
 
     if (result.done === true) {
       // delete this iterable from pending
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style,@typescript-eslint/no-floating-promises
       pending.splice(indexMap[index] as number, 1);
       for (let position = index + 1; position < indexMap.length; position++) {
         indexMap[position]--;

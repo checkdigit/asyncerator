@@ -29,7 +29,7 @@ export interface PipelineOptions {
  * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
  * is defined by the type of the last parameter, and there are zero or more transform parameters in between the
  * source and the destination.  Also, the output of each parameter in the pipeline must match the input type of the
- * subsequent parameter.  TBD if this can be typed using some cool variadic thing in the current latest (5.x) version
+ * later parameter.  TBD if this can be typed using some cool variadic thing in the current latest (5.x) version
  * of Typescript.
  */
 
@@ -392,8 +392,8 @@ export default function <Sink>(...argumentList: unknown[]): Promise<Sink | void>
    */
   if ((sink as Writable).writable && !(sink as Readable).readable) {
     return new Promise((resolve, reject) => {
-      stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error: unknown) => {
-        if (error === undefined) {
+      stream.pipeline(...(argumentList as Parameters<typeof stream.pipeline>), (error?: Error | null) => {
+        if (error === undefined || error === null) {
           resolve();
         } else {
           reject(error);

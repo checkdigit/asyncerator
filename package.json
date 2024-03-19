@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "sideEffects": false,
   "type": "module",
@@ -17,7 +17,7 @@
     "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
   "engines": {
-    "node": ">=20.10"
+    "node": ">=20.11"
   },
   "author": "Check Digit, LLC",
   "license": "MIT",
@@ -37,12 +37,12 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^9.1.0",
-    "@checkdigit/jest-config": "^5.0.0",
-    "@checkdigit/prettier-config": "^5.1.0",
-    "@checkdigit/typescript-config": "^6.0.0",
+    "@checkdigit/eslint-config": "^9.2.0",
+    "@checkdigit/jest-config": "^6.0.0",
+    "@checkdigit/prettier-config": "^5.3.0",
+    "@checkdigit/typescript-config": "^7.0.0",
     "@types/debug": "^4.1.12",
-    "@types/uuid": "^9.0.7",
+    "@types/uuid": "^9.0.8",
     "get-port": "^7.0.0",
     "uuid": "^9.0.1"
   },
@@ -59,13 +59,13 @@
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
     "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
     "lint:fix": "eslint --ignore-path .gitignore . --fix",
-    "lint": "eslint  --max-warnings 0 --ignore-path .gitignore .",
+    "lint": "eslint --max-warnings 0 --ignore-path .gitignore .",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
     "prettier:fix": "prettier --ignore-path .gitignore --write .",
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
     "ci:compile": "tsc --noEmit",
-    "ci:test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage=false",
-    "ci:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage=true",
+    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
+    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier"
   },

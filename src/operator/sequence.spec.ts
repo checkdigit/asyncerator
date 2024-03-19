@@ -75,7 +75,7 @@ describe('sequence', () => {
             }),
             new Promise((_, reject) => {
               setTimeout(() => {
-                reject({ message: 456 });
+                reject(new Error('456'));
               }, 400);
             }),
           ]),
@@ -89,7 +89,7 @@ describe('sequence', () => {
           toArray,
         ),
       {
-        message: 456,
+        message: '456',
       },
     );
     assert.deepEqual(results, [0, 1, 2]);
@@ -116,7 +116,7 @@ describe('sequence', () => {
             results.push(index);
             await new Promise((_, reject) => {
               setTimeout(() => {
-                reject({ message: 'abc' });
+                reject(new Error('abc'));
               }, 320);
             });
             return index;
@@ -149,7 +149,7 @@ describe('sequence', () => {
           if (index !== 0) {
             await new Promise((_, reject) => {
               setTimeout(() => {
-                reject({ message: 'abc' });
+                reject(new Error('abc'));
               }, 500);
             });
           }

@@ -43,7 +43,7 @@ describe('reduce', () => {
         // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
         arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T);
       } catch (error) {
-        arrayReduceError = error; // ?
+        arrayReduceError = error;
       }
       assert.deepEqual(implementation, arrayReduce);
       assert.deepEqual(implementationError, arrayReduceError);
