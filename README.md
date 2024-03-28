@@ -68,7 +68,7 @@ pipeline(
 ```
 
 The main advantage of the typings is that at compile-time, the outputs of each source or transformation must match the
-input of the subsequent transformation or sink. **This makes working with complex pipelines much less error-prone.**
+input of the later transformation or sink. **This makes working with complex pipelines much less error-prone.**
 
 In addition, the standard Node typings (`@types/node`) for `stream.pipeline` are woefully incorrect (as of 14.14.32)
 to the point of being unusable.
@@ -119,9 +119,6 @@ const result2 = await toArray(
 Sources return an object of type `Asyncerator<T>` that can be passed to `pipeline` as the first argument. Other than
 these built-in functions, the other objects that are considered a "source" are `string`, arrays or basically anything
 that implements the `Readable`, `Iterable` and `AsyncIterable` interfaces.
-
-Note: due to an apparent bug in the Node 14 `stream.pipeline` implementation, a `Buffer` cannot be used as a source,
-even though it is iterable. Instead, use the result of the `.values()` method as a source.
 
 Some built-in source functions take an argument of type `Asyncable<T>`. Asyncables are anything that can be
 turned into an Asyncerator: normal iterators and iterables, AsyncIterators, AsyncIterables, AsyncGenerators,

@@ -1,6 +1,3 @@
 {
-  "extends": "@checkdigit/typescript-config",
-  "compilerOptions": {
-    "skipLibCheck": false
-  }
+  "extends": "@checkdigit/typescript-config"
 }

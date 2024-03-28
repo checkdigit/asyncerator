@@ -14,7 +14,7 @@ const log = debug('asyncerator:source:all');
 
 /**
  * Similar to Promise.all(), but instead returns values as they become available via an Asyncerator.
- * Note: the output order is not the same as the input order, the fastest promise to resolve
+ * Note: the output order is different from the input order, the fastest promise to resolve
  * will be first, the slowest last.
  *
  * @param promises
