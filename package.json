@@ -1,30 +1,7 @@
 {
   "name": "asyncerator",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist-types/index.d.ts",
-      "import": "./dist-mjs/index.mjs",
-      "default": "./dist-mjs/index.mjs"
-    }
-  },
-  "prettier": "@checkdigit/prettier-config",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/checkdigit/asyncerator.git"
-  },
-  "engines": {
-    "node": ">=20.11"
-  },
-  "author": "Check Digit, LLC",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/checkdigit/asyncerator/issues"
-  },
-  "homepage": "https://github.com/checkdigit/asyncerator#readme",
   "keywords": [
     "stream",
     "pipeline",
@@ -33,41 +10,24 @@
     "AsyncIterable",
     "AsyncIterableIterator"
   ],
-  "dependencies": {
-    "debug": "^4.3.4"
+  "homepage": "https://github.com/checkdigit/asyncerator#readme",
+  "bugs": {
+    "url": "https://github.com/checkdigit/asyncerator/issues"
   },
-  "devDependencies": {
-    "@checkdigit/eslint-config": "^9.2.0",
-    "@checkdigit/jest-config": "^6.0.0",
-    "@checkdigit/prettier-config": "^5.3.0",
-    "@checkdigit/typescript-config": "^7.0.1",
-    "@types/debug": "^4.1.12",
-    "@types/uuid": "^9.0.8",
-    "get-port": "^7.1.0",
-    "uuid": "^9.0.1"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/checkdigit/asyncerator.git"
   },
-  "jest": {
-    "preset": "@checkdigit/jest-config"
-  },
-  "eslintConfig": {
-    "extends": [
-      "@checkdigit/eslint-config"
-    ]
-  },
-  "scripts": {
-    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
-    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
-    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
-    "lint:fix": "eslint --ignore-path .gitignore . --fix",
-    "lint": "eslint --max-warnings 0 --ignore-path .gitignore .",
-    "prettier": "prettier --ignore-path .gitignore --list-different .",
-    "prettier:fix": "prettier --ignore-path .gitignore --write .",
-    "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style",
-    "ci:compile": "tsc --noEmit",
-    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
-    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
-    "ci:lint": "npm run lint",
-    "ci:style": "npm run prettier"
+  "license": "MIT",
+  "author": "Check Digit, LLC",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "import": "./dist-mjs/index.mjs",
+      "default": "./dist-mjs/index.mjs"
+    }
   },
   "files": [
     "src",
@@ -80,5 +40,40 @@
     "!dist-mjs/**/*.test.mjs",
     "!dist-mjs/**/*.spec.mjs",
     "SECURITY.md"
-  ]
+  ],
+  "scripts": {
+    "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
+    "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
+    "ci:compile": "tsc --noEmit",
+    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
+    "ci:lint": "npm run lint",
+    "ci:style": "npm run prettier",
+    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
+    "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint . --fix",
+    "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
+    "prettier": "prettier --ignore-path .gitignore --list-different .",
+    "prettier:fix": "prettier --ignore-path .gitignore --write .",
+    "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style"
+  },
+  "prettier": "@checkdigit/prettier-config",
+  "jest": {
+    "preset": "@checkdigit/jest-config"
+  },
+  "dependencies": {
+    "debug": "^4.3.7"
+  },
+  "devDependencies": {
+    "@checkdigit/eslint-config": "^10.0.1",
+    "@checkdigit/jest-config": "^6.0.2",
+    "@checkdigit/prettier-config": "^5.5.1",
+    "@checkdigit/typescript-config": "^8.0.0",
+    "@types/debug": "^4.1.12",
+    "@types/uuid": "^10.0.0",
+    "get-port": "^7.1.0",
+    "uuid": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=20.17"
+  }
 }

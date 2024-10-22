@@ -14,7 +14,7 @@ import asyncerator, { type Asyncable, type Asyncerator } from '../asyncerator';
  * @param iterators
  */
 export default async function* <T>(...iterators: Asyncable<T>[]): Asyncerator<T> {
-  for await (const iterator of iterators) {
+  for (const iterator of iterators) {
     yield* asyncerator(iterator);
   }
 }

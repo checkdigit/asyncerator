@@ -72,6 +72,7 @@ describe('socket', () => {
     // echo server
     const server = net
       .createServer((socket) => {
+        // eslint-disable-next-line @checkdigit/no-promise-instance-method
         pipeline(
           socket,
           split('\n'),
@@ -79,9 +80,9 @@ describe('socket', () => {
           socket,
           toNull,
           options,
-        ).catch((error) => {
-          assert.equal(error.name, 'AbortError');
-          assert.equal(error.message, 'The operation was aborted');
+        ).catch((error: unknown) => {
+          assert.equal((error as Error).name, 'AbortError');
+          assert.equal((error as Error).message, 'The operation was aborted');
           assert.ok(socket.destroyed);
           server.close();
           aborted = true;
@@ -111,7 +112,9 @@ describe('socket', () => {
 
     // echo client 2, post-abort, will get an initial connection but the abort is triggered.
     // note: on Linux, will reject with EPIPE, but on Mac, will reject with ECONNRESET.
-    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray));
+    await assert.rejects(pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray), {
+      code: 'ECONNRESET',
+    });
 
     // the server should be closed
     assert.ok(aborted);

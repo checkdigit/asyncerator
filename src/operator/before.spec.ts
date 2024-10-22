@@ -42,7 +42,10 @@ describe('before', () => {
     // echo server
     const server = net
       .createServer((socket) => {
-        pipeline(socket, new PassThrough(), before('before '), socket, toNull).catch(assert.fail);
+        // eslint-disable-next-line @checkdigit/no-promise-instance-method
+        pipeline(socket, new PassThrough(), before('before '), socket, toNull).catch(() => {
+          assert.fail();
+        });
       })
       .listen(port, '127.0.0.1');
 

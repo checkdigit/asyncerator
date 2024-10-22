@@ -34,7 +34,7 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
       // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style,@typescript-eslint/no-floating-promises
       pending.splice(indexMap[index] as number, 1);
       for (let position = index + 1; position < indexMap.length; position++) {
-        indexMap[position]--;
+        indexMap[position] = (indexMap[position] ?? 0) - 1;
       }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
