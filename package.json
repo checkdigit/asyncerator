@@ -72,6 +72,7 @@
     "@types/debug": "^4.1.12",
     "@types/uuid": "^10.0.0",
     "get-port": "^7.1.0",
+    "rimraf": "^6.0.1",
     "uuid": "^10.0.0"
   },
   "engines": {
