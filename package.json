@@ -51,6 +51,7 @@
     "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
     "lint": "eslint --max-warnings 0 .",
     "lint:fix": "eslint . --fix",
+    "prepare": "",
     "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
     "prettier:fix": "prettier --ignore-path .gitignore --write .",
