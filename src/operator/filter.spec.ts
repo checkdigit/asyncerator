@@ -10,7 +10,7 @@ import { strict as assert } from 'node:assert';
 
 import { describe, it } from '@jest/globals';
 
-import { all, filter, from, pipeline, toArray } from '../index';
+import { all, filter, from, map, pipeline, toArray } from '../index';
 
 describe('filter', () => {
   it('works for an empty array', async () => {
@@ -49,6 +49,19 @@ describe('filter', () => {
         toArray,
       ),
       ['a', 'bb', 'ccc'],
+    );
+  });
+
+  it('supports inferred type predicates', async () => {
+    const iterable = from(['a', 'bb', undefined, 'ccc']);
+    assert.deepEqual(
+      await pipeline(
+        iterable,
+        filter((value) => value !== undefined),
+        map((value) => value.length),
+        toArray,
+      ),
+      [1, 2, 3],
     );
   });
 
