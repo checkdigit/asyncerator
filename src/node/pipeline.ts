@@ -7,7 +7,7 @@
  */
 
 import stream, { Duplex, Readable, Writable } from 'node:stream';
-import util from 'node:util';
+import { promisify } from 'node:util';
 
 import debug from 'debug';
 
@@ -15,7 +15,7 @@ import type { Asyncerator } from '../asyncerator';
 
 const log = debug('asyncerator:pipeline');
 
-const promisifiedPipeline = util.promisify(stream.pipeline);
+const promisifiedPipeline = promisify(stream.pipeline);
 
 export type PipelineSource<Source> = string | Readable | Iterable<Source> | AsyncIterable<Source> | Asyncerator<Source>;
 

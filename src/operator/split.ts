@@ -20,7 +20,7 @@ import type { Operator } from './index';
 
 export default function <Input extends { toString: () => string }>(
   separator: string,
-  limit = Number.POSITIVE_INFINITY,
+  limit: number = Number.POSITIVE_INFINITY,
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
     // this behavior dealing with fractional and negative limits is unique, but matches string.split

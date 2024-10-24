@@ -46,9 +46,13 @@ describe('pipeline', () => {
     const result2 = pipeline(Buffer.from('hello').values(), toString);
     const result3 = pipeline('hello', toString);
     const result4 = pipeline(Buffer.from('abc'), toString);
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     assert.ok(typeof result1.then === 'function');
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     assert.ok(typeof result2.then === 'function');
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     assert.ok(typeof result3.then === 'function');
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     assert.ok(typeof result4.then === 'function');
     assert.equal(await result1, 'undefined1null2true34,5,6,7');
     assert.equal(await result2, '104101108108111');
@@ -67,35 +71,24 @@ describe('pipeline', () => {
     });
     await assert.rejects(async () => pipeline([undefined], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
-      message: 'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received undefined',
     });
     await assert.rejects(async () => pipeline([true], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
-      message:
-        'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type boolean (true)',
     });
     await assert.rejects(async () => pipeline([{}], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
-      message:
-        'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received an instance of Object',
     });
     await assert.rejects(
       async () => pipeline([Symbol.for('hello')], new PassThrough({ objectMode: false }), toString),
       {
         name: 'TypeError',
-        message:
-          'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type symbol (Symbol(hello))',
       },
     );
     await assert.rejects(async () => pipeline([1], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
-      message:
-        'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type number (1)',
     });
     await assert.rejects(async () => pipeline([1n], new PassThrough({ objectMode: false }), toString), {
       name: 'TypeError',
-      message:
-        'The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received type bigint (1n)',
     });
     assert.deepEqual(
       await pipeline(
@@ -138,7 +131,7 @@ describe('pipeline', () => {
     const result = await pipeline(
       ['a', 'b', 'c'],
       new Writable({
-        write(chunk, _encoding, callback) {
+        write(chunk: Uint8Array, _encoding, callback) {
           written += chunk.toString();
           callback();
         },

@@ -10,7 +10,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: CodeQL analysis
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -21,7 +21,7 @@ jobs:
       matrix:
         language: ['javascript']
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

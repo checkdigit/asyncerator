@@ -24,7 +24,7 @@ const DEFAULT_CONCURRENT = 128;
  */
 export default function <Input, Output>(
   raceFunction: (value: Input) => Promise<Output>,
-  concurrent = DEFAULT_CONCURRENT,
+  concurrent: number = DEFAULT_CONCURRENT,
 ): Operator<Input, Output> {
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Output[] = [];
@@ -37,6 +37,7 @@ export default function <Input, Output>(
      * queue producer, implemented using for-await
      */
 
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     const producer = (async () => {
       for await (const item of iterator) {
         while (pending.size >= concurrent) {
@@ -49,6 +50,7 @@ export default function <Input, Output>(
         const promise = raceFunction(item);
         pending.add(promise);
 
+        // eslint-disable-next-line @checkdigit/no-promise-instance-method
         promise
           .then((value) => {
             // as promises resolve, then remove from pending and add the result to the queue

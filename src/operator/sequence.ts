@@ -29,6 +29,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
      * sequence producer
      */
 
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     (async () => {
       // before we do anything, allow the event loop to process.
       // if the iterator completes immediately, we do not
@@ -58,6 +59,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
      * pass-through producer
      */
 
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     const passThroughProducer = (async () => {
       for await (const item of iterator) {
         // if the sequence producer throws an error, exit immediately (effectively cancel this promise)

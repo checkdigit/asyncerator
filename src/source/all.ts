@@ -25,6 +25,7 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
   const pending = new Set(promises);
 
   for (const [index, promise] of [...promises].entries()) {
+    // eslint-disable-next-line @checkdigit/no-promise-instance-method
     promise
       .then((value) => {
         queue.push(value);
