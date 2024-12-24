@@ -6,4 +6,4 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-export { default as pipeline } from './pipeline';
+export { default as pipeline } from './pipeline.ts';

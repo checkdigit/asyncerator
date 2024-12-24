@@ -6,9 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 /**
  * Equivalent of the Javascript array split method.  Matches its behavior/corner cases, which is why the

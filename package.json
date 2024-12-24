@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "4.0.2",
+  "version": "5.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "keywords": [
     "stream",
@@ -48,7 +48,8 @@
     "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier",
-    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
+    "ci:test": "node --disable-warning ExperimentalWarning --experimental-strip-types --test-timeout 600000 --test \"src/**/*.spec.ts\"",
+    "coverage": "node --disable-warning ExperimentalWarning --experimental-strip-types --test-timeout 600000 --experimental-test-coverage --test \"src/**/*.spec.ts\"",
     "lint": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning\" eslint --max-warnings 0 .",
     "lint:fix": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning\" eslint . --fix",
     "prepare": "",
@@ -58,24 +59,19 @@
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style"
   },
   "prettier": "@checkdigit/prettier-config",
-  "jest": {
-    "preset": "@checkdigit/jest-config"
-  },
   "dependencies": {
-    "debug": "^4.3.7"
+    "debug": "^4.4.0"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^10.1.0",
-    "@checkdigit/jest-config": "^6.0.2",
-    "@checkdigit/prettier-config": "^5.5.1",
-    "@checkdigit/typescript-config": "^8.0.0",
+    "@checkdigit/eslint-config": "11.0.2-PR.195-9d46",
+    "@checkdigit/prettier-config": "^6.0.0",
+    "@checkdigit/typescript-config": "^9.0.0",
     "@types/debug": "^4.1.12",
-    "@types/uuid": "^10.0.0",
     "get-port": "^7.1.0",
     "rimraf": "^6.0.1",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.3"
   },
   "engines": {
-    "node": ">=20.17"
+    "node": ">=22.11"
   }
 }

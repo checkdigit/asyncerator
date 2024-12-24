@@ -8,13 +8,13 @@
 
 import { strict as assert } from 'node:assert';
 import http, { IncomingMessage, ServerResponse } from 'node:http';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
 import getPort from 'get-port';
 
-import { map, split, toString } from '../index';
+import { map, split, toString } from '../index.ts';
 
-import pipeline from './pipeline';
+import pipeline from './pipeline.ts';
 
 describe('http', () => {
   it('can implement a simple http client/server', async () => {

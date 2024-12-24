@@ -6,9 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 /**
  * Similar to Array.forEach, call forEachFunction for each value in the stream.

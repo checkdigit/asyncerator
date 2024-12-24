@@ -8,12 +8,12 @@
 
 import { strict as assert } from 'node:assert';
 import stream from 'node:stream';
+import { describe, it } from 'node:test';
 
 import { arrayBuffer, buffer, text } from 'node:stream/consumers';
-import { describe, it } from '@jest/globals';
 
-import { from } from '../index';
-import { pipeline } from './index';
+import { from } from '../index.ts';
+import { pipeline } from './index.ts';
 
 describe('stream/consumers', () => {
   it('works with arrayBuffer', async () => {

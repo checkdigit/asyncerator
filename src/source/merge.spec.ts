@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { type Asyncerator, from, merge, pipeline, toArray } from '../index';
+import { type Asyncerator, from, merge, pipeline, toArray } from '../index.ts';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {

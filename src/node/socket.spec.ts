@@ -8,13 +8,13 @@
 
 import { strict as assert } from 'node:assert';
 import net from 'node:net';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
 import getPort from 'get-port';
 
-import { filter, map, split, toArray, toNull, toString } from '../index';
+import { filter, map, split, toArray, toNull, toString } from '../index.ts';
 
-import pipeline from './pipeline';
+import pipeline from './pipeline.ts';
 
 describe('socket', () => {
   it('can implement a simple socket client/server', async () => {

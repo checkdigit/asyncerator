@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { from, pipeline, toNull } from '../index';
+import { from, pipeline, toNull } from '../index.ts';
 
 describe('toNull', () => {
   it('drops async iterable iterator into /dev/null', async () => {

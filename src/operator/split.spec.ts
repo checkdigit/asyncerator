@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { from, pipeline, split, toArray } from '../index';
+import { from, pipeline, split, toArray } from '../index.ts';
 
 describe('split', () => {
   it('works with simple string values', async () => {

@@ -8,10 +8,9 @@
 
 import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { all, pipeline, toString } from '../index';
+import { all, pipeline, toString } from '../index.ts';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {

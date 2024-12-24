@@ -11,7 +11,7 @@ import { promisify } from 'node:util';
 
 import debug from 'debug';
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
 const log = debug('asyncerator:pipeline');
 

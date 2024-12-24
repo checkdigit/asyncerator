@@ -8,9 +8,9 @@
 
 import debug from 'debug';
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 const log = debug('asyncerator:operator:race');
 

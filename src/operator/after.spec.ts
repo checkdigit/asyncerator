@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { after, all, forEach, from, pipeline, toArray } from '../index';
+import { after, all, forEach, from, pipeline, toArray } from '../index.ts';
 
 describe('after', () => {
   it('works for an empty array', async () => {

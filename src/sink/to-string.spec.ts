@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { from, pipeline, toString } from '../index';
+import { from, pipeline, toString } from '../index.ts';
 
 describe('toString', () => {
   it('converts an async iterable iterator into a string', async () => {

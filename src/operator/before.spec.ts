@@ -9,11 +9,11 @@
 import { strict as assert } from 'node:assert';
 import net from 'node:net';
 import { PassThrough } from 'node:stream';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
 import getPort from 'get-port';
 
-import { all, before, forEach, from, pipeline, toArray, toNull, toString } from '../index';
+import { all, before, forEach, from, pipeline, toArray, toNull, toString } from '../index.ts';
 
 describe('before', () => {
   it('works for an empty array', async () => {

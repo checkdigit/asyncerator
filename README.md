@@ -20,7 +20,7 @@ The `asyncerator` module provides three central capabilities:
 
 ## `Asyncerator<T>` interface
 
-```
+```ts
 export interface Asyncerator<T> {
   [Symbol.asyncIterator](): AsyncIterableIterator<T>;
 }
@@ -48,8 +48,8 @@ Specifically:
 - `Asyncerator` is similar to `AsyncIterableIterator`, but does not extend `AsyncIterator`.
 - It's also similar to `AsyncIterable`, but `[Symbol.asyncIterator]()` returns an `AsyncIterableIterator`
   instead of an `AsyncIterator`.
-- ...but it's not exactly either one. In particular, Typescript does not agree that Node streams implement either
-  interface, which makes interoperability a problem in Typescript without `Asyncerator`.
+- ...but it's not exactly either one. In particular, TypeScript does not agree that Node streams implement either
+  interface, which makes interoperability a problem in TypeScript without `Asyncerator`.
 
 ## `asyncerator.pipeline`
 
@@ -58,7 +58,7 @@ Specifically:
 
 Its typing is complicated, but the basic form of the function is:
 
-```
+```ts
 pipeline(
   source, // string | Readable | Iterable | AsyncIterable | Asyncerator
   ...transforms, // zero or more Transform | ((input: Asyncerator) => Asyncerator)
@@ -236,7 +236,7 @@ that resolves with the same type as Input and is inserted into the stream. The s
 passes through all other values. Because the `sequenceFunction` returns a Promise, it
 can delay its response (using setTimeout) to emit values on a regular schedule, e.g., once a second:
 
-```
+```ts
 pipeline(
   ...
   sequence(async () => {

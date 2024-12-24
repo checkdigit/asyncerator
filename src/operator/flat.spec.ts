@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { all, flat, from, pipeline, toArray } from '../index';
+import { all, flat, from, pipeline, toArray } from '../index.ts';
 
 describe('flat', () => {
   it('operates on sequence of promises', async () => {

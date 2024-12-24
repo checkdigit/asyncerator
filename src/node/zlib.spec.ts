@@ -10,15 +10,15 @@ import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { describe, it } from 'node:test';
 import zlib from 'node:zlib';
 
-import { describe, it } from '@jest/globals';
 import { v4 as uuid } from 'uuid';
 
-import { filter, map, split } from '../operator';
-import { toArray, toString } from '../sink';
+import { filter, map, split } from '../operator/index.ts';
+import { toArray, toString } from '../sink/index.ts';
 
-import pipeline from './pipeline';
+import pipeline from './pipeline.ts';
 
 async function* base64Encode(iterable: AsyncIterable<Buffer>): AsyncGenerator<string> {
   let payload = Buffer.from('');

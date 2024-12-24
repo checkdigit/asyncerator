@@ -6,9 +6,9 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 /**
  * Skip numberToSkip values at the start of a stream.

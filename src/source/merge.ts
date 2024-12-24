@@ -6,7 +6,7 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import from, { type Asyncable, type Asyncerator } from '../asyncerator';
+import from, { type Asyncable, type Asyncerator } from '../asyncerator.ts';
 
 async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
   const iterator = asyncerator[Symbol.asyncIterator]();

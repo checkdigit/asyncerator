@@ -7,12 +7,11 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
+import { after, before, from, pipeline, reduce } from '../index.ts';
 
-import { after, before, from, pipeline, reduce } from '../index';
-
-import type { ReduceFunction } from './reduce';
+import type { ReduceFunction } from './reduce.ts';
 
 describe('reduce', () => {
   const adder = (current: number, previous: number) => current + previous;
@@ -40,7 +39,6 @@ describe('reduce', () => {
       let arrayReduce;
       let arrayReduceError;
       try {
-        // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
         arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T);
       } catch (error) {
         arrayReduceError = error;

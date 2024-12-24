@@ -7,10 +7,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { from, pipeline, toArray } from './index';
+import { from, pipeline, toArray } from './index.ts';
 
 describe('asyncerator', () => {
   it('from a custom iterator', async () => {
