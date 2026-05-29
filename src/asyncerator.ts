@@ -1,7 +1,7 @@
 // asyncerator.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -31,27 +31,45 @@ export interface Asyncerator<T> {
  * Asyncables are anything that can be turned into an Asyncerator: normal iterators and iterables, AsyncIterators,
  * AsyncIterables, AsyncGenerators, AsyncIterableIterators, and of course Asyncerators themselves.
  */
-export type Asyncable<T> = Iterator<T> | Iterable<T> | AsyncIterator<T> | AsyncIterable<T> | Asyncerator<T>;
+export type Asyncable<T> =
+  | Iterator<T>
+  | Iterable<T>
+  | AsyncIterator<T>
+  | AsyncIterable<T>
+  | Asyncerator<T>;
 
 /**
  * Create an Asyncerator from an Asyncable.
  *
  * @param source
  */
-export default function <T>(source: Asyncable<T> | (() => Asyncerator<T>)): Asyncerator<T> {
+export default function <T>(
+  source: Asyncable<T> | (() => Asyncerator<T>),
+): Asyncerator<T> {
   let iterator: Iterator<T> | AsyncIterator<T>;
 
   if (typeof (source as Asyncerator<T>)[Symbol.asyncIterator] === 'function') {
     iterator = (source as Asyncerator<T>)[Symbol.asyncIterator]();
-    if (typeof (iterator as AsyncIterableIterator<T>)[Symbol.asyncIterator] === 'function') {
+    if (
+      typeof (iterator as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
+      'function'
+    ) {
       // this is already an async iterable iterator, so we're good to go as-is
       return iterator as AsyncIterableIterator<T>;
     }
-  } else if (typeof (source as IterableIterator<T>)[Symbol.iterator] === 'function') {
+  } else if (
+    typeof (source as IterableIterator<T>)[Symbol.iterator] === 'function'
+  ) {
     // we know for sure this is a normal, synchronous iterator
-    const synchronousIterator = (source as IterableIterator<T>)[Symbol.iterator]();
+    const synchronousIterator = (source as IterableIterator<T>)[
+      Symbol.iterator
+    ]();
     return (async function* () {
-      for (let item = synchronousIterator.next(); item.done !== true; item = synchronousIterator.next()) {
+      for (
+        let item = synchronousIterator.next();
+        item.done !== true;
+        item = synchronousIterator.next()
+      ) {
         yield item.value;
       }
     })();
@@ -61,8 +79,12 @@ export default function <T>(source: Asyncable<T> | (() => Asyncerator<T>)): Asyn
   }
 
   return (async function* () {
-    // eslint-disable-next-line no-await-in-loop
-    for (let item = await iterator.next(); item.done !== true; item = await iterator.next()) {
+    for (
+      let item = await iterator.next();
+      item.done !== true;
+      // eslint-disable-next-line no-await-in-loop
+      item = await iterator.next()
+    ) {
       yield item.value;
     }
   })();

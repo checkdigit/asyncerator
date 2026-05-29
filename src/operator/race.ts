@@ -1,16 +1,16 @@
 // operator/race.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import debug from 'debug';
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 const log = debug('asyncerator:operator:race');
 
@@ -94,7 +94,7 @@ export default function <Input, Output>(
         }
 
         // one or more promises have completed, so yield everything in the queue
-        yield* queue.splice(0, queue.length);
+        yield* queue.splice(0);
       }
     }
 

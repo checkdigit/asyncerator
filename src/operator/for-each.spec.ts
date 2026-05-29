@@ -1,16 +1,16 @@
 // operator/for-each.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
 
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 
-import { all, forEach, from, map, pipeline, toArray } from '../index';
+import { all, forEach, from, map, pipeline, toArray } from '../index.ts';
 
 describe('forEach', () => {
   it('works for an empty array', async () => {
@@ -25,7 +25,11 @@ describe('forEach', () => {
 
   it('operates on sequence of promises', async () => {
     const results: number[] = [];
-    const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
+    const iterable = all([
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3),
+    ]);
     await pipeline(
       iterable,
       forEach((value) => results.push(value)),

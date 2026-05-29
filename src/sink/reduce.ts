@@ -1,12 +1,12 @@
 // sink/reduce.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { type Asyncerator } from '../asyncerator';
+import asyncerator, { type Asyncerator } from '../asyncerator.ts';
 
 /**
  * Calls the specified callback function for all the elements in a stream. The return value of the callback function
@@ -33,10 +33,13 @@ export default function <Input, Output>(
   initialValue?: Output,
 ): (iterator: Asyncerator<Input>) => Promise<Output | undefined>;
 export default function <Input, Output>(
+  // eslint-disable-next-line sonarjs/use-type-alias
   reduceFunction: ReduceFunction<Input, Input | Output | undefined>,
   initialValue?: Input | Output,
 ): (iterator: Asyncerator<Input>) => Promise<Input | Output | undefined> {
-  return async function (iterator: Asyncerator<Input>): Promise<Input | Output | undefined> {
+  return async function (
+    iterator: Asyncerator<Input>,
+  ): Promise<Input | Output | undefined> {
     let accumulator: Output | Input | undefined = initialValue;
     let currentIndex = 0;
     for await (const chunk of asyncerator(iterator)) {

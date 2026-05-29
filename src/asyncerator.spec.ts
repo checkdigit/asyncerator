@@ -1,16 +1,16 @@
 // asyncerator.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
 
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 
-import { from, pipeline, toArray } from './index';
+import { from, pipeline, toArray } from './index.ts';
 
 describe('asyncerator', () => {
   it('from a custom iterator', async () => {
@@ -54,7 +54,10 @@ describe('asyncerator', () => {
         return { done: false, value: count++ };
       },
     };
-    assert.deepEqual(await pipeline(from(asyncIterator), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(
+      await pipeline(from(asyncIterator), toArray),
+      [0, 1, 2, 3],
+    );
   });
 
   it('from a custom async iterable', async () => {
@@ -71,7 +74,10 @@ describe('asyncerator', () => {
     const asyncIterable: AsyncIterable<number> = {
       [Symbol.asyncIterator]: () => asyncIterator,
     };
-    assert.deepEqual(await pipeline(from(asyncIterable), toArray), [0, 1, 2, 3]);
+    assert.deepEqual(
+      await pipeline(from(asyncIterable), toArray),
+      [0, 1, 2, 3],
+    );
   });
 
   it('a custom async iterable iterator with throw and return defined', async () => {
@@ -91,13 +97,18 @@ describe('asyncerator', () => {
         return { done: true, value: 'return' };
       },
     };
-    const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
+    const asyncerator = from(
+      asyncIterableIterator,
+    ) as AsyncIterableIterator<number>;
     assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     if (asyncerator.throw === undefined || asyncerator.return === undefined) {
       throw new Error();
     }
     assert.deepEqual(await asyncerator.throw(), { done: true, value: 'throw' });
-    assert.deepEqual(await asyncerator.return(), { done: true, value: 'return' });
+    assert.deepEqual(await asyncerator.return(), {
+      done: true,
+      value: 'return',
+    });
   });
 
   it('a custom async iterable iterator without throw and return', async () => {
@@ -111,7 +122,9 @@ describe('asyncerator', () => {
         return { done: false, value: count++ };
       },
     };
-    const asyncerator = from(asyncIterableIterator) as AsyncIterableIterator<number>;
+    const asyncerator = from(
+      asyncIterableIterator,
+    ) as AsyncIterableIterator<number>;
     assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
 
     assert.equal(asyncerator.throw, undefined);
@@ -144,6 +157,9 @@ describe('asyncerator', () => {
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(pipeline(from([Promise.reject(new Error('Reject'))]), toArray), { message: 'Reject' });
+    await assert.rejects(
+      pipeline(from([Promise.reject(new Error('Reject'))]), toArray),
+      { message: 'Reject' },
+    );
   });
 });

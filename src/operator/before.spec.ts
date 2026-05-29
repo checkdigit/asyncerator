@@ -1,7 +1,7 @@
 // operator/before.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -10,10 +10,19 @@ import { strict as assert } from 'node:assert';
 import net from 'node:net';
 import { PassThrough } from 'node:stream';
 
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 import getPort from 'get-port';
 
-import { all, before, forEach, from, pipeline, toArray, toNull, toString } from '../index';
+import {
+  all,
+  before,
+  forEach,
+  from,
+  pipeline,
+  toArray,
+  toNull,
+  toString,
+} from '../index.ts';
 
 describe('before', () => {
   it('works for an empty array', async () => {
@@ -43,7 +52,13 @@ describe('before', () => {
     const server = net
       .createServer((socket) => {
         // eslint-disable-next-line @checkdigit/no-promise-instance-method
-        pipeline(socket, new PassThrough(), before('before '), socket, toNull).catch(() => {
+        pipeline(
+          socket,
+          new PassThrough(),
+          before('before '),
+          socket,
+          toNull,
+        ).catch(() => {
           assert.fail();
         });
       })
@@ -51,12 +66,23 @@ describe('before', () => {
 
     // send no data
     assert.deepEqual(
-      await pipeline(Buffer.from('').values(), new net.Socket().connect(port, '127.0.0.1'), toString),
+      await pipeline(
+        Buffer.from('').values(),
+        new net.Socket().connect(port, '127.0.0.1'),
+        toString,
+      ),
       'before ',
     );
 
     // send some data
-    assert.deepEqual(await pipeline('client', new net.Socket().connect(port, '127.0.0.1'), toString), 'before client');
+    assert.deepEqual(
+      await pipeline(
+        'client',
+        new net.Socket().connect(port, '127.0.0.1'),
+        toString,
+      ),
+      'before client',
+    );
 
     // close the server
     await new Promise((resolve) => {

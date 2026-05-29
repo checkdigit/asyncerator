@@ -1,7 +1,7 @@
 // node/socket.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -9,12 +9,12 @@
 import { strict as assert } from 'node:assert';
 import net from 'node:net';
 
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 import getPort from 'get-port';
 
-import { filter, map, split, toArray, toNull, toString } from '../index';
+import { filter, map, split, toArray, toNull, toString } from '../index.ts';
 
-import pipeline from './pipeline';
+import pipeline from './pipeline.ts';
 
 describe('socket', () => {
   it('can implement a simple socket client/server', async () => {
@@ -40,11 +40,18 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray,
     );
-    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+    assert.deepEqual(received, [
+      'echo:Hello Mr Server!',
+      'echo:Regards, Client.',
+    ]);
 
     // another echo client
     assert.equal(
-      await pipeline('1\n2\n3\nhello\nworld\n', new net.Socket().connect(port, '127.0.0.1'), toString),
+      await pipeline(
+        '1\n2\n3\nhello\nworld\n',
+        new net.Socket().connect(port, '127.0.0.1'),
+        toString,
+      ),
       'echo:1\necho:2\necho:3\necho:hello\necho:world\n',
     );
 
@@ -53,9 +60,16 @@ describe('socket', () => {
       server.close(resolve);
     });
 
-    await assert.rejects(pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray), {
-      message: `connect ECONNREFUSED 127.0.0.1:${port}`,
-    });
+    await assert.rejects(
+      pipeline(
+        'should error',
+        new net.Socket().connect(port, '127.0.0.1'),
+        toArray,
+      ),
+      {
+        message: `connect ECONNREFUSED 127.0.0.1:${port}`,
+      },
+    );
   });
 
   it('supports abort', async () => {
@@ -113,7 +127,11 @@ describe('socket', () => {
     // echo client 2, post-abort, will get an initial connection but the abort is triggered.
     // note: on Linux, will reject with EPIPE, but on Mac, will reject with ECONNRESET.
     await assert.rejects(
-      pipeline('goodbye\n', new net.Socket().connect(port, '127.0.0.1'), toArray),
+      pipeline(
+        'goodbye\n',
+        new net.Socket().connect(port, '127.0.0.1'),
+        toArray,
+      ),
       ({ code }: { code: string }) => code === 'ECONNRESET' || code === 'EPIPE',
     );
 
@@ -122,9 +140,16 @@ describe('socket', () => {
     assert.ok(!server.listening);
 
     // can't connect
-    await assert.rejects(pipeline('should error', new net.Socket().connect(port, '127.0.0.1'), toArray), {
-      code: 'ECONNREFUSED',
-    });
+    await assert.rejects(
+      pipeline(
+        'should error',
+        new net.Socket().connect(port, '127.0.0.1'),
+        toArray,
+      ),
+      {
+        code: 'ECONNREFUSED',
+      },
+    );
   });
 
   it('can send/receive buffers from simple socket client/server', async () => {
@@ -150,7 +175,10 @@ describe('socket', () => {
       filter((line) => line !== ''),
       toArray,
     );
-    assert.deepEqual(received, ['echo:Hello Mr Server!', 'echo:Regards, Client.']);
+    assert.deepEqual(received, [
+      'echo:Hello Mr Server!',
+      'echo:Regards, Client.',
+    ]);
 
     // close the server
     await new Promise((resolve) => {

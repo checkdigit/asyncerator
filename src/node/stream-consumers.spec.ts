@@ -1,7 +1,7 @@
 // node/stream-consumers.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -10,15 +10,20 @@ import { strict as assert } from 'node:assert';
 import stream from 'node:stream';
 
 import { arrayBuffer, buffer, text } from 'node:stream/consumers';
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 
-import { from } from '../index';
-import { pipeline } from './index';
+import { from } from '../index.ts';
+import { pipeline } from './index.ts';
 
 describe('stream/consumers', () => {
   it('works with arrayBuffer', async () => {
     assert.deepEqual(new TextDecoder().decode(await arrayBuffer(from([]))), '');
-    assert.deepEqual(new TextDecoder().decode(await arrayBuffer(from(['he', 'llo', ' world']))), 'hello world');
+    assert.deepEqual(
+      new TextDecoder().decode(
+        await arrayBuffer(from(['he', 'llo', ' world'])),
+      ),
+      'hello world',
+    );
     let first = true;
     assert.deepEqual(
       new TextDecoder().decode(
@@ -38,16 +43,28 @@ describe('stream/consumers', () => {
       ),
       'abc',
     );
-    assert.deepEqual(new TextDecoder().decode(await arrayBuffer(pipeline(from([]), new stream.PassThrough()))), '');
     assert.deepEqual(
-      new TextDecoder().decode(await arrayBuffer(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()))),
+      new TextDecoder().decode(
+        await arrayBuffer(pipeline(from([]), new stream.PassThrough())),
+      ),
+      '',
+    );
+    assert.deepEqual(
+      new TextDecoder().decode(
+        await arrayBuffer(
+          pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()),
+        ),
+      ),
       'hello world',
     );
   });
 
   it('works with buffer', async () => {
     assert.deepEqual(new TextDecoder().decode(await buffer(from([]))), '');
-    assert.deepEqual(new TextDecoder().decode(await buffer(from(['he', 'llo', ' world']))), 'hello world');
+    assert.deepEqual(
+      new TextDecoder().decode(await buffer(from(['he', 'llo', ' world']))),
+      'hello world',
+    );
     let first = true;
     assert.deepEqual(
       new TextDecoder().decode(
@@ -67,9 +84,18 @@ describe('stream/consumers', () => {
       ),
       'abc',
     );
-    assert.deepEqual(new TextDecoder().decode(await buffer(pipeline(from([]), new stream.PassThrough()))), '');
     assert.deepEqual(
-      new TextDecoder().decode(await buffer(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()))),
+      new TextDecoder().decode(
+        await buffer(pipeline(from([]), new stream.PassThrough())),
+      ),
+      '',
+    );
+    assert.deepEqual(
+      new TextDecoder().decode(
+        await buffer(
+          pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()),
+        ),
+      ),
       'hello world',
     );
   });
@@ -94,7 +120,15 @@ describe('stream/consumers', () => {
       } as AsyncIterable<string>),
       'abc',
     );
-    assert.deepEqual(await text(pipeline(from([]), new stream.PassThrough())), '');
-    assert.deepEqual(await text(pipeline(from(['he', 'llo', ' world']), new stream.PassThrough())), 'hello world');
+    assert.deepEqual(
+      await text(pipeline(from([]), new stream.PassThrough())),
+      '',
+    );
+    assert.deepEqual(
+      await text(
+        pipeline(from(['he', 'llo', ' world']), new stream.PassThrough()),
+      ),
+      'hello world',
+    );
   });
 });

@@ -1,7 +1,7 @@
 // node/zlib.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
@@ -12,15 +12,17 @@ import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
-import { describe, it } from '@jest/globals';
+import { describe, it } from 'node:test';
 import { v4 as uuid } from 'uuid';
 
-import { filter, map, split } from '../operator';
-import { toArray, toString } from '../sink';
+import { filter, map, split } from '../operator/index.ts';
+import { toArray, toString } from '../sink/index.ts';
 
-import pipeline from './pipeline';
+import pipeline from './pipeline.ts';
 
-async function* base64Encode(iterable: AsyncIterable<Buffer>): AsyncGenerator<string> {
+async function* base64Encode(
+  iterable: AsyncIterable<Buffer>,
+): AsyncGenerator<string> {
   let payload = Buffer.from('');
   for await (const thing of iterable) {
     payload = Buffer.concat([payload, thing]);
@@ -32,7 +34,9 @@ describe('zlib', () => {
   it('returns a stream if last parameter is a Gzip transform', async () => {
     const result = pipeline('hello', zlib.createGzip());
     assert.ok(result.readable);
-    assert.ok(typeof (await pipeline(result, base64Encode, toString)) === 'string');
+    assert.ok(
+      typeof (await pipeline(result, base64Encode, toString)) === 'string',
+    );
   });
 
   it('returns a stream if last parameter is an async generator function', async () => {
@@ -42,7 +46,14 @@ describe('zlib', () => {
   });
 
   it('can pipe through gzip', async () => {
-    assert.ok(typeof (await pipeline('hello', zlib.createGzip(), base64Encode, toString)) === 'string');
+    assert.ok(
+      typeof (await pipeline(
+        'hello',
+        zlib.createGzip(),
+        base64Encode,
+        toString,
+      )) === 'string',
+    );
   });
 
   it('to gzip and back again', async () => {

@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/npm/v/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 [![Dependency Status](https://img.shields.io/npm/dt/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 
-Copyright (c) 2021–2024 [Check Digit, LLC](https://checkdigit.com)
+Copyright (c) 2021–2026 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
 
@@ -20,7 +20,7 @@ The `asyncerator` module provides three central capabilities:
 
 ## `Asyncerator<T>` interface
 
-```
+```ts
 export interface Asyncerator<T> {
   [Symbol.asyncIterator](): AsyncIterableIterator<T>;
 }
@@ -58,7 +58,7 @@ Specifically:
 
 Its typing is complicated, but the basic form of the function is:
 
-```
+```ts
 pipeline(
   source, // string | Readable | Iterable | AsyncIterable | Asyncerator
   ...transforms, // zero or more Transform | ((input: Asyncerator) => Asyncerator)
@@ -110,7 +110,9 @@ const result = await pipeline(
 
 // read file without pipeline (painful, don't do this!)
 const result2 = await toArray(
-  filter((string) => string !== '')(split('\n')(fs.createReadStream(temporaryFile).pipe(zlib.createUnzip()))),
+  filter((string) => string !== '')(
+    split('\n')(fs.createReadStream(temporaryFile).pipe(zlib.createUnzip())),
+  ),
 ); // ['hello', 'world']
 ```
 
@@ -182,7 +184,9 @@ Async generator functions that take a single Asyncerator parameter are compatibl
 Operators should generally be implemented using the following pattern:
 
 ```ts
-function map<Input, Output>(mapFunction: (value: Input) => Output): Operator<Input, Output> {
+function map<Input, Output>(
+  mapFunction: (value: Input) => Output,
+): Operator<Input, Output> {
   return async function* (iterator: Asyncerator<Input>) {
     for await (const item of iterator) {
       yield mapFunction(item);
@@ -236,7 +240,7 @@ that resolves with the same type as Input and is inserted into the stream. The s
 passes through all other values. Because the `sequenceFunction` returns a Promise, it
 can delay its response (using setTimeout) to emit values on a regular schedule, e.g., once a second:
 
-```
+```ts
 pipeline(
   ...
   sequence(async () => {
@@ -277,7 +281,10 @@ async function main() {
     // split chunks into lines
     split('\n'),
     // remove empty lines, and CSV header line
-    filter((string) => string !== '' && string !== '"header1","header2","header3","header4"'),
+    filter(
+      (string) =>
+        string !== '' && string !== '"header1","header2","header3","header4"',
+    ),
     // transform string into an object
     map((line: string) => ({
       field1: line.split(',')[0] as string,
