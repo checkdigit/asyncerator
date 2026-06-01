@@ -4,7 +4,7 @@
 [![Dependency Status](https://img.shields.io/npm/v/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 [![Dependency Status](https://img.shields.io/npm/dt/asyncerator.svg)](https://www.npmjs.com/package/asyncerator)
 
-Copyright (c) 2021–2026 [Check Digit, LLC](https://checkdigit.com)
+Copyright © 2021–2026 [Check Digit, LLC](https://checkdigit.com)
 
 ## Introduction
 
