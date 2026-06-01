@@ -8,11 +8,11 @@
 
 import { strict as assert } from 'node:assert';
 import stream from 'node:stream';
-
 import { arrayBuffer, buffer, text } from 'node:stream/consumers';
 import { describe, it } from 'node:test';
 
 import { from } from '../index.ts';
+
 import { pipeline } from './index.ts';
 
 describe('stream/consumers', () => {

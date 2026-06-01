@@ -8,7 +8,6 @@
 
 import { strict as assert } from 'node:assert';
 import net from 'node:net';
-
 import { describe, it } from 'node:test';
 
 import { filter, map, split, toArray, toNull, toString } from '../index.ts';

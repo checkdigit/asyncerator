@@ -12,7 +12,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-
 import { describe, it } from 'node:test';
 
 import { filter, map, split } from '../operator/index.ts';

@@ -9,7 +9,6 @@
 import { strict as assert } from 'node:assert';
 import net from 'node:net';
 import { PassThrough } from 'node:stream';
-
 import { describe, it } from 'node:test';
 
 import {

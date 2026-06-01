@@ -7,7 +7,6 @@
  */
 
 import { strict as assert } from 'node:assert';
-
 import { describe, it } from 'node:test';
 
 import { from, pipeline, series, toArray } from '../index.ts';

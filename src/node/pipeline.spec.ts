@@ -8,7 +8,6 @@
 
 import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
-
 import { describe, it } from 'node:test';
 
 import { all, pipeline, toString } from '../index.ts';
