@@ -11,7 +11,6 @@ import net from 'node:net';
 import { PassThrough } from 'node:stream';
 
 import { describe, it } from 'node:test';
-import getPort from 'get-port';
 
 import {
   all,
@@ -24,7 +23,7 @@ import {
   toString,
 } from '../index.ts';
 
-describe('before', () => {
+describe('before', async () => {
   it('works for an empty array', async () => {
     const result = await pipeline(all([]), before('abc'), toArray);
     assert.deepEqual(result, ['abc']);
@@ -46,29 +45,31 @@ describe('before', () => {
   });
 
   it('works with a socket client/server pipeline', async () => {
-    const port = await getPort();
-
     // echo server
-    const server = net
-      .createServer((socket) => {
-        // eslint-disable-next-line @checkdigit/no-promise-instance-method
-        pipeline(
-          socket,
-          new PassThrough(),
-          before('before '),
-          socket,
-          toNull,
-        ).catch(() => {
-          assert.fail();
-        });
-      })
-      .listen(port, '127.0.0.1');
+    const server = net.createServer((socket) => {
+      // eslint-disable-next-line @checkdigit/no-promise-instance-method
+      pipeline(
+        socket,
+        new PassThrough(),
+        before('before '),
+        socket,
+        toNull,
+      ).catch(() => {
+        assert.fail();
+      });
+    });
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+
+    const address = server.address();
+    assert.ok(address !== null && typeof address !== 'string');
 
     // send no data
     assert.deepEqual(
       await pipeline(
         Buffer.from('').values(),
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toString,
       ),
       'before ',
@@ -78,7 +79,7 @@ describe('before', () => {
     assert.deepEqual(
       await pipeline(
         'client',
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toString,
       ),
       'before client',

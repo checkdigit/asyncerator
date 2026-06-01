@@ -7,13 +7,13 @@
  */
 
 import { strict as assert } from 'node:assert';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
 import { describe, it } from 'node:test';
-import { v4 as uuid } from 'uuid';
 
 import { filter, map, split } from '../operator/index.ts';
 import { toArray, toString } from '../sink/index.ts';
@@ -74,7 +74,7 @@ describe('zlib', () => {
   });
 
   it('read/write gzipped file', async () => {
-    const temporaryFile = path.join(os.tmpdir(), uuid());
+    const temporaryFile = path.join(os.tmpdir(), crypto.randomUUID());
     const input = ['hello', 'world'];
 
     // write a Gzipped file

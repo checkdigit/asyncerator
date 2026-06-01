@@ -10,32 +10,33 @@ import { strict as assert } from 'node:assert';
 import net from 'node:net';
 
 import { describe, it } from 'node:test';
-import getPort from 'get-port';
 
 import { filter, map, split, toArray, toNull, toString } from '../index.ts';
 
 import pipeline from './pipeline.ts';
 
-describe('socket', () => {
+describe('socket', async () => {
   it('can implement a simple socket client/server', async () => {
-    const port = await getPort();
-
     // echo server
-    const server = net
-      .createServer((socket) =>
-        pipeline(
-          socket,
-          split('\n'),
-          map((command) => `echo:${command}\n`),
-          socket,
-        ),
-      )
-      .listen(port, '127.0.0.1');
+    const server = net.createServer((socket) =>
+      pipeline(
+        socket,
+        split('\n'),
+        map((command) => `echo:${command}\n`),
+        socket,
+      ),
+    );
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+
+    const address = server.address();
+    assert.ok(address !== null && typeof address !== 'string');
 
     // echo client
     const received = await pipeline(
       'Hello Mr Server!\nRegards, Client.\n',
-      new net.Socket().connect(port, '127.0.0.1'),
+      new net.Socket().connect(address.port, address.address),
       split('\n'),
       filter((line) => line !== ''),
       toArray,
@@ -49,7 +50,7 @@ describe('socket', () => {
     assert.equal(
       await pipeline(
         '1\n2\n3\nhello\nworld\n',
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toString,
       ),
       'echo:1\necho:2\necho:3\necho:hello\necho:world\n',
@@ -63,18 +64,17 @@ describe('socket', () => {
     await assert.rejects(
       pipeline(
         'should error',
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toArray,
       ),
       {
-        message: `connect ECONNREFUSED 127.0.0.1:${port}`,
+        message: `connect ECONNREFUSED ${address.address}:${address.port}`,
       },
     );
   });
 
   it('supports abort', async () => {
     let aborted = false;
-    const port = await getPort();
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
@@ -84,30 +84,33 @@ describe('socket', () => {
     }, 50);
 
     // echo server
-    const server = net
-      .createServer((socket) => {
-        // eslint-disable-next-line @checkdigit/no-promise-instance-method
-        pipeline(
-          socket,
-          split('\n'),
-          map((command) => `echo:${command}\n`),
-          socket,
-          toNull,
-          options,
-        ).catch((error: unknown) => {
-          assert.equal((error as Error).name, 'AbortError');
-          assert.equal((error as Error).message, 'The operation was aborted');
-          assert.ok(socket.destroyed);
-          server.close();
-          aborted = true;
-        });
-      })
-      .listen(port, '127.0.0.1');
+    const server = net.createServer((socket) => {
+      // eslint-disable-next-line @checkdigit/no-promise-instance-method
+      pipeline(
+        socket,
+        split('\n'),
+        map((command) => `echo:${command}\n`),
+        socket,
+        toNull,
+        options,
+      ).catch((error: unknown) => {
+        assert.equal((error as Error).name, 'AbortError');
+        assert.equal((error as Error).message, 'The operation was aborted');
+        assert.ok(socket.destroyed);
+        server.close();
+        aborted = true;
+      });
+    });
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const address = server.address();
+    assert.ok(address !== null && typeof address !== 'string');
 
     // echo client 1
     const received1 = await pipeline(
       'hello\n',
-      new net.Socket().connect(port, '127.0.0.1'),
+      new net.Socket().connect(address.port, address.address),
       split('\n'),
       filter((line) => line !== ''),
       toArray,
@@ -129,7 +132,7 @@ describe('socket', () => {
     await assert.rejects(
       pipeline(
         'goodbye\n',
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toArray,
       ),
       ({ code }: { code: string }) => code === 'ECONNRESET' || code === 'EPIPE',
@@ -143,7 +146,7 @@ describe('socket', () => {
     await assert.rejects(
       pipeline(
         'should error',
-        new net.Socket().connect(port, '127.0.0.1'),
+        new net.Socket().connect(address.port, address.address),
         toArray,
       ),
       {
@@ -153,24 +156,25 @@ describe('socket', () => {
   });
 
   it('can send/receive buffers from simple socket client/server', async () => {
-    const port = await getPort();
-
     // echo server
-    const server = net
-      .createServer((socket) =>
-        pipeline(
-          socket,
-          split('\n'),
-          map((command) => `echo:${command}\n`),
-          socket,
-        ),
-      )
-      .listen(port, '127.0.0.1');
+    const server = net.createServer((socket) =>
+      pipeline(
+        socket,
+        split('\n'),
+        map((command) => `echo:${command}\n`),
+        socket,
+      ),
+    );
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const address = server.address();
+    assert.ok(address !== null && typeof address !== 'string');
 
     // echo client
     const received = await pipeline(
       [Buffer.from('Hello Mr Server!\nRegards, Client.\n')],
-      new net.Socket().connect(port, '127.0.0.1'),
+      new net.Socket().connect(address.port, address.address),
       split('\n'),
       filter((line) => line !== ''),
       toArray,

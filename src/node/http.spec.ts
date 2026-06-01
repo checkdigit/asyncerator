@@ -8,9 +8,7 @@
 
 import { strict as assert } from 'node:assert';
 import http, { IncomingMessage, ServerResponse } from 'node:http';
-
 import { describe, it } from 'node:test';
-import getPort from 'get-port';
 
 import { map, split, toString } from '../index.ts';
 
@@ -18,11 +16,9 @@ import pipeline from './pipeline.ts';
 
 describe('http', () => {
   it('can implement a simple http client/server', async () => {
-    const port = await getPort();
-
     // http server
-    const server = http
-      .createServer((request: IncomingMessage, response: ServerResponse) => {
+    const server = http.createServer(
+      (request: IncomingMessage, response: ServerResponse) => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         pipeline(
           request,
@@ -30,8 +26,15 @@ describe('http', () => {
           map((command) => `echo:${command}\n`),
           response,
         );
-      })
-      .listen(port, '127.0.0.1');
+      },
+    );
+
+    await new Promise<void>((resolve) => {
+      server.listen(0, '127.0.0.1', resolve);
+    });
+
+    const address = server.address();
+    assert.ok(address !== null && typeof address !== 'string');
 
     // echo client
     const received = await new Promise(
@@ -40,7 +43,7 @@ describe('http', () => {
         pipeline(
           'hello\nworld',
           http.request(
-            `http://127.0.0.1:${port}/`,
+            `http://127.0.0.1:${address.port}/`,
             { method: 'PUT' },
             (response) => {
               resolve(pipeline(response, toString));
@@ -65,10 +68,10 @@ describe('http', () => {
     await assert.rejects(
       pipeline(
         'should error',
-        http.request(`http://127.0.0.1:${port}/`, { method: 'PUT' }),
+        http.request(`http://127.0.0.1:${address.port}/`, { method: 'PUT' }),
       ),
       {
-        message: `connect ECONNREFUSED 127.0.0.1:${port}`,
+        message: `connect ECONNREFUSED 127.0.0.1:${address.port}`,
       },
     );
   });
