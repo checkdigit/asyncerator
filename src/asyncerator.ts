@@ -15,7 +15,7 @@
  * - AsyncIterableIterator
  * - AsyncGenerator (aka async generator functions)
  * - NodeJS.ReadableStream (internal Node implementations include stream.Readable, readline, fs.createReadStream, etc.)
- * - the standard Javascript `for await...of` statement will accept an Asyncerator
+ * - the standard JavaScript `for await...of` statement will accept an Asyncerator
  *
  * Notes:
  * - Asyncerator is similar to AsyncIterableIterator, but does not extend AsyncIterator.
