@@ -1,16 +1,15 @@
 // source/merge.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { type Asyncerator, from, merge, pipeline, toArray } from '../index';
+import { type Asyncerator, from, merge, pipeline, toArray } from '../index.ts';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {
@@ -37,29 +36,51 @@ describe('merge', () => {
   });
 
   it('works with a recursive sources', async () => {
-    assert.deepEqual(await pipeline(merge(['1', ['2']]), toArray), ['1', ['2']]);
-    assert.deepEqual(await pipeline(merge(from(['1', from(['2'])])), toArray), ['1', '2']);
-    assert.deepEqual(await pipeline(merge(from([from(['1'])])), toArray), ['1']);
-    assert.deepEqual((await pipeline(merge(from(['1', from(['2', merge(from(['3'])), '4']), '5'])), toArray)).sort(), [
+    assert.deepEqual(await pipeline(merge(['1', ['2']]), toArray), [
+      '1',
+      ['2'],
+    ]);
+    assert.deepEqual(await pipeline(merge(from(['1', from(['2'])])), toArray), [
       '1',
       '2',
-      '3',
-      '4',
-      '5',
     ]);
+    assert.deepEqual(await pipeline(merge(from([from(['1'])])), toArray), [
+      '1',
+    ]);
+    assert.deepEqual(
+      (
+        await pipeline(
+          merge(from(['1', from(['2', merge(from(['3'])), '4']), '5'])),
+          toArray,
+        )
+      ).sort(),
+      ['1', '2', '3', '4', '5'],
+    );
   });
 
   it('work if an array item is a promise', async () => {
-    assert.deepEqual(await pipeline(merge(['0', Promise.resolve('2'), '1']), toArray), ['0', '2', '1']);
+    assert.deepEqual(
+      await pipeline(merge(['0', Promise.resolve('2'), '1']), toArray),
+      ['0', '2', '1'],
+    );
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(pipeline(merge(['0', Promise.reject(new Error('Reject')), '1']), toArray), {
-      message: 'Reject',
-    });
-    await assert.rejects(pipeline(merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])), toArray), {
-      message: 'Reject',
-    });
+    await assert.rejects(
+      pipeline(merge(['0', Promise.reject(new Error('Reject')), '1']), toArray),
+      {
+        message: 'Reject',
+      },
+    );
+    await assert.rejects(
+      pipeline(
+        merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])),
+        toArray,
+      ),
+      {
+        message: 'Reject',
+      },
+    );
   });
 
   it('works with a multiple identical sources', async () => {
@@ -75,7 +96,9 @@ describe('merge', () => {
   });
 
   it('works with for await', async () => {
-    const iterator = merge(from([Promise.resolve('abc'), Promise.resolve('def')]));
+    const iterator = merge(
+      from([Promise.resolve('abc'), Promise.resolve('def')]),
+    );
     const results = [];
     for await (const result of iterator) {
       results.push(result);
@@ -84,7 +107,9 @@ describe('merge', () => {
   });
 
   it('works with a single promisified value', async () => {
-    const iterator = merge(from([Promise.resolve('abc')]))[Symbol.asyncIterator]();
+    const iterator = merge(from([Promise.resolve('abc')]))[
+      Symbol.asyncIterator
+    ]();
     assert.deepEqual(
       [await iterator.next(), await iterator.next()],
       [
@@ -95,7 +120,9 @@ describe('merge', () => {
   });
 
   it('works with a single promisified value that rejects', async () => {
-    const iterator = merge(from([Promise.reject(new Error('Reject'))]))[Symbol.asyncIterator]();
+    const iterator = merge(from([Promise.reject(new Error('Reject'))]))[
+      Symbol.asyncIterator
+    ]();
     await assert.rejects(iterator.next(), { message: 'Reject' });
   });
 
@@ -119,20 +146,9 @@ describe('merge', () => {
         await pipeline(
           merge(
             ['10'],
-            from([
-              new Promise((resolve) => {
-                resolve('77');
-              }),
-            ]),
+            from([Promise.resolve('77')]),
             pipeline(['30'], passThru),
-            from([
-              '11',
-              '12',
-              new Promise((resolve) => {
-                resolve('58');
-              }),
-              '14',
-            ]),
+            from(['11', '12', Promise.resolve('58'), '14']),
             from(['41']),
           ),
           toArray,
@@ -144,7 +160,9 @@ describe('merge', () => {
 
   it('works with a randomized merge tree', async () => {
     const TEST_SIZE = 1037;
-    const input = Array.from({ length: TEST_SIZE }).map(() => Math.ceil(Math.random() * 25));
+    const input = Array.from({ length: TEST_SIZE }).map(() =>
+      Math.ceil(Math.random() * 25),
+    );
 
     function tree(elements: number[]): Asyncerator<number> {
       if (elements.length === 0) {
@@ -163,7 +181,9 @@ describe('merge', () => {
       const chunkSize = Math.ceil((elements.length - 1) / splitInto);
       const mergeables: Asyncerator<number>[] = [];
       for (let chunk = 0; chunk <= splitInto; chunk++) {
-        mergeables.push(tree(elements.slice(chunk * chunkSize, (chunk + 1) * chunkSize)));
+        mergeables.push(
+          tree(elements.slice(chunk * chunkSize, (chunk + 1) * chunkSize)),
+        );
       }
       return merge(...mergeables);
     }

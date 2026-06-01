@@ -1,22 +1,22 @@
 // sink/reduce.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
+import { after, before, from, pipeline, reduce } from '../index.ts';
 
-import { after, before, from, pipeline, reduce } from '../index';
-
-import type { ReduceFunction } from './reduce';
+import type { ReduceFunction } from './reduce.ts';
 
 describe('reduce', () => {
   const adder = (current: number, previous: number) => current + previous;
-  const addIndex = (current: number, previous: number, index: number) => current + previous + index;
+  const addIndex = (current: number, previous: number, index: number) =>
+    current + previous + index;
 
   it('works in a pipeline', async () => {
     assert.equal(await pipeline([1, 2, 3], reduce(adder, 0)), 6);
@@ -26,7 +26,11 @@ describe('reduce', () => {
   });
 
   it('has identical behavior to Array.reduce', async () => {
-    async function check<T, U>(array: T[], reduceFunction: ReduceFunction<T, U>, initialValue?: T | U): Promise<void> {
+    async function check<T, U>(
+      array: T[],
+      reduceFunction: ReduceFunction<T, U>,
+      initialValue?: T | U,
+    ): Promise<void> {
       let implementation;
       let implementationError;
       try {
@@ -40,8 +44,10 @@ describe('reduce', () => {
       let arrayReduce;
       let arrayReduceError;
       try {
-        // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter
-        arrayReduce = array.reduce(reduceFunction as unknown as ReduceFunction<T, T>, initialValue as T);
+        arrayReduce = array.reduce(
+          reduceFunction as unknown as ReduceFunction<T, T>,
+          initialValue as T,
+        );
       } catch (error) {
         arrayReduceError = error;
       }

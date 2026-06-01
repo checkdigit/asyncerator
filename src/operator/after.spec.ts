@@ -1,16 +1,15 @@
 // operator/after.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { after, all, forEach, from, pipeline, toArray } from '../index';
+import { after, all, forEach, from, pipeline, toArray } from '../index.ts';
 
 describe('after', () => {
   it('works for an empty array', async () => {

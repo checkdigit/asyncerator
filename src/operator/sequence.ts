@@ -1,14 +1,14 @@
 // operator/sequence.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
-import type { Operator } from './index';
+import type { Operator } from './index.ts';
 
 /**
  * The sequenceFunction will be called repeatedly with an incrementing numerical parameter, returning a Promise
@@ -18,7 +18,9 @@ import type { Operator } from './index';
  *
  * @param sequenceFunction
  */
-export default function <Input>(sequenceFunction: (index: number) => Promise<Input>): Operator<Input, Input> {
+export default function <Input>(
+  sequenceFunction: (index: number) => Promise<Input>,
+): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Input[] = [];
     let complete = false;
@@ -93,7 +95,7 @@ export default function <Input>(sequenceFunction: (index: number) => Promise<Inp
       }
 
       // one or more promises may have completed, so yield everything in the queue
-      yield* queue.splice(0, queue.length);
+      yield* queue.splice(0);
     }
 
     await passThroughProducer;

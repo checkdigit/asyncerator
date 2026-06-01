@@ -1,17 +1,16 @@
 // node/pipeline.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
 import { PassThrough, Readable, Writable } from 'node:stream';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { all, pipeline, toString } from '../index';
+import { all, pipeline, toString } from '../index.ts';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
   for await (const thing of iterable) {
@@ -42,7 +41,11 @@ async function validateReadable(stream: Readable, expected: string) {
 
 describe('pipeline', () => {
   it('returns promise if last parameter is an async function', async () => {
-    const result1 = pipeline([undefined, 1, null, 2, true, 3, [4, [5], 6, 7]], passThru, toString);
+    const result1 = pipeline(
+      [undefined, 1, null, 2, true, 3, [4, [5], 6, 7]],
+      passThru,
+      toString,
+    );
     const result2 = pipeline(Buffer.from('hello').values(), toString);
     const result3 = pipeline('hello', toString);
     const result4 = pipeline(Buffer.from('abc'), toString);
@@ -62,34 +65,67 @@ describe('pipeline', () => {
 
   it('works consistently with streams', async () => {
     assert.deepEqual(
-      await pipeline([undefined, 1, 2, true, 3, [4, [5], 6, 7]], new PassThrough({ objectMode: true }), toString),
+      await pipeline(
+        [undefined, 1, 2, true, 3, [4, [5], 6, 7]],
+        new PassThrough({ objectMode: true }),
+        toString,
+      ),
       '12true34,5,6,7',
     );
-    await assert.rejects(async () => pipeline([null], new PassThrough({ objectMode: true }), toString), {
-      name: 'TypeError',
-      message: 'May not write null values to stream',
-    });
-    await assert.rejects(async () => pipeline([undefined], new PassThrough({ objectMode: false }), toString), {
-      name: 'TypeError',
-    });
-    await assert.rejects(async () => pipeline([true], new PassThrough({ objectMode: false }), toString), {
-      name: 'TypeError',
-    });
-    await assert.rejects(async () => pipeline([{}], new PassThrough({ objectMode: false }), toString), {
-      name: 'TypeError',
-    });
     await assert.rejects(
-      async () => pipeline([Symbol.for('hello')], new PassThrough({ objectMode: false }), toString),
+      async () =>
+        pipeline([null], new PassThrough({ objectMode: true }), toString),
+      {
+        name: 'TypeError',
+        message: 'May not write null values to stream',
+      },
+    );
+    await assert.rejects(
+      async () =>
+        pipeline([undefined], new PassThrough({ objectMode: false }), toString),
       {
         name: 'TypeError',
       },
     );
-    await assert.rejects(async () => pipeline([1], new PassThrough({ objectMode: false }), toString), {
-      name: 'TypeError',
-    });
-    await assert.rejects(async () => pipeline([1n], new PassThrough({ objectMode: false }), toString), {
-      name: 'TypeError',
-    });
+    await assert.rejects(
+      async () =>
+        pipeline([true], new PassThrough({ objectMode: false }), toString),
+      {
+        name: 'TypeError',
+      },
+    );
+    await assert.rejects(
+      async () =>
+        pipeline([{}], new PassThrough({ objectMode: false }), toString),
+      {
+        name: 'TypeError',
+      },
+    );
+    await assert.rejects(
+      async () =>
+        pipeline(
+          [Symbol.for('hello')],
+          new PassThrough({ objectMode: false }),
+          toString,
+        ),
+      {
+        name: 'TypeError',
+      },
+    );
+    await assert.rejects(
+      async () =>
+        pipeline([1], new PassThrough({ objectMode: false }), toString),
+      {
+        name: 'TypeError',
+      },
+    );
+    await assert.rejects(
+      async () =>
+        pipeline([1n], new PassThrough({ objectMode: false }), toString),
+      {
+        name: 'TypeError',
+      },
+    );
     assert.deepEqual(
       await pipeline(
         ['hello', Uint8Array.from([32]), Buffer.from('world')],
@@ -109,7 +145,11 @@ describe('pipeline', () => {
   });
 
   it('correctly emits error on returned stream', async () => {
-    const readable = pipeline([null], new PassThrough({ objectMode: true }), passThru);
+    const readable = pipeline(
+      [null],
+      new PassThrough({ objectMode: true }),
+      passThru,
+    );
     await assert.rejects(
       new Promise((_, reject) => {
         readable.on('error', (error) => {
@@ -123,7 +163,10 @@ describe('pipeline', () => {
   });
 
   it('returns ReadWriteStream if last parameter is an async generator', async () => {
-    await validateReadable(pipeline([undefined, 1, 2, true, 3], passThru), '12true3');
+    await validateReadable(
+      pipeline([undefined, 1, 2, true, 3], passThru),
+      '12true3',
+    );
   });
 
   it('returns promise if last parameter is a WritableStream', async () => {
@@ -147,11 +190,17 @@ describe('pipeline', () => {
     } catch (error) {
       errorThrown = error as Error;
     }
-    assert.deepEqual(errorThrown?.message, 'The _write() method is not implemented');
+    assert.deepEqual(
+      errorThrown?.message,
+      'The _write() method is not implemented',
+    );
   });
 
   it('can support nested pipelines as sources', async () => {
-    assert.equal(await pipeline(pipeline(pipeline('hello', passThru), passThru), toString), 'hello');
+    assert.equal(
+      await pipeline(pipeline(pipeline('hello', passThru), passThru), toString),
+      'hello',
+    );
   });
 
   it('can support a pure Asyncerator as source', async () => {

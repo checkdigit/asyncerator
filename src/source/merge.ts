@@ -1,12 +1,12 @@
 // source/merge.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import from, { type Asyncable, type Asyncerator } from '../asyncerator';
+import from, { type Asyncable, type Asyncerator } from '../asyncerator.ts';
 
 async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
   const iterator = asyncerator[Symbol.asyncIterator]();
@@ -19,7 +19,9 @@ async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
  *
  * @param iterators
  */
-export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T> | Promise<T>>[]): Asyncerator<T> {
+export default async function* merge<T>(
+  ...iterators: Asyncable<T | Asyncable<T> | Promise<T>>[]
+): Asyncerator<T> {
   const wrappedIterators = iterators.map(from);
 
   const pending = wrappedIterators.map(createPending);
@@ -37,12 +39,20 @@ export default async function* merge<T>(...iterators: Asyncable<T | Asyncable<T>
         indexMap[position] = (indexMap[position] ?? 0) - 1;
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if ((result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator] === undefined) {
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        (result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
+        undefined
+      ) {
         yield result.value as T;
       } else {
         // this is another async iterable iterator, so merge its output into the pending
-        pending.push(createPending(from(result.value as AsyncIterableIterator<T>), indexMap.length));
+        pending.push(
+          createPending(
+            from(result.value as AsyncIterableIterator<T>),
+            indexMap.length,
+          ),
+        );
         indexMap.push(pending.length - 1);
       }
 

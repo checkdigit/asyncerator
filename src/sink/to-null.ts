@@ -1,12 +1,12 @@
 // sink/to-null.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import asyncerator, { type Asyncable } from '../asyncerator';
+import asyncerator, { type Asyncable } from '../asyncerator.ts';
 
 /**
  * Drop the results of an asyncable into /dev/null.

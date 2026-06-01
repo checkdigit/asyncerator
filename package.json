@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "4.0.2",
+  "version": "5.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "keywords": [
     "stream",
@@ -45,12 +45,14 @@
     "build:dist-mjs": "rimraf dist-mjs && npx builder --type=module --sourceMap --outDir=dist-mjs && node dist-mjs/index.mjs",
     "build:dist-types": "rimraf dist-types && npx builder --type=types --outDir=dist-types",
     "ci:compile": "tsc --noEmit",
-    "ci:coverage": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=true",
+    "ci:coverage": "rimraf coverage && mkdir coverage && node --test-timeout 600000 --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info --test \"src/**/*.spec.ts\"",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier",
-    "ci:test": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning --experimental-vm-modules\" jest --coverage=false",
-    "lint": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning\" eslint --max-warnings 0 .",
-    "lint:fix": "NODE_OPTIONS=\"--disable-warning ExperimentalWarning\" eslint . --fix",
+    "ci:test": "node --test-timeout 600000 --test \"src/**/*.spec.ts\"",
+    "clean": "npm cache verify && rimraf coverage node_modules",
+    "coverage": "node --test-timeout 600000 --experimental-test-coverage --test \"src/**/*.spec.ts\"",
+    "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint . --fix",
     "prepare": "",
     "prepublishOnly": "npm run build:dist-types && npm run build:dist-mjs",
     "prettier": "prettier --ignore-path .gitignore --list-different .",
@@ -58,24 +60,17 @@
     "test": "npm run ci:compile && npm run ci:test && npm run ci:lint && npm run ci:style"
   },
   "prettier": "@checkdigit/prettier-config",
-  "jest": {
-    "preset": "@checkdigit/jest-config"
-  },
   "dependencies": {
-    "debug": "^4.3.7"
+    "debug": "^4.4.3"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^10.1.0",
-    "@checkdigit/jest-config": "^6.0.2",
-    "@checkdigit/prettier-config": "^5.5.1",
-    "@checkdigit/typescript-config": "^8.0.0",
-    "@types/debug": "^4.1.12",
-    "@types/uuid": "^10.0.0",
-    "get-port": "^7.1.0",
-    "rimraf": "^6.0.1",
-    "uuid": "^10.0.0"
+    "@checkdigit/eslint-config": "^11.8.0",
+    "@checkdigit/prettier-config": "^8.0.0",
+    "@checkdigit/typescript-config": "^10.1.0",
+    "@types/debug": "^4.1.13",
+    "rimraf": "^6.1.3"
   },
   "engines": {
-    "node": ">=20.17"
+    "node": ">=24.14.1"
   }
 }

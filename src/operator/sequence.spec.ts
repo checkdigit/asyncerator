@@ -1,16 +1,15 @@
 // operator/sequence.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { all, from, pipeline, sequence, toArray } from '../index';
+import { all, from, pipeline, sequence, toArray } from '../index.ts';
 
 describe('sequence', () => {
   it('produces no values on an empty array', async () => {

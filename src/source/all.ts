@@ -1,14 +1,14 @@
 // source/all.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import debug from 'debug';
 
-import type { Asyncerator } from '../asyncerator';
+import type { Asyncerator } from '../asyncerator.ts';
 
 const log = debug('asyncerator:source:all');
 
@@ -19,7 +19,9 @@ const log = debug('asyncerator:source:all');
  *
  * @param promises
  */
-export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<T> {
+export default async function* <T>(
+  promises: Iterable<Promise<T>>,
+): Asyncerator<T> {
   // as promises resolve, then remove from pending and add the result to the queue
   const queue: T[] = [];
   const pending = new Set(promises);
@@ -43,6 +45,6 @@ export default async function* <T>(promises: Iterable<Promise<T>>): Asyncerator<
   while (pending.size > 0) {
     // eslint-disable-next-line no-await-in-loop
     await Promise.race(pending);
-    yield* queue.splice(0, queue.length);
+    yield* queue.splice(0);
   }
 }

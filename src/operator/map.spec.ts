@@ -1,16 +1,15 @@
 // operator/map.spec.ts
 
 /*
- * Copyright (c) 2021-2024 Check Digit, LLC
+ * Copyright (c) 2021-2026 Check Digit, LLC
  *
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
 import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { describe, it } from '@jest/globals';
-
-import { all, from, map, pipeline, toArray } from '../index';
+import { all, from, map, pipeline, toArray } from '../index.ts';
 
 describe('map', () => {
   it('works for an empty array', async () => {
@@ -27,7 +26,11 @@ describe('map', () => {
   });
 
   it('operates on sequence of promises', async () => {
-    const iterable = all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
+    const iterable = all([
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3),
+    ]);
     assert.deepEqual(
       (
         await pipeline(
