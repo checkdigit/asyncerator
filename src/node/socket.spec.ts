@@ -92,7 +92,8 @@ describe('socket', async () => {
         socket,
         toNull,
         options,
-        // eslint-disable-next-line unicorn/prefer-await -- Handle rejection without returning a promise from the socket listener.
+        // handle rejection without returning a promise from the socket listener.
+        // eslint-disable-next-line unicorn/prefer-await
       ).catch((error: unknown) => {
         assert.equal((error as Error).name, 'AbortError');
         assert.equal((error as Error).message, 'The operation was aborted');

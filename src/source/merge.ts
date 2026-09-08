@@ -8,8 +8,12 @@
 
 import from, { type Asyncable, type Asyncerator } from '../asyncerator.ts';
 
-async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
-  const iterator = asyncerator[Symbol.asyncIterator]();
+type MergeValue<T> = T | Asyncable<T> | Promise<T>;
+
+async function createPending<U>(
+  iterator: AsyncIterableIterator<U>,
+  index: number,
+) {
   return { index, iterator, result: await iterator.next() };
 }
 
@@ -20,45 +24,86 @@ async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
  * @param iterators
  */
 export default async function* merge<T>(
-  ...iterators: Asyncable<T | Asyncable<T> | Promise<T>>[]
+  ...iterators: Asyncable<MergeValue<T>>[]
 ): Asyncerator<T> {
-  const wrappedIterators = iterators.map(from);
+  const active = new Set<AsyncIterableIterator<MergeValue<T>>>();
+  type SourceIterator = Iterator<MergeValue<T>> | AsyncIterator<MergeValue<T>>;
+  const wrappedSources = new WeakMap<
+    SourceIterator,
+    AsyncIterableIterator<MergeValue<T>>
+  >();
+  let hasThrown = false;
 
-  const pending = wrappedIterators.map(createPending);
-  const indexMap = wrappedIterators.map((_, index) => index);
+  function trackIterator(source: Asyncable<MergeValue<T>>) {
+    const candidate = source as SourceIterator;
+    const isIterator = typeof candidate.next === 'function';
+    let iterator = isIterator ? wrappedSources.get(candidate) : undefined;
+    iterator ??= from(source)[Symbol.asyncIterator]();
+    if (isIterator) {
+      wrappedSources.set(candidate, iterator);
+    }
+    active.add(iterator);
+    return iterator;
+  }
 
-  while (pending.length > 0) {
-    // eslint-disable-next-line no-await-in-loop
-    const { result, iterator, index } = await Promise.race(pending);
+  try {
+    const wrappedIterators = iterators.map(trackIterator);
+    const pending = wrappedIterators.map(createPending);
+    const indexMap = wrappedIterators.map((_, index) => index);
 
-    if (result.done === true) {
-      // delete this iterable from pending
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style,@typescript-eslint/no-floating-promises
-      pending.splice(indexMap[index] as number, 1);
-      for (let position = index + 1; position < indexMap.length; position++) {
-        indexMap[position] = (indexMap[position] ?? 0) - 1;
-      }
-    } else {
-      if (
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        (result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
-        undefined
-      ) {
-        yield result.value as T;
+    while (pending.length > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      const { result, iterator, index } = await Promise.race(pending);
+
+      if (result.done === true) {
+        active.delete(iterator);
+        // delete this iterable from pending
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style,@typescript-eslint/no-floating-promises
+        pending.splice(indexMap[index] as number, 1);
+        for (let position = index + 1; position < indexMap.length; position++) {
+          indexMap[position] = (indexMap[position] ?? 0) - 1;
+        }
       } else {
-        // this is another async iterable iterator, so merge its output into the pending
-        pending.push(
-          createPending(
-            from(result.value as AsyncIterableIterator<T>),
-            indexMap.length,
-          ),
-        );
-        indexMap.push(pending.length - 1);
-      }
+        if (
+          typeof (
+            result.value as AsyncIterableIterator<T> | null | undefined
+          )?.[Symbol.asyncIterator] === 'function'
+        ) {
+          // this is another async iterable iterator, so merge its output into the pending
+          pending.push(
+            createPending(
+              trackIterator(result.value as AsyncIterableIterator<T>),
+              indexMap.length,
+            ),
+          );
+          indexMap.push(pending.length - 1);
+        } else {
+          yield result.value as T;
+        }
 
-      // start waiting for the next result from this iterable
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      pending[indexMap[index] as number] = createPending(iterator, index);
+        // start waiting for the next result from this iterable
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+        pending[indexMap[index] as number] = createPending(iterator, index);
+      }
+    }
+  } catch (error) {
+    hasThrown = true;
+    throw error;
+  } finally {
+    // Start every close operation even if another source's cleanup fails or waits.
+    const results = await Promise.allSettled(
+      [...active].map(async (iterator) => {
+        await iterator.return?.();
+      }),
+    );
+    if (!hasThrown) {
+      for (const result of results) {
+        if (result.status === 'rejected') {
+          // report cleanup failures only when there is no original iteration error.
+          // eslint-disable-next-line no-unsafe-finally
+          throw result.reason;
+        }
+      }
     }
   }
 }

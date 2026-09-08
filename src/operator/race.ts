@@ -52,14 +52,16 @@ export default function <Input, Output>(
 
         // eslint-disable-next-line @checkdigit/no-promise-instance-method
         promise
-          // eslint-disable-next-line unicorn/prefer-await -- Queue results concurrently without blocking the producer.
+          // queue results concurrently without blocking the producer.
+          // eslint-disable-next-line unicorn/prefer-await
           .then((value) => {
             // as promises resolve, then remove from pending and add the result to the queue
             queue.push(value);
             pending.delete(promise);
             return value;
           })
-          // eslint-disable-next-line unicorn/prefer-await -- Handle the detached callback's rejection without awaiting it.
+          // handle the detached callback's rejection without awaiting it.
+          // eslint-disable-next-line unicorn/prefer-await
           .catch((error: unknown) => {
             // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
             // future versions of Node will process.exit().
@@ -67,11 +69,13 @@ export default function <Input, Output>(
           });
       }
     })()
-      // eslint-disable-next-line unicorn/prefer-await -- The producer and consumer must run concurrently.
+      // the producer and consumer must run concurrently.
+      // eslint-disable-next-line unicorn/prefer-await
       .then(() => {
         isComplete = true;
       })
-      // eslint-disable-next-line unicorn/prefer-await -- Record producer errors while the consumer drains pending work.
+      // record producer errors while the consumer drains pending work.
+      // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
         hasThrown = true;
         completionError = error;
@@ -98,7 +102,8 @@ export default function <Input, Output>(
         }
 
         // one or more promises have completed, so yield everything in the queue
-        // eslint-disable-next-line unicorn/no-unnecessary-splice -- Drain into a separate array before yielding so the producer can keep adding values.
+        // drain into a separate array before yielding so the producer can keep adding values.
+        // eslint-disable-next-line unicorn/no-unnecessary-splice
         yield* queue.splice(0);
       }
     }

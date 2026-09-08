@@ -38,6 +38,84 @@ export type Asyncable<T> =
   | AsyncIterable<T>
   | Asyncerator<T>;
 
+function wrapIterator<T>(
+  iterator: Iterator<T> | AsyncIterator<T>,
+  isSynchronous: boolean,
+): AsyncIterableIterator<T> {
+  let hasFinished = false;
+  let hasFailed = false;
+  let cleanup: Promise<void> | undefined;
+
+  function close() {
+    if (cleanup !== undefined) {
+      return cleanup;
+    }
+    if (hasFinished) {
+      return Promise.resolve();
+    }
+    cleanup = (async () => {
+      await iterator.return?.();
+    })();
+    return cleanup;
+  }
+
+  const wrapped = (async function* () {
+    try {
+      if (isSynchronous) {
+        const synchronousIterator = iterator as Iterator<T>;
+        for (
+          let item = synchronousIterator.next();
+          item.done !== true;
+          item = synchronousIterator.next()
+        ) {
+          yield item.value;
+        }
+      } else {
+        for (
+          let item = await iterator.next();
+          item.done !== true;
+          // eslint-disable-next-line no-await-in-loop
+          item = await iterator.next()
+        ) {
+          yield item.value;
+        }
+      }
+      hasFinished = true;
+    } catch (error) {
+      hasFailed = true;
+      throw error;
+    } finally {
+      try {
+        await close();
+      } catch (error) {
+        if (!hasFailed) {
+          // preserve the original iteration error when cleanup also fails.
+          // eslint-disable-next-line no-unsafe-finally
+          throw error;
+        }
+      }
+    }
+  })();
+
+  const returnFromGenerator = wrapped.return.bind(wrapped);
+  wrapped.return = async (value) => {
+    // Generator return() waits for next(), so start cleanup first to unblock cancellable iterators.
+    const [closing, returning] = await Promise.allSettled([
+      close(),
+      returnFromGenerator(value),
+    ]);
+    if (returning.status === 'rejected') {
+      throw returning.reason;
+    }
+    if (!hasFailed && closing.status === 'rejected') {
+      throw closing.reason;
+    }
+    return returning.value;
+  };
+
+  return wrapped;
+}
+
 /**
  * Create an Asyncerator from an Asyncable.
  *
@@ -64,28 +142,11 @@ export default function <T>(
     const synchronousIterator = (source as IterableIterator<T>)[
       Symbol.iterator
     ]();
-    return (async function* () {
-      for (
-        let item = synchronousIterator.next();
-        item.done !== true;
-        item = synchronousIterator.next()
-      ) {
-        yield item.value;
-      }
-    })();
+    return wrapIterator(synchronousIterator, true);
   } else {
     // could be an Iterator or an AsyncIterator, but we can't tell the difference, so treat it as async regardless
     iterator = source as AsyncIterator<T>;
   }
 
-  return (async function* () {
-    for (
-      let item = await iterator.next();
-      item.done !== true;
-      // eslint-disable-next-line no-await-in-loop
-      item = await iterator.next()
-    ) {
-      yield item.value;
-    }
-  })();
+  return wrapIterator(iterator, false);
 }

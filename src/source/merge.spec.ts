@@ -16,6 +16,24 @@ async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
     yield thing;
   }
 }
+
+function repeatingSource<T>(
+  value: T,
+  onReturn: () => void | Promise<void>,
+): AsyncIterableIterator<T> {
+  const iterator: AsyncIterableIterator<T> = {
+    [Symbol.asyncIterator]: () => iterator,
+    async next() {
+      return { done: false, value };
+    },
+    async return() {
+      await onReturn();
+      return { done: true, value: undefined };
+    },
+  };
+  return iterator;
+}
+
 describe('merge', () => {
   it('allows empty array of async iterable iterators', async () => {
     assert.deepEqual(await merge()[Symbol.asyncIterator]().next(), {
@@ -33,6 +51,11 @@ describe('merge', () => {
         { value: undefined, done: true },
       ],
     );
+  });
+
+  it('preserves null and undefined values', async () => {
+    const values = [null, undefined, 'value', null, undefined];
+    assert.deepEqual(await Array.fromAsync(merge(values)), values);
   });
 
   it('works with a recursive sources', async () => {
@@ -132,6 +155,277 @@ describe('merge', () => {
       },
     };
     assert.deepEqual(await pipeline(merge(range), toArray), [0, 1, 2, 3]);
+  });
+
+  it('closes all active sources, including nested sources, on early break', async () => {
+    const closed: string[] = [];
+    const nested = repeatingSource('nested', () => {
+      closed.push('nested');
+    });
+    const parent = repeatingSource(nested, () => {
+      closed.push('parent');
+    });
+    const sibling = repeatingSource('sibling', () => {
+      closed.push('sibling');
+    });
+
+    // breaking iteration must close every active source.
+    // eslint-disable-next-line no-unreachable-loop
+    for await (const value of merge<string>(parent, sibling)) {
+      assert.ok(value === 'nested' || value === 'sibling');
+      break;
+    }
+
+    assert.deepEqual(closed.sort(), ['nested', 'parent', 'sibling']);
+  });
+
+  it('waits for asynchronous cleanup before returning', async () => {
+    const cleanupStarted = Promise.withResolvers<undefined>();
+    const allowCleanup = Promise.withResolvers<undefined>();
+    let hasClosed = false;
+    const source = repeatingSource('value', async () => {
+      cleanupStarted.resolve(undefined);
+      await allowCleanup.promise;
+      hasClosed = true;
+    });
+    const iterator = merge(source)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    const returnIterator = iterator.return.bind(iterator);
+    let hasReturned = false;
+    const returning = (async () => {
+      const result = await returnIterator();
+      hasReturned = true;
+      return result;
+    })();
+
+    await Promise.race([cleanupStarted.promise, returning]);
+    assert.equal(hasReturned, false);
+    assert.equal(hasClosed, false);
+    allowCleanup.resolve(undefined);
+    assert.deepEqual(await returning, { done: true, value: undefined });
+    assert.equal(hasClosed, true);
+  });
+
+  it('closes sibling sources when a source rejects', async () => {
+    const error = new Error('source failed');
+    let hasClosed = false;
+    const sibling = repeatingSource('sibling', () => {
+      hasClosed = true;
+    });
+    const failingSource = from([Promise.reject(error)]);
+
+    await assert.rejects(
+      Array.fromAsync(merge(failingSource, sibling)),
+      (caught: unknown) => caught === error,
+    );
+    assert.equal(hasClosed, true);
+  });
+
+  it('preserves the source error and closes siblings when cleanup rejects', async () => {
+    const error = new Error('source failed');
+    let hasClosed = false;
+    const cleanupFailure = repeatingSource('cleanup failure', () => {
+      throw new Error('cleanup failed');
+    });
+    const sibling = repeatingSource('sibling', () => {
+      hasClosed = true;
+    });
+    const failingSource = from([Promise.reject(error)]);
+
+    await assert.rejects(
+      Array.fromAsync(merge(failingSource, cleanupFailure, sibling)),
+      (caught: unknown) => caught === error,
+    );
+    assert.equal(hasClosed, true);
+  });
+
+  it('rejects with the cleanup error after closing sibling sources', async () => {
+    const error = new Error('cleanup failed');
+    let hasClosed = false;
+    const cleanupFailure = repeatingSource('value', () => {
+      throw error;
+    });
+    const sibling = repeatingSource('sibling', () => {
+      hasClosed = true;
+    });
+    const iterator = merge(cleanupFailure, sibling)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+
+    await assert.rejects(
+      iterator.return(),
+      (caught: unknown) => caught === error,
+    );
+    assert.equal(hasClosed, true);
+  });
+
+  it('closes an acquired source when a later source fails to initialize', async () => {
+    const error = new Error('initialization failed');
+    let returnCount = 0;
+    let nextCount = 0;
+    const acquired: Iterable<string> = {
+      [Symbol.iterator]() {
+        return {
+          next() {
+            nextCount += 1;
+            return { done: false, value: 'value' };
+          },
+          return() {
+            returnCount += 1;
+            return { done: true, value: undefined };
+          },
+        };
+      },
+    };
+    const failingSource: AsyncIterable<string> = {
+      [Symbol.asyncIterator]() {
+        throw error;
+      },
+    };
+    const iterator = merge(acquired, failingSource)[Symbol.asyncIterator]();
+
+    await assert.rejects(
+      iterator.next(),
+      (caught: unknown) => caught === error,
+    );
+    assert.equal(nextCount, 0);
+    assert.equal(returnCount, 1);
+  });
+
+  it('closes a bare iterator while its next result is pending', async () => {
+    const nextResult = Promise.withResolvers<IteratorResult<string>>();
+    const cleanupStarted = Promise.withResolvers<undefined>();
+    let hasClosed = false;
+    const source: AsyncIterator<string> = {
+      async next() {
+        return nextResult.promise;
+      },
+      async return() {
+        hasClosed = true;
+        cleanupStarted.resolve(undefined);
+        nextResult.resolve({ done: true, value: undefined });
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = merge(['first'], source)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'first' });
+    assert.ok(iterator.return);
+    const returning = iterator.return();
+    await Promise.race([
+      cleanupStarted.promise,
+      new Promise<void>((resolve) => {
+        setImmediate(resolve);
+      }),
+    ]);
+
+    const wasClosedWhilePending = hasClosed;
+    nextResult.resolve({ done: true, value: undefined });
+    assert.deepEqual(await returning, { done: true, value: undefined });
+    assert.equal(wasClosedWhilePending, true);
+  });
+
+  it('closes duplicate iterator sources only once', async () => {
+    let returnCount = 0;
+    const source = repeatingSource('value', () => {
+      returnCount += 1;
+    });
+    const iterator = merge(source, source, source)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(returnCount, 1);
+  });
+
+  it('closes duplicate bare async iterator sources only once', async () => {
+    let returnCount = 0;
+    const source: AsyncIterator<string> = {
+      async next() {
+        return { done: false, value: 'value' };
+      },
+      async return() {
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = merge(source, source, source)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(returnCount, 1);
+  });
+
+  it('closes duplicate synchronous iterator sources only once', async () => {
+    let returnCount = 0;
+    const source: IterableIterator<string> = {
+      [Symbol.iterator]: () => source,
+      next() {
+        return { done: false, value: 'value' };
+      },
+      return() {
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = merge(source, source, source)[Symbol.asyncIterator]();
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(returnCount, 1);
+  });
+
+  it('iterates duplicate repeatable sources independently', async () => {
+    const source = ['one', 'two'];
+    const values = await Array.fromAsync(merge(source, source));
+    assert.deepEqual(values.sort(), ['one', 'one', 'two', 'two']);
+  });
+
+  it('does not return an iterator that exhausted normally', async () => {
+    let returnCount = 0;
+    let nextCount = 0;
+    const source: AsyncIterableIterator<string> = {
+      [Symbol.asyncIterator]: () => source,
+      async next() {
+        nextCount += 1;
+        return nextCount === 1
+          ? { done: false, value: 'value' }
+          : { done: true, value: undefined };
+      },
+      async return() {
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+
+    assert.deepEqual(await Array.fromAsync(merge(source)), ['value']);
+    assert.equal(nextCount, 2);
+    assert.equal(returnCount, 0);
+  });
+
+  it('closes synchronous generators and bare async iterators on return', async () => {
+    const closed: string[] = [];
+    const synchronous = (function* () {
+      try {
+        yield 'sync';
+        yield 'another sync';
+      } finally {
+        closed.push('sync');
+      }
+    })();
+    const asynchronous: AsyncIterator<string> = {
+      async next() {
+        return { done: false, value: 'async' };
+      },
+      async return() {
+        closed.push('async');
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = merge(synchronous, asynchronous)[Symbol.asyncIterator]();
+    assert.equal((await iterator.next()).done, false);
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.deepEqual(closed.sort(), ['async', 'sync']);
   });
 
   it('works with a bunch of crazy stuff', async () => {

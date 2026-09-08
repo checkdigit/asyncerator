@@ -53,7 +53,8 @@ export default function <Input>(
         });
       }
     })()
-      // eslint-disable-next-line unicorn/prefer-await -- Handle sequence errors without blocking the other producer or consumer.
+      // handle sequence errors without blocking the other producer or consumer.
+      // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
         hasThrown = true;
         errorThrown = error;
@@ -74,12 +75,14 @@ export default function <Input>(
         queue.push(item);
       }
     })()
-      // eslint-disable-next-line unicorn/prefer-await -- The pass-through producer must run concurrently with the consumer.
+      // the pass-through producer must run concurrently with the consumer.
+      // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
         hasThrown = true;
         errorThrown = error;
       })
-      // eslint-disable-next-line unicorn/prefer-await -- Preserve completion notification after the rejection handler settles.
+      // preserve completion notification after the rejection handler settles.
+      // eslint-disable-next-line unicorn/prefer-await
       .finally(() => {
         isComplete = true;
       });
@@ -99,7 +102,8 @@ export default function <Input>(
       }
 
       // one or more promises may have completed, so yield everything in the queue
-      // eslint-disable-next-line unicorn/no-unnecessary-splice -- Drain into a separate array before yielding so producers can keep adding values.
+      // drain into a separate array before yielding so producers can keep adding values.
+      // eslint-disable-next-line unicorn/no-unnecessary-splice
       yield* queue.splice(0);
     }
 

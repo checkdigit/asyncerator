@@ -20,7 +20,8 @@ import type { Operator } from './index.ts';
 
 export default function <Input extends { toString: () => string }>(
   separator: string,
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- Isolated declarations require an explicit type for an Infinity default.
+  // isolated declarations require an explicit type for an Infinity default.
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   limit: number = Infinity,
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
