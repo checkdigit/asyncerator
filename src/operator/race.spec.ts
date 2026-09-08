@@ -69,7 +69,7 @@ describe('race', () => {
           toArray,
         )
       ).sort(),
-      ['  ', '    ', '      '],
+      ['  ', ' '.repeat(4), ' '.repeat(6)],
     );
   });
 

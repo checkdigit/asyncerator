@@ -53,7 +53,7 @@ describe('flat', () => {
         await check(item, 1.5);
         await check(item, 2);
         await check(item, 3);
-        await check(item, Number.POSITIVE_INFINITY);
+        await check(item, Infinity);
       }),
     );
   });

@@ -24,15 +24,15 @@ describe('stream/consumers', () => {
       ),
       'hello world',
     );
-    let first = true;
+    let isFirst = true;
     assert.deepEqual(
       new TextDecoder().decode(
         await arrayBuffer({
           [Symbol.asyncIterator]() {
             return {
               async next() {
-                if (first) {
-                  first = false;
+                if (isFirst) {
+                  isFirst = false;
                   return { done: false, value: 'abc' };
                 }
                 return { done: true };
@@ -65,15 +65,15 @@ describe('stream/consumers', () => {
       new TextDecoder().decode(await buffer(from(['he', 'llo', ' world']))),
       'hello world',
     );
-    let first = true;
+    let isFirst = true;
     assert.deepEqual(
       new TextDecoder().decode(
         await buffer({
           [Symbol.asyncIterator]() {
             return {
               async next() {
-                if (first) {
-                  first = false;
+                if (isFirst) {
+                  isFirst = false;
                   return { done: false, value: 'abc' };
                 }
                 return { done: true };
@@ -103,14 +103,14 @@ describe('stream/consumers', () => {
   it('works with text', async () => {
     assert.deepEqual(await text(from([])), '');
     assert.deepEqual(await text(from(['he', 'llo', ' world'])), 'hello world');
-    let first = true;
+    let isFirst = true;
     assert.deepEqual(
       await text({
         [Symbol.asyncIterator]() {
           return {
             async next() {
-              if (first) {
-                first = false;
+              if (isFirst) {
+                isFirst = false;
                 return { done: false, value: 'abc' };
               }
               return { done: true };

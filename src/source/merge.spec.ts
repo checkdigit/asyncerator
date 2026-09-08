@@ -47,15 +47,11 @@ describe('merge', () => {
     assert.deepEqual(await pipeline(merge(from([from(['1'])])), toArray), [
       '1',
     ]);
-    assert.deepEqual(
-      (
-        await pipeline(
-          merge(from(['1', from(['2', merge(from(['3'])), '4']), '5'])),
-          toArray,
-        )
-      ).sort(),
-      ['1', '2', '3', '4', '5'],
+    const recursiveSource = merge(
+      from(['1', from(['2', merge(from(['3'])), '4']), '5']),
     );
+    const result = await pipeline(recursiveSource, toArray);
+    assert.deepEqual(result.sort(), ['1', '2', '3', '4', '5']);
   });
 
   it('work if an array item is a promise', async () => {
@@ -72,15 +68,12 @@ describe('merge', () => {
         message: 'Reject',
       },
     );
-    await assert.rejects(
-      pipeline(
-        merge(from([from(['1', Promise.reject(new Error('Reject'))]), '2'])),
-        toArray,
-      ),
-      {
-        message: 'Reject',
-      },
+    const recursiveSource = merge(
+      from([from(['1', Promise.reject(new Error('Reject'))]), '2']),
     );
+    await assert.rejects(pipeline(recursiveSource, toArray), {
+      message: 'Reject',
+    });
   });
 
   it('works with a multiple identical sources', async () => {
@@ -100,6 +93,7 @@ describe('merge', () => {
       from([Promise.resolve('abc'), Promise.resolve('def')]),
     );
     const results = [];
+    // Test the for-await interface explicitly.
     for await (const result of iterator) {
       results.push(result);
     }
@@ -160,7 +154,7 @@ describe('merge', () => {
 
   it('works with a randomized merge tree', async () => {
     const TEST_SIZE = 1037;
-    const input = Array.from({ length: TEST_SIZE }).map(() =>
+    const input = Array.from({ length: TEST_SIZE }, () =>
       Math.ceil(Math.random() * 25),
     );
 

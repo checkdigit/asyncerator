@@ -65,7 +65,7 @@ describe('map', () => {
         map((value) => ''.padStart(value, ' ')),
         toArray,
       ),
-      ['  ', '    ', '      '],
+      ['  ', ' '.repeat(4), ' '.repeat(6)],
     );
   });
 

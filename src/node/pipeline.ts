@@ -31,8 +31,7 @@ export type PipelineSource<Source> =
   | Asyncerator<Source>;
 
 export type PipelineTransformer<Input, Output> =
-  | Duplex
-  | ((input: Asyncerator<Input>) => Asyncerator<Output>);
+  Duplex | ((input: Asyncerator<Input>) => Asyncerator<Output>);
 
 export interface PipelineOptions {
   signal: AbortSignal;
@@ -481,9 +480,9 @@ export default function <Sink>(
   let options: PipelineOptions | undefined = argumentList.at(
     -1,
   ) as PipelineOptions;
-  if (
-    !(Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal')
-  ) {
+  if (!(
+    Object.keys(options).length === 1 && Object.keys(options)[0] === 'signal'
+  )) {
     options = undefined;
   }
 

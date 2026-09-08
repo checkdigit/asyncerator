@@ -73,7 +73,7 @@ describe('socket', async () => {
   });
 
   it('supports abort', async () => {
-    let aborted = false;
+    let hasAborted = false;
     const abortController = new AbortController();
     const options = {
       signal: abortController.signal,
@@ -92,12 +92,13 @@ describe('socket', async () => {
         socket,
         toNull,
         options,
+        // eslint-disable-next-line unicorn/prefer-await -- Handle rejection without returning a promise from the socket listener.
       ).catch((error: unknown) => {
         assert.equal((error as Error).name, 'AbortError');
         assert.equal((error as Error).message, 'The operation was aborted');
         assert.ok(socket.destroyed);
         server.close();
-        aborted = true;
+        hasAborted = true;
       });
     });
     await new Promise<void>((resolve) => {
@@ -116,7 +117,7 @@ describe('socket', async () => {
     );
     assert.deepEqual(received1, ['echo:hello']);
 
-    assert.ok(!aborted);
+    assert.ok(!hasAborted);
     assert.ok(server.listening);
 
     // wait for abort to happen
@@ -138,7 +139,7 @@ describe('socket', async () => {
     );
 
     // the server should be closed
-    assert.ok(aborted);
+    assert.ok(hasAborted);
     assert.ok(!server.listening);
 
     // can't connect

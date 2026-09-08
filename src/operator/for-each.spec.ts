@@ -16,7 +16,9 @@ describe('forEach', () => {
     const results: unknown[] = [];
     await pipeline(
       all([]),
-      forEach((item) => results.push(item)),
+      forEach((item) => {
+        results.push(item);
+      }),
       toArray,
     );
     assert.deepEqual(results, []);
@@ -31,7 +33,9 @@ describe('forEach', () => {
     ]);
     await pipeline(
       iterable,
-      forEach((value) => results.push(value)),
+      forEach((value) => {
+        results.push(value);
+      }),
       toArray,
     );
     assert.deepEqual(results.sort(), [1, 2, 3]);
@@ -42,7 +46,9 @@ describe('forEach', () => {
     const iterable = from(['a', 'bb', 'ccc']);
     await pipeline(
       iterable,
-      forEach((value, index) => results.push(`${value}${index}`)),
+      forEach((value, index) => {
+        results.push(`${value}${index}`);
+      }),
       toArray,
     );
     assert.deepEqual(results, ['a0', 'bb1', 'ccc2']);
@@ -56,10 +62,12 @@ describe('forEach', () => {
       map((value) => value.length),
       map((value) => value * 2),
       map((value) => ''.padStart(value, ' ')),
-      forEach((value) => results.push(value)),
+      forEach((value) => {
+        results.push(value);
+      }),
       toArray,
     );
-    assert.deepEqual(results, ['  ', '    ', '      ']);
+    assert.deepEqual(results, ['  ', ' '.repeat(4), ' '.repeat(6)]);
   });
 
   it('reject if forEach function throws an exception', async () => {

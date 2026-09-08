@@ -11,23 +11,23 @@ import type { Asyncerator } from '../asyncerator.ts';
 import type { Operator } from './index.ts';
 
 export default function <Input, Output extends Input>(
-  predicate: (value: Input, index: number) => value is Output,
+  shouldInclude: (value: Input, index: number) => value is Output,
 ): Operator<Input, Output>;
 export default function <Input>(
-  filterFunction: (value: Input, index: number) => boolean,
+  shouldInclude: (value: Input, index: number) => boolean,
 ): Operator<Input, Input>;
 
 /**
- * Similar to `Array.filter`, only emit values from input for which filterFunction returns true.
- * @param filterFunction
+ * Similar to `Array.filter`, only emit values from input for which shouldInclude returns true.
+ * @param shouldInclude
  */
 export default function <Input>(
-  filterFunction: (value: Input, index: number) => boolean,
+  shouldInclude: (value: Input, index: number) => boolean,
 ): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
     let currentIndex = 0;
     for await (const item of iterator) {
-      if (filterFunction(item, currentIndex++)) {
+      if (shouldInclude(item, currentIndex++)) {
         yield item;
       }
     }

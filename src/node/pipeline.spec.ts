@@ -21,20 +21,20 @@ async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
 async function validateReadable(stream: Readable, expected: string) {
   assert.ok(stream.readable);
 
-  let ended = false;
+  let hasEnded = false;
   stream.on('end', () => {
-    ended = true;
+    hasEnded = true;
   });
 
-  let finished = false;
+  let hasFinished = false;
   stream.on('finish', () => {
-    finished = true;
+    hasFinished = true;
   });
 
   assert.equal(await toString(stream), expected);
 
-  assert.ok(finished);
-  assert.ok(ended);
+  assert.ok(hasFinished);
+  assert.ok(hasEnded);
 
   assert.equal(await toString(stream), '');
 }

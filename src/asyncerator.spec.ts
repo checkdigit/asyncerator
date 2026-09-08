@@ -133,10 +133,7 @@ describe('asyncerator', () => {
 
   it('an async iterable iterator', async () => {
     const iterable = from(from(['abc', Promise.resolve('def'), 'ghi']));
-    const items = [];
-    for await (const item of iterable) {
-      items.push(item);
-    }
+    const items = await Array.fromAsync(iterable);
     assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 
@@ -148,10 +145,7 @@ describe('asyncerator', () => {
         yield 'ghi';
       })(),
     );
-    const items = [];
-    for await (const item of iterable) {
-      items.push(item);
-    }
+    const items = await Array.fromAsync(iterable);
     assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 

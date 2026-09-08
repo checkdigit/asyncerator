@@ -29,8 +29,8 @@ export default function <Input, Output>(
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Output[] = [];
     const pending = new Set<Promise<undefined | Output>>();
-    let complete = false;
-    let errorThrown = false;
+    let isComplete = false;
+    let hasThrown = false;
     let completionError: unknown;
 
     /**
@@ -52,12 +52,14 @@ export default function <Input, Output>(
 
         // eslint-disable-next-line @checkdigit/no-promise-instance-method
         promise
+          // eslint-disable-next-line unicorn/prefer-await -- Queue results concurrently without blocking the producer.
           .then((value) => {
             // as promises resolve, then remove from pending and add the result to the queue
             queue.push(value);
             pending.delete(promise);
             return value;
           })
+          // eslint-disable-next-line unicorn/prefer-await -- Handle the detached callback's rejection without awaiting it.
           .catch((error: unknown) => {
             // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
             // future versions of Node will process.exit().
@@ -65,11 +67,13 @@ export default function <Input, Output>(
           });
       }
     })()
+      // eslint-disable-next-line unicorn/prefer-await -- The producer and consumer must run concurrently.
       .then(() => {
-        complete = true;
+        isComplete = true;
       })
+      // eslint-disable-next-line unicorn/prefer-await -- Record producer errors while the consumer drains pending work.
       .catch((error: unknown) => {
-        errorThrown = true;
+        hasThrown = true;
         completionError = error;
       });
 
@@ -78,7 +82,7 @@ export default function <Input, Output>(
      */
 
     // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
-    while (!complete && !errorThrown) {
+    while (!isComplete && !hasThrown) {
       if (pending.size === 0) {
         // there's nothing pending yet, so let's wait until the end of the event loop and allow some IO to occur...
         // eslint-disable-next-line no-await-in-loop
@@ -94,6 +98,7 @@ export default function <Input, Output>(
         }
 
         // one or more promises have completed, so yield everything in the queue
+        // eslint-disable-next-line unicorn/no-unnecessary-splice -- Drain into a separate array before yielding so the producer can keep adding values.
         yield* queue.splice(0);
       }
     }
@@ -101,7 +106,7 @@ export default function <Input, Output>(
     await producer;
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (errorThrown) {
+    if (hasThrown) {
       throw completionError;
     }
   };
