@@ -25,6 +25,28 @@ describe('all', () => {
     assert.deepEqual((await pipeline(iterable, toArray)).sort(), [1, 2, 3]);
   });
 
+  it('consumes a generator only once', async () => {
+    const promises = (function* () {
+      yield Promise.resolve(1);
+      yield Promise.resolve(2);
+      yield Promise.resolve(3);
+    })();
+    let iterations = 0;
+    promises[Symbol.iterator] = () => {
+      // Fail immediately on a second iteration instead of letting the consumer spin.
+      assert.equal(iterations++, 0);
+      return promises;
+    };
+
+    assert.deepEqual(await pipeline(all(promises), toArray), [1, 2, 3]);
+    assert.equal(iterations, 1);
+  });
+
+  it('preserves repeated promises', async () => {
+    const promise = Promise.resolve(1);
+    assert.deepEqual(await pipeline(all([promise, promise]), toArray), [1, 1]);
+  });
+
   it('reject if array item is a promise that rejects', async () => {
     await assert.rejects(
       pipeline(all([Promise.reject(new Error('Reject'))]), toArray),

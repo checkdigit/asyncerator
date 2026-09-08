@@ -24,9 +24,10 @@ export default async function* <T>(
 ): Asyncerator<T> {
   // as promises resolve, then remove from pending and add the result to the queue
   const queue: T[] = [];
-  const pending = new Set(promises);
+  const promiseList = [...promises];
+  const pending = new Set(promiseList);
 
-  for (const [index, promise] of [...promises].entries()) {
+  for (const [index, promise] of promiseList.entries()) {
     // eslint-disable-next-line @checkdigit/no-promise-instance-method
     promise
       // eslint-disable-next-line unicorn/prefer-await -- Register every promise concurrently so results arrive in completion order.
