@@ -24,6 +24,42 @@ describe('split', () => {
     );
   });
 
+  it('consumes the entire multi-character separator', async () => {
+    assert.deepEqual(
+      await pipeline(from(['left::right']), split('::'), toArray),
+      ['left', 'right'],
+    );
+  });
+
+  it('matches multi-character separators across chunk boundaries', async () => {
+    assert.deepEqual(
+      await pipeline(
+        from(['a<', '-', '>b<', '-', '>c']),
+        split('<->'),
+        toArray,
+      ),
+      ['a', 'b', 'c'],
+    );
+    assert.deepEqual(
+      await pipeline(from(['a\r', '\nb\r', '\nc']), split('\r\n'), toArray),
+      ['a', 'b', 'c'],
+    );
+  });
+
+  it('preserves empty values around multi-character separators', async () => {
+    assert.deepEqual(
+      await pipeline(from(['::a::::b::']), split('::'), toArray),
+      ['', 'a', '', 'b', ''],
+    );
+  });
+
+  it('supports limits with multi-character separators', async () => {
+    assert.deepEqual(
+      await pipeline(from(['a:', ':b::c']), split('::', 2), toArray),
+      ['a', 'b'],
+    );
+  });
+
   it('compatible with native split implementation', async () => {
     async function check(
       value: string | string[],

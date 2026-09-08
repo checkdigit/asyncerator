@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator.ts';
 import type { Operator } from './index.ts';
 
 /**
- * Equivalent of the Javascript array split method.  Matches its behavior/corner cases, which is why the
+ * Equivalent of the Javascript string split method.  Matches its behavior/corner cases, which is why the
  * implementation is more funky than you may expect.
  *
  * @param separator
@@ -59,7 +59,7 @@ export default function <Input extends { toString: () => string }>(
         if (++count >= actualLimit) {
           return;
         }
-        previous = previous.slice(index + (separator === '' ? 0 : 1));
+        previous = previous.slice(index + separator.length);
       }
     }
 
