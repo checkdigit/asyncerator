@@ -40,11 +40,9 @@ export interface PipelineOptions {
 /* eslint-disable max-params */
 
 /**
- * Unfortunately, the only known way to accurately type the pipeline function is a series of overloads.  The return value
- * is defined by the type of the last parameter, and there are zero or more transform parameters in between the
- * source and the destination.  Also, the output of each parameter in the pipeline must match the input type of the
- * later parameter.  TBD if this can be typed using some cool variadic thing in the current latest (5.x) version
- * of TypeScript.
+ * Overloads connect element types between function stages and infer the return type from the sink.
+ * The overloads cover up to ten transforms. Node stream stages do not preserve these element-type guarantees
+ * because their chunk types are not generic. Options are exposed only for promise-returning function sinks.
  */
 
 // zero transforms
@@ -464,12 +462,11 @@ export default function <
 /* eslint-enable max-params */
 
 /**
- * Wrapped version of stream.pipeline.  We do this for two reasons:
- * 1) auto-promisify, if the sink is an async function or a WritableStream
- * 2) type the function based on recommended usage, since @types/node does not match current functionality.
+ * Wrap Node's callback-based stream.pipeline with overloads for asyncerator operators.
+ * Return a promise for an async function or writable-only sink, or a Readable for a duplex or async generator sink.
+ * Node also provides node:stream/promises.pipeline, which always returns a promise.
  *
- * Note this type definition does not match the full flexibility of `stream.pipeline` (e.g., you
- * can pass arrays of iterables, etc.) but just the expected usage with the asyncerator library.
+ * These overloads cover the library's supported composition patterns and do not expose every native pipeline option.
  *
  * @param argumentList
  */

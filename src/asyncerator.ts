@@ -8,21 +8,12 @@
 
 import { acquireIterator, adaptIterator } from './internal/iterator.ts';
 
-/*
- * An Asyncerator is the minimum common `for-await` compatible interface that both NodeJS.ReadableStream and
- * AsyncIterableIterator implement.  It's a useful construct to be used with the pipeline function, since it allows
- * AsyncIterables and Node stream-based objects to be combined in various convenient ways.
+/**
+ * Shared async iteration interface for the library's sources, operators and sinks.
+ * Async generator objects, Node readable streams and iterable async iterators satisfy this interface.
  *
- * The follow Node built-ins implement the Asyncerator interface:
- * - AsyncIterableIterator
- * - AsyncGenerator (aka async generator functions)
- * - NodeJS.ReadableStream (internal Node implementations include stream.Readable, readline, fs.createReadStream, etc.)
- * - the standard JavaScript `for await...of` statement will accept an Asyncerator
- *
- * Notes:
- * - Asyncerator is similar to AsyncIterableIterator, but does not extend AsyncIterator.
- * - It's also similar to AsyncIterable, but [Symbol.asyncIterator]() returns an AsyncIterableIterator instead of an AsyncIterator.
- *
+ * Like AsyncIterable<T>, an Asyncerator can be consumed with `for await...of` without having its own `next()` method.
+ * It additionally guarantees that [Symbol.asyncIterator]() returns an iterator that is itself async iterable.
  */
 
 export interface Asyncerator<T> {
