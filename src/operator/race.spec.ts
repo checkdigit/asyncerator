@@ -96,6 +96,20 @@ describe('race', () => {
     );
   });
 
+  it('propagates a rejected mapper promise to the consumer', async () => {
+    const failure = new Error('Mapper rejected');
+    await assert.rejects(
+      pipeline(
+        from([1]),
+        race(async () => {
+          throw failure;
+        }),
+        toArray,
+      ),
+      (error: unknown) => error === failure,
+    );
+  });
+
   it('does something big', async () => {
     const inputArray = Array.from({ length: 1000 });
     for (let index = 0; index < inputArray.length; index++) {
