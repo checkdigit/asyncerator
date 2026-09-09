@@ -53,8 +53,22 @@ function wrapIterator<T>(
     if (hasFinished) {
       return Promise.resolve();
     }
-    cleanup = (async () => {
-      await iterator.return?.();
+    const completion = Promise.withResolvers<undefined>();
+    // Cache cleanup before invoking callbacks that may request cancellation again.
+    cleanup = completion.promise;
+    // Every outcome settles the cached promise while cleanup starts immediately.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    (async () => {
+      try {
+        const result = await iterator.return?.();
+        if (isSynchronous) {
+          // Synchronous iterator completion values can contain asynchronous cleanup.
+          await result?.value;
+        }
+        completion.resolve(undefined);
+      } catch (error) {
+        completion.reject(error);
+      }
     })();
     return cleanup;
   }

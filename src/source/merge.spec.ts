@@ -374,6 +374,100 @@ describe('merge', () => {
     assert.equal(returnCount, 1);
   });
 
+  // Exercise receiver binding for iterator protocol methods on plain iterable objects.
+  /* eslint-disable unicorn/no-this-outside-of-class */
+  it('closes duplicate async iterable facades sharing a bare iterator only once', async () => {
+    let returnCount = 0;
+    const source: AsyncIterator<string> = {
+      async next() {
+        return { done: false, value: 'value' };
+      },
+      async return() {
+        assert.equal(this, source);
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+    const facade = {
+      iterator: source,
+      acquisitions: 0,
+      [Symbol.asyncIterator]() {
+        this.acquisitions += 1;
+        return this.iterator;
+      },
+    };
+    const iterator = merge(facade, facade, facade)[Symbol.asyncIterator]();
+
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(facade.acquisitions, 3);
+    assert.equal(returnCount, 1);
+  });
+
+  it('closes distinct async iterable facades sharing a bare iterator only once', async () => {
+    let returnCount = 0;
+    const source: AsyncIterator<string> = {
+      async next() {
+        return { done: false, value: 'value' };
+      },
+      async return() {
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+    const first = {
+      iterator: source,
+      acquisitions: 0,
+      [Symbol.asyncIterator]() {
+        this.acquisitions += 1;
+        return this.iterator;
+      },
+    };
+    const second = { ...first };
+    const iterator = merge(first, second)[Symbol.asyncIterator]();
+
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(first.acquisitions, 1);
+    assert.equal(second.acquisitions, 1);
+    assert.equal(returnCount, 1);
+  });
+
+  it('closes repeated and distinct synchronous iterable facades sharing an iterator only once', async () => {
+    let returnCount = 0;
+    const source: Iterator<string> = {
+      next() {
+        return { done: false, value: 'value' };
+      },
+      return() {
+        assert.equal(this, source);
+        returnCount += 1;
+        return { done: true, value: undefined };
+      },
+    };
+    const first = {
+      iterator: source,
+      acquisitions: 0,
+      [Symbol.iterator]() {
+        this.acquisitions += 1;
+        return this.iterator;
+      },
+    };
+    const second = { ...first };
+    const iterator = merge(first, first, second)[Symbol.asyncIterator]();
+
+    assert.deepEqual(await iterator.next(), { done: false, value: 'value' });
+    assert.ok(iterator.return);
+    await iterator.return();
+    assert.equal(first.acquisitions, 2);
+    assert.equal(second.acquisitions, 1);
+    assert.equal(returnCount, 1);
+  });
+
+  /* eslint-enable unicorn/no-this-outside-of-class */
+
   it('iterates duplicate repeatable sources independently', async () => {
     const source = ['one', 'two'];
     const values = await Array.fromAsync(merge(source, source));

@@ -196,6 +196,108 @@ describe('asyncerator', () => {
     assert.ok(hasClosed);
   });
 
+  it('awaits a synchronous generator cleanup value before completing an early break', async () => {
+    const cleanupStarted = Promise.withResolvers<undefined>();
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    let hasFinished = false;
+    function* source() {
+      try {
+        yield 1;
+      } finally {
+        cleanupStarted.resolve(undefined);
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return cleanupReleased.promise;
+      }
+    }
+
+    const consumption = (async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source())) {
+        assert.equal(value, 1);
+        break;
+      }
+      hasFinished = true;
+    })();
+
+    await cleanupStarted.promise;
+    await new Promise<void>((resolve) => {
+      setImmediate(resolve);
+    });
+    const hasFinishedBeforeCleanup = hasFinished;
+    cleanupReleased.resolve(undefined);
+    await consumption;
+    assert.equal(hasFinishedBeforeCleanup, false);
+    assert.ok(hasFinished);
+  });
+
+  it('propagates a rejection from a synchronous generator cleanup value', async () => {
+    const failure = new Error('cleanup failed');
+    function* source() {
+      try {
+        yield 1;
+      } finally {
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return Promise.reject(failure);
+      }
+    }
+
+    await assert.rejects(async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source())) {
+        assert.equal(value, 1);
+        break;
+      }
+    }, failure);
+  });
+
+  it('preserves an iteration error when a synchronous cleanup value rejects', async () => {
+    const failure = new Error('yield failed');
+    function* source() {
+      try {
+        yield Promise.reject(failure);
+      } finally {
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return Promise.reject(new Error('cleanup failed'));
+      }
+    }
+
+    await assert.rejects(
+      from(source())[Symbol.asyncIterator]().next(),
+      failure,
+    );
+  });
+
+  it('does not await the completion value of an async iterator cleanup', async () => {
+    const completionValue = Promise.withResolvers<undefined>();
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        return { done: true, value: completionValue.promise };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+
+    const returning = iterator.return();
+    const result = await Promise.race([
+      returning,
+      new Promise<void>((resolve) => {
+        setImmediate(resolve);
+      }),
+    ]);
+    completionValue.resolve(undefined);
+    await returning;
+    assert.deepEqual(result, { done: true, value: undefined });
+  });
+
   it('awaits a bare async iterator cleanup before completing an early break', async () => {
     const cleanupStarted = Promise.withResolvers<undefined>();
     const cleanupReleased = Promise.withResolvers<undefined>();
@@ -352,6 +454,76 @@ describe('asyncerator', () => {
       value: undefined,
     });
     await iterator.return();
+    assert.equal(returns, 1);
+  });
+
+  it('shares pending cleanup with a reentrant cancellation request', async () => {
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    const cleanupEvents = new EventTarget();
+    let returns = 0;
+    let reentrantReturn: Promise<IteratorResult<number>> | undefined;
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        returns++;
+        if (returns === 1) {
+          cleanupEvents.dispatchEvent(new Event('cleanup'));
+        }
+        await cleanupReleased.promise;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+    const returnIterator = iterator.return.bind(iterator);
+    cleanupEvents.addEventListener('cleanup', () => {
+      reentrantReturn = returnIterator();
+    });
+    const firstReturn = returnIterator();
+    cleanupReleased.resolve(undefined);
+
+    assert.ok(reentrantReturn);
+    assert.deepEqual(await Promise.all([firstReturn, reentrantReturn]), [
+      { done: true, value: undefined },
+      { done: true, value: undefined },
+    ]);
+    assert.equal(returns, 1);
+  });
+
+  it('shares a cleanup failure with a reentrant cancellation request', async () => {
+    const failure = new Error('cleanup failed');
+    const cleanupEvents = new EventTarget();
+    let returns = 0;
+    let reentrantReturn: Promise<IteratorResult<number>> | undefined;
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      return() {
+        returns++;
+        if (returns === 1) {
+          cleanupEvents.dispatchEvent(new Event('cleanup'));
+        }
+        throw failure;
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+    const returnIterator = iterator.return.bind(iterator);
+    cleanupEvents.addEventListener('cleanup', () => {
+      reentrantReturn = returnIterator();
+    });
+    const firstReturn = returnIterator();
+
+    assert.ok(reentrantReturn);
+    await Promise.all([
+      assert.rejects(firstReturn, failure),
+      assert.rejects(reentrantReturn, failure),
+    ]);
     assert.equal(returns, 1);
   });
 

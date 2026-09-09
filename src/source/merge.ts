@@ -35,13 +35,30 @@ export default async function* merge<T>(
   let hasThrown = false;
 
   function trackIterator(source: Asyncable<MergeValue<T>>) {
-    const candidate = source as SourceIterator;
-    const isIterator = typeof candidate.next === 'function';
-    let iterator = isIterator ? wrappedSources.get(candidate) : undefined;
-    iterator ??= from(source)[Symbol.asyncIterator]();
-    if (isIterator) {
-      wrappedSources.set(candidate, iterator);
+    const iterable = source as Partial<
+      Iterable<MergeValue<T>> & AsyncIterable<MergeValue<T>>
+    >;
+    let candidate = source as SourceIterator;
+    let normalizedSource = source;
+
+    // Acquire each source once and share adapters by the underlying iterator's identity.
+    const acquireAsyncIterator = iterable[Symbol.asyncIterator];
+    if (typeof acquireAsyncIterator === 'function') {
+      const acquired = acquireAsyncIterator.call(source);
+      candidate = acquired;
+      normalizedSource = { [Symbol.asyncIterator]: () => acquired };
+    } else {
+      const acquireIterator = iterable[Symbol.iterator];
+      if (typeof acquireIterator === 'function') {
+        const acquired = acquireIterator.call(source);
+        candidate = acquired;
+        normalizedSource = { [Symbol.iterator]: () => acquired };
+      }
     }
+
+    let iterator = wrappedSources.get(candidate);
+    iterator ??= from(normalizedSource)[Symbol.asyncIterator]();
+    wrappedSources.set(candidate, iterator);
     active.add(iterator);
     return iterator;
   }
