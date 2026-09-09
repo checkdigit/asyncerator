@@ -6,6 +6,8 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
+import { acquireIterator, adaptIterator } from './internal/iterator.ts';
+
 /*
  * An Asyncerator is the minimum common `for-await` compatible interface that both NodeJS.ReadableStream and
  * AsyncIterableIterator implement.  It's a useful construct to be used with the pipeline function, since it allows
@@ -38,98 +40,6 @@ export type Asyncable<T> =
   | AsyncIterable<T>
   | Asyncerator<T>;
 
-function wrapIterator<T>(
-  iterator: Iterator<T> | AsyncIterator<T>,
-  isSynchronous: boolean,
-): AsyncIterableIterator<T> {
-  let hasFinished = false;
-  let hasFailed = false;
-  let cleanup: Promise<void> | undefined;
-
-  function close() {
-    if (cleanup !== undefined) {
-      return cleanup;
-    }
-    if (hasFinished) {
-      return Promise.resolve();
-    }
-    const completion = Promise.withResolvers<undefined>();
-    // Cache cleanup before invoking callbacks that may request cancellation again.
-    cleanup = completion.promise;
-    // Every outcome settles the cached promise while cleanup starts immediately.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
-      try {
-        const result = await iterator.return?.();
-        if (isSynchronous) {
-          // Synchronous iterator completion values can contain asynchronous cleanup.
-          await result?.value;
-        }
-        completion.resolve(undefined);
-      } catch (error) {
-        completion.reject(error);
-      }
-    })();
-    return cleanup;
-  }
-
-  const wrapped = (async function* () {
-    try {
-      if (isSynchronous) {
-        const synchronousIterator = iterator as Iterator<T>;
-        for (
-          let item = synchronousIterator.next();
-          item.done !== true;
-          item = synchronousIterator.next()
-        ) {
-          yield item.value;
-        }
-      } else {
-        for (
-          let item = await iterator.next();
-          item.done !== true;
-          // eslint-disable-next-line no-await-in-loop
-          item = await iterator.next()
-        ) {
-          yield item.value;
-        }
-      }
-      hasFinished = true;
-    } catch (error) {
-      hasFailed = true;
-      throw error;
-    } finally {
-      try {
-        await close();
-      } catch (error) {
-        if (!hasFailed) {
-          // preserve the original iteration error when cleanup also fails.
-          // eslint-disable-next-line no-unsafe-finally
-          throw error;
-        }
-      }
-    }
-  })();
-
-  const returnFromGenerator = wrapped.return.bind(wrapped);
-  wrapped.return = async (value) => {
-    // Generator return() waits for next(), so start cleanup first to unblock cancellable iterators.
-    const [closing, returning] = await Promise.allSettled([
-      close(),
-      returnFromGenerator(value),
-    ]);
-    if (returning.status === 'rejected') {
-      throw returning.reason;
-    }
-    if (!hasFailed && closing.status === 'rejected') {
-      throw closing.reason;
-    }
-    return returning.value;
-  };
-
-  return wrapped;
-}
-
 /**
  * Create an Asyncerator from an Asyncable.
  *
@@ -138,29 +48,5 @@ function wrapIterator<T>(
 export default function <T>(
   source: Asyncable<T> | (() => Asyncerator<T>),
 ): Asyncerator<T> {
-  let iterator: Iterator<T> | AsyncIterator<T>;
-
-  if (typeof (source as Asyncerator<T>)[Symbol.asyncIterator] === 'function') {
-    iterator = (source as Asyncerator<T>)[Symbol.asyncIterator]();
-    if (
-      typeof (iterator as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
-      'function'
-    ) {
-      // this is already an async iterable iterator, so we're good to go as-is
-      return iterator as AsyncIterableIterator<T>;
-    }
-  } else if (
-    typeof (source as IterableIterator<T>)[Symbol.iterator] === 'function'
-  ) {
-    // we know for sure this is a normal, synchronous iterator
-    const synchronousIterator = (source as IterableIterator<T>)[
-      Symbol.iterator
-    ]();
-    return wrapIterator(synchronousIterator, true);
-  } else {
-    // could be an Iterator or an AsyncIterator, but we can't tell the difference, so treat it as async regardless
-    iterator = source as AsyncIterator<T>;
-  }
-
-  return wrapIterator(iterator, false);
+  return adaptIterator(acquireIterator(source));
 }
