@@ -22,7 +22,8 @@ const log = debug('asyncerator:source:all');
 export default async function* <T>(
   promises: Iterable<Promise<T>>,
 ): Asyncerator<T> {
-  // as promises resolve, then remove from pending and add the result to the queue
+  // fulfilled values move to the queue. Rejected promises stay in pending until
+  // Promise.race observes the failure, even if the consumer is currently paused.
   const queue: T[] = [];
   const promiseList = [...promises];
   const pending = new Set(promiseList);
@@ -40,8 +41,8 @@ export default async function* <T>(
       // handle the detached callback's rejection without awaiting it.
       // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
-        // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
-        // future versions of Node will process.exit().
+        // handle the detached callback's rejection, keeping the original promise
+        // in pending so the consumer still receives the error.
         log(`[${index}]`, error);
       });
   }

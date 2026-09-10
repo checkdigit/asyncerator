@@ -9,6 +9,8 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
+import debug from 'debug';
+
 import { type Asyncerator, from, merge, pipeline, toArray } from '../index.ts';
 
 async function* passThru<T>(iterable: AsyncIterable<T>): AsyncGenerator<T> {
@@ -258,6 +260,65 @@ describe('merge', () => {
       (caught: unknown) => caught === error,
     );
     assert.equal(hasClosed, true);
+  });
+
+  it('logs sibling cleanup failures while preserving the first cleanup error', async (context) => {
+    const previousNamespaces = debug.disable();
+    context.after(() => {
+      debug.enable(previousNamespaces);
+    });
+    debug.enable('asyncerator:source:merge');
+    const messages: unknown[][] = [];
+    context.mock.method(debug, 'log', (...argumentList: unknown[]) => {
+      messages.push(argumentList);
+    });
+    const errors = [new Error('first cleanup'), new Error('second cleanup')];
+    const sources = errors.map((error) =>
+      repeatingSource('value', () => {
+        throw error;
+      }),
+    );
+    const iterator = merge(...sources)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+
+    await assert.rejects(
+      iterator.return(),
+      (error: unknown) => error === errors[0],
+    );
+
+    assert.deepEqual(
+      messages.map((message) => message[1]),
+      [errors[1]],
+    );
+  });
+
+  it('logs every cleanup failure while preserving the source error', async (context) => {
+    const previousNamespaces = debug.disable();
+    context.after(() => {
+      debug.enable(previousNamespaces);
+    });
+    debug.enable('asyncerator:source:merge');
+    const messages: unknown[][] = [];
+    context.mock.method(debug, 'log', (...arguments_: unknown[]) => {
+      messages.push(arguments_);
+    });
+    const sourceError = new Error('source failed');
+    const errors = [new Error('first cleanup'), new Error('second cleanup')];
+    const sources = errors.map((error) =>
+      repeatingSource('value', () => {
+        throw error;
+      }),
+    );
+
+    await assert.rejects(
+      Array.fromAsync(merge(from([Promise.reject(sourceError)]), ...sources)),
+      (error: unknown) => error === sourceError,
+    );
+    assert.deepEqual(
+      messages.map((message) => message[1]),
+      errors,
+    );
   });
 
   it('closes an acquired source when a later source fails to initialize', async () => {

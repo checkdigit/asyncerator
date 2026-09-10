@@ -457,6 +457,109 @@ describe('asyncerator', () => {
     assert.equal(returns, 1);
   });
 
+  it('awaits shared cleanup when throw is called before the wrapper starts', async () => {
+    const failure = new Error('cancelled');
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    let returns = 0;
+    let hasRejected = false;
+    const source: AsyncIterator<number> = {
+      async next() {
+        assert.fail('The iterator must not be advanced during cleanup');
+      },
+      async return() {
+        returns++;
+        await cleanupReleased.promise;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+    assert.ok(iterator.return);
+    const firstThrow = iterator.throw(failure);
+    const firstRejection = (async () => {
+      await assert.rejects(firstThrow, failure);
+      hasRejected = true;
+    })();
+    const secondThrow = assert.rejects(iterator.throw(failure), failure);
+    const returning = iterator.return();
+
+    await new Promise<void>((resolve) => {
+      setImmediate(resolve);
+    });
+    const hasRejectedBeforeCleanup = hasRejected;
+    cleanupReleased.resolve(undefined);
+    await Promise.all([firstRejection, secondThrow, returning]);
+
+    assert.equal(hasRejectedBeforeCleanup, false);
+    assert.equal(returns, 1);
+    assert.deepEqual(await iterator.next(), { done: true, value: undefined });
+  });
+
+  it('closes a started synchronous generator when its unstarted wrapper receives throw', async () => {
+    const failure = new Error('cancelled');
+    let hasClosed = false;
+    function* source() {
+      try {
+        yield 1;
+        yield 2;
+      } finally {
+        hasClosed = true;
+      }
+    }
+    const sourceIterator = source();
+    sourceIterator.next();
+    const iterator = from(sourceIterator)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+
+    await assert.rejects(iterator.throw(failure), failure);
+    assert.ok(hasClosed);
+  });
+
+  it('preserves throw before starting when cleanup also rejects', async () => {
+    const failure = new Error('cancelled');
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      async next() {
+        assert.fail('The iterator must not be advanced during cleanup');
+      },
+      async return() {
+        returns++;
+        throw new Error('cleanup failed');
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+
+    await assert.rejects(iterator.throw(failure), failure);
+    assert.equal(returns, 1);
+  });
+
+  it('forwards throw while a bare async iterator next is pending', async () => {
+    const failure = new Error('cancelled');
+    const pending = Promise.withResolvers<IteratorResult<number>>();
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      next() {
+        return pending.promise;
+      },
+      async return() {
+        returns++;
+        const result = { done: true, value: undefined } as const;
+        pending.resolve(result);
+        return result;
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+    const next = iterator.next();
+    const throwing = assert.rejects(iterator.throw(failure), failure);
+
+    assert.equal(returns, 1);
+    assert.deepEqual(await next, { done: true, value: undefined });
+    await throwing;
+    assert.equal(returns, 1);
+  });
+
   it('shares pending cleanup with a reentrant cancellation request', async () => {
     const cleanupReleased = Promise.withResolvers<undefined>();
     const cleanupEvents = new EventTarget();

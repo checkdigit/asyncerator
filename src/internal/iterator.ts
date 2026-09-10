@@ -104,6 +104,14 @@ function wrapIterator<T>(
     return returning.value;
   };
 
+  const throwFromGenerator = wrapped.throw.bind(wrapped);
+  wrapped.throw = async (error) => {
+    // Before the first next(), generator throw() skips finally; start cleanup explicitly.
+    await Promise.allSettled([close(), throwFromGenerator(error)]);
+    // This generator always rethrows the supplied error, even when cleanup fails.
+    throw error;
+  };
+
   return wrapped;
 }
 
@@ -145,7 +153,7 @@ export function acquireIterator<T>(
  * Adapt an acquired iterator for use with `for await...of`.
  * For async sources, return an existing async iterable iterator unchanged.
  * Otherwise, wrap iteration and forward cancellation, sharing one cleanup operation
- * across repeated return() calls. The wrapper awaits synchronous cleanup values
+ * across return() and throw() calls. The wrapper awaits synchronous cleanup values
  * and preserves the original iteration error if cleanup also fails.
  *
  * @returns The existing async iterable iterator or an adapter around it.

@@ -6,6 +6,8 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
+import debug from 'debug';
+
 import type { Asyncable, Asyncerator } from '../asyncerator.ts';
 
 import {
@@ -15,6 +17,8 @@ import {
 } from '../internal/iterator.ts';
 
 type MergeValue<T> = T | Asyncable<T> | Promise<T>;
+
+const log = debug('asyncerator:source:merge');
 
 interface Source<T> {
   iterator: AsyncIterableIterator<T>;
@@ -32,6 +36,7 @@ async function createPending<T>(source: Source<T>): Promise<PendingResult<T>> {
 /**
  * Merge multiple asyncables into a single Asyncerator.  If an iterator yields another Asyncerator,
  * merge its output into the stream.
+ * Suppressed cleanup failures are logged through the `asyncerator:source:merge` debug namespace.
  *
  * @param iterators
  */
@@ -98,14 +103,20 @@ export default async function* merge<T>(
         await iterator.return?.();
       }),
     );
-    if (!hasThrown) {
-      for (const result of results) {
-        if (result.status === 'rejected') {
-          // report cleanup failures only when there is no original iteration error.
-          // eslint-disable-next-line no-unsafe-finally
-          throw result.reason;
+    let cleanupFailure: PromiseRejectedResult | undefined;
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        if (!hasThrown && cleanupFailure === undefined) {
+          cleanupFailure = result;
+        } else {
+          log('Suppressed source cleanup error:', result.reason);
         }
       }
+    }
+    if (cleanupFailure !== undefined) {
+      // Preserve the first cleanup error while reporting failures from every sibling.
+      // eslint-disable-next-line no-unsafe-finally
+      throw cleanupFailure.reason;
     }
   }
 }
