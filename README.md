@@ -10,8 +10,8 @@ Copyright © 2021–2026 [Check Digit, LLC](https://checkdigit.com)
 
 The `asyncerator` module provides three central capabilities:
 
-- A standard Check Digit "blessed" definition of the de facto `Asyncerator<T>` interface.
-- A strongly typed, promisified version of Node's [`stream.pipeline`](https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback) function.
+- A shared `Asyncerator<T>` interface for async iteration across sources, operators and sinks.
+- A typed wrapper around Node's [`stream.pipeline`](https://nodejs.org/api/stream.html#streampipelinesource-transforms-destination-callback) that returns a promise or readable stream depending on the sink.
 - A library of simple source, transform and sink components that can be used standalone, or with `pipeline`.
 
 ### Installing
@@ -26,61 +26,44 @@ export interface Asyncerator<T> {
 }
 ```
 
-The `Asyncerator` interface defined by this module is the minimum common `for-await` compatible interface that both
-NodeJS.ReadableStream and AsyncIterableIterator implement. It's a useful construct to be used with the Node
-14+ `stream.pipeline` function, since it allows `AsyncIterableIterators` and Node stream-based objects to be combined in
-various convenient ways.
+`Asyncerator<T>` describes an object that can be consumed with `for await...of` and whose
+`[Symbol.asyncIterator]()` method returns an iterator that is itself async iterable.
+The object does not need its own `next()` method, so both readable streams and iterator objects can satisfy this interface.
 
 The following all implement the `Asyncerator` interface:
 
-- `AsyncIterableIterator`
-- `AsyncGenerator` (aka async generator functions)
-- `NodeJS.ReadableStream` (internal Node implementations include `stream.Readable`, `readline`, `fs.createReadStream`, etc)
-- the standard Javascript `for await...of` statement will accept an Asyncerator
-- the upcoming [W3C Streams API](https://streams.spec.whatwg.org/#rs-asynciterator)
+- `AsyncIterableIterator<T>`
+- `AsyncGenerator` objects returned by async generator functions
+- Node readable streams, including `stream.Readable` and streams returned by `fs.createReadStream()`
+- `readline.Interface` instances
+- Node's WHATWG [`ReadableStream`](https://nodejs.org/api/webstreams.html#async-iteration)
 
-### Why do we need a custom interface for this?
+### Why retain this interface?
 
-It's not a custom interface, it's simply the de facto interface used by Node and elsewhere. It's just not defined anywhere.
+With current Node typings and TypeScript 6, Node readable streams are compatible with the standard `AsyncIterable<T>`
+interface, which works directly with `for await...of`. `Asyncerator` remains part of this library's public API to preserve
+its existing typing guarantees:
 
-Specifically:
-
-- `Asyncerator` is similar to `AsyncIterableIterator`, but does not extend `AsyncIterator`.
-- It's also similar to `AsyncIterable`, but `[Symbol.asyncIterator]()` returns an `AsyncIterableIterator`
-  instead of an `AsyncIterator`.
-- ...but it's not exactly either one. In particular, Typescript does not agree that Node streams implement either
-  interface, which makes interoperability a problem in Typescript without `Asyncerator`.
+- Compared with `AsyncIterable<T>`, it guarantees that the returned iterator can also be used with `for await...of`.
+- Compared with `AsyncIterableIterator<T>`, it does not require the outer object to have a `next()` method.
 
 ## `asyncerator.pipeline`
 
-`asyncerator.pipeline` is a strongly typed, promisified version of Node's
-[`stream.pipeline`](https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback) function.
+`asyncerator.pipeline` wraps Node's callback-based
+[`stream.pipeline`](https://nodejs.org/api/stream.html#streampipelinesource-transforms-destination-callback).
+Node also provides [`pipeline` from `node:stream/promises`](https://nodejs.org/api/stream.html#streams-promises-api),
+which supports async iterables and always returns a promise. This library provides overloads connecting its operators
+and chooses its return type according to the sink:
 
-Its typing is complicated, but the basic form of the function is:
+| Sink                                                    | Return type                                  |
+| ------------------------------------------------------- | -------------------------------------------- |
+| Writable stream without a readable side                 | `Promise<void>`                              |
+| Async function returning `Promise<T>`                   | `Promise<T>`, resolving to the sink's result |
+| Async generator function or `Duplex`/`Transform` stream | `Readable`                                   |
 
-```ts
-pipeline(
-  source, // string | Readable | Iterable | AsyncIterable | Asyncerator
-  ...transforms, // zero or more Transform | ((input: Asyncerator) => Asyncerator)
-  sink // Writable | Transform | ((input: Asyncerator) => Promise<Sink>) | ((input: Asyncerator) => AsyncIterable),
-  options?: PipelineOptions // only supported in Node 16 when returning Promise<Sink>, equivalent to Node 16 implementation
-): Readable | Promise<Sink> | Promise<void>; {
-```
-
-The main advantage of the typings is that at compile-time, the outputs of each source or transformation must match the
-input of the later transformation or sink. **This makes working with complex pipelines much less error-prone.**
-
-In addition, the standard Node typings (`@types/node`) for `stream.pipeline` are woefully incorrect (as of 14.14.32)
-to the point of being unusable.
-
-Functionally, the Asyncerator `pipeline` function differs from the built-in `stream.pipeline` in that it returns a promise, or a
-stream, depending on the type of the sink (last argument):
-
-- if the sink is a Writable stream, return a `Promise<void>`.
-- if the sink is an async function that returns a `Promise<T>`, return that promise.
-- if the sink is an async generator function or a stream `Transform`, return a `Readable` stream.
-
-Despite these differences, under the hood `stream.pipeline` is still used to perform the actual work.
+The overloads carry element types between function stages and infer the sink result through up to ten transforms.
+This catches incompatible function stages at compile time; Node stream stages do not provide the same element-type
+guarantees because their chunk types are not generic.
 
 ### Quick example
 

@@ -11,7 +11,7 @@ import type { Asyncerator } from '../asyncerator.ts';
 import type { Operator } from './index.ts';
 
 /**
- * Equivalent of the Javascript array split method.  Matches its behavior/corner cases, which is why the
+ * Equivalent of the JavaScript string split method.  Matches its behavior/corner cases, which is why the
  * implementation is more funky than you may expect.
  *
  * @param separator
@@ -20,24 +20,22 @@ import type { Operator } from './index.ts';
 
 export default function <Input extends { toString: () => string }>(
   separator: string,
-  limit: number = Number.POSITIVE_INFINITY,
+  // isolated declarations require an explicit type for an Infinity default.
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  limit: number = Infinity,
 ): Operator<Input, string> {
   return async function* (iterator: Asyncerator<Input>) {
     // this behavior dealing with fractional and negative limits is unique, but matches string.split
 
     const actualLimit =
-      limit <= -1
-        ? Number.POSITIVE_INFINITY
-        : limit <= 0
-          ? 0
-          : Math.floor(limit);
+      limit <= -1 ? Infinity : limit <= 0 ? 0 : Math.floor(limit);
     if (actualLimit === 0) {
       return;
     }
 
     let previous = '';
     let count = 0;
-    let receivedChunks = false;
+    let hasReceivedChunks = false;
 
     for await (const chunk of iterator) {
       if (
@@ -49,7 +47,7 @@ export default function <Input extends { toString: () => string }>(
       ) {
         throw new Error(`${JSON.stringify(chunk)} not convertible to a string`);
       }
-      receivedChunks = true;
+      hasReceivedChunks = true;
       previous += chunk.toString();
       let index;
       while (
@@ -61,12 +59,12 @@ export default function <Input extends { toString: () => string }>(
         if (++count >= actualLimit) {
           return;
         }
-        previous = previous.slice(index + (separator === '' ? 0 : 1));
+        previous = previous.slice(index + separator.length);
       }
     }
 
     if (
-      (separator !== '' && receivedChunks) ||
+      (separator !== '' && hasReceivedChunks) ||
       (previous.length > 0 && count < actualLimit)
     ) {
       yield previous;

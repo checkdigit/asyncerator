@@ -22,29 +22,39 @@ const log = debug('asyncerator:source:all');
 export default async function* <T>(
   promises: Iterable<Promise<T>>,
 ): Asyncerator<T> {
-  // as promises resolve, then remove from pending and add the result to the queue
+  // fulfilled values move to the queue. Rejected promises stay in pending until
+  // Promise.race observes the failure, even if the consumer is currently paused.
   const queue: T[] = [];
-  const pending = new Set(promises);
+  const promiseList = [...promises];
+  const pending = new Set(promiseList);
 
-  for (const [index, promise] of [...promises].entries()) {
+  for (const [index, promise] of promiseList.entries()) {
     // eslint-disable-next-line @checkdigit/no-promise-instance-method
     promise
+      // register every promise concurrently so results arrive in completion order.
+      // eslint-disable-next-line unicorn/prefer-await
       .then((value) => {
         queue.push(value);
         pending.delete(promise);
         return value;
       })
+      // handle the detached callback's rejection without awaiting it.
+      // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
-        // we need to catch this, otherwise Node 14 will print an UnhandledPromiseRejectionWarning, and
-        // future versions of Node will process.exit().
+        // handle the detached callback's rejection, keeping the original promise
+        // in pending so the consumer still receives the error.
         log(`[${index}]`, error);
       });
   }
 
   // wait for the results to come in...
-  while (pending.size > 0) {
-    // eslint-disable-next-line no-await-in-loop
-    await Promise.race(pending);
+  while (pending.size > 0 || queue.length > 0) {
+    if (queue.length === 0) {
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.race(pending);
+    }
+    // drain into a separate array before yielding so promise callbacks can keep adding values.
+    // eslint-disable-next-line unicorn/no-unnecessary-splice
     yield* queue.splice(0);
   }
 }

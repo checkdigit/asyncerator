@@ -6,59 +6,117 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-import from, { type Asyncable, type Asyncerator } from '../asyncerator.ts';
+import debug from 'debug';
 
-async function createPending<U>(asyncerator: Asyncerator<U>, index: number) {
-  const iterator = asyncerator[Symbol.asyncIterator]();
-  return { index, iterator, result: await iterator.next() };
+import type { Asyncable, Asyncerator } from '../asyncerator.ts';
+
+import {
+  acquireIterator,
+  adaptIterator,
+  type SourceIterator,
+} from '../internal/iterator.ts';
+
+type MergeValue<T> = T | Asyncable<T> | Promise<T>;
+
+const log = debug('asyncerator:source:merge');
+
+interface Source<T> {
+  iterator: AsyncIterableIterator<T>;
+}
+
+interface PendingResult<T> {
+  source: Source<T>;
+  result: IteratorResult<T>;
+}
+
+async function createPending<T>(source: Source<T>): Promise<PendingResult<T>> {
+  return { source, result: await source.iterator.next() };
 }
 
 /**
  * Merge multiple asyncables into a single Asyncerator.  If an iterator yields another Asyncerator,
  * merge its output into the stream.
+ * Suppressed cleanup failures are logged through the `asyncerator:source:merge` debug namespace.
  *
  * @param iterators
  */
 export default async function* merge<T>(
-  ...iterators: Asyncable<T | Asyncable<T> | Promise<T>>[]
+  ...iterators: Asyncable<MergeValue<T>>[]
 ): Asyncerator<T> {
-  const wrappedIterators = iterators.map(from);
+  const active = new Set<AsyncIterableIterator<MergeValue<T>>>();
+  const wrappedSources = new WeakMap<
+    SourceIterator<MergeValue<T>>,
+    AsyncIterableIterator<MergeValue<T>>
+  >();
+  let hasThrown = false;
 
-  const pending = wrappedIterators.map(createPending);
-  const indexMap = wrappedIterators.map((_, index) => index);
+  function createSource(source: Asyncable<MergeValue<T>>) {
+    const acquired = acquireIterator(source);
+    let iterator = wrappedSources.get(acquired.iterator);
+    iterator ??= adaptIterator(acquired);
+    wrappedSources.set(acquired.iterator, iterator);
+    active.add(iterator);
+    // Each occurrence gets its own read, while shared iterators have one cleanup.
+    return { iterator };
+  }
 
-  while (pending.length > 0) {
-    // eslint-disable-next-line no-await-in-loop
-    const { result, iterator, index } = await Promise.race(pending);
+  try {
+    const sources = iterators.map(createSource);
+    const pending = new Map<
+      Source<MergeValue<T>>,
+      Promise<PendingResult<MergeValue<T>>>
+    >();
+    for (const source of sources) {
+      pending.set(source, createPending(source));
+    }
 
-    if (result.done === true) {
-      // delete this iterable from pending
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style,@typescript-eslint/no-floating-promises
-      pending.splice(indexMap[index] as number, 1);
-      for (let position = index + 1; position < indexMap.length; position++) {
-        indexMap[position] = (indexMap[position] ?? 0) - 1;
-      }
-    } else {
-      if (
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        (result.value as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
-        undefined
-      ) {
-        yield result.value as T;
+    while (pending.size > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      const { result, source } = await Promise.race(pending.values());
+
+      if (result.done === true) {
+        active.delete(source.iterator);
+        pending.delete(source);
       } else {
-        // this is another async iterable iterator, so merge its output into the pending
-        pending.push(
-          createPending(
-            from(result.value as AsyncIterableIterator<T>),
-            indexMap.length,
-          ),
-        );
-        indexMap.push(pending.length - 1);
-      }
+        if (
+          typeof (
+            result.value as AsyncIterableIterator<T> | null | undefined
+          )?.[Symbol.asyncIterator] === 'function'
+        ) {
+          const nested = createSource(result.value as AsyncIterableIterator<T>);
+          pending.set(nested, createPending(nested));
+        } else {
+          yield result.value as T;
+        }
 
-      // start waiting for the next result from this iterable
-      // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      pending[indexMap[index] as number] = createPending(iterator, index);
+        // Replacing a read preserves source priority when several results are ready.
+        pending.set(source, createPending(source));
+      }
+    }
+  } catch (error) {
+    hasThrown = true;
+    throw error;
+  } finally {
+    // Start every close operation even if another source's cleanup fails or waits.
+    const results = await Promise.allSettled(
+      [...active].map(async (iterator) => {
+        await iterator.return?.();
+      }),
+    );
+    let cleanupFailure: PromiseRejectedResult | undefined;
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        if (!hasThrown && cleanupFailure === undefined) {
+          cleanupFailure = result;
+        } else {
+          log('Suppressed source cleanup error:', result.reason);
+        }
+      }
+    }
+    if (cleanupFailure !== undefined) {
+      // Preserve the first cleanup error while reporting failures from every sibling.
+      // eslint-disable-next-line no-unsafe-finally
+      throw cleanupFailure.reason;
     }
   }
 }

@@ -20,7 +20,8 @@ export default function <Input>(
   return async function* (iterator: Asyncerator<Input>) {
     for await (const item of iterator) {
       if (depth >= 1 && Array.isArray(item)) {
-        for (const element of item.flat(depth - 1)) {
+        const elements = item.flat(depth - 1);
+        for (const element of elements) {
           yield element as Input extends (infer T)[] ? T : Input;
         }
       } else {

@@ -99,6 +99,7 @@ describe('asyncerator', () => {
     const asyncerator = from(
       asyncIterableIterator,
     ) as AsyncIterableIterator<number>;
+    assert.equal(asyncerator, asyncIterableIterator);
     assert.deepEqual(await pipeline(asyncerator, toArray), [0, 1, 2, 3]);
     if (asyncerator.throw === undefined || asyncerator.return === undefined) {
       throw new Error();
@@ -133,10 +134,7 @@ describe('asyncerator', () => {
 
   it('an async iterable iterator', async () => {
     const iterable = from(from(['abc', Promise.resolve('def'), 'ghi']));
-    const items = [];
-    for await (const item of iterable) {
-      items.push(item);
-    }
+    const items = await Array.fromAsync(iterable);
     assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 
@@ -148,10 +146,7 @@ describe('asyncerator', () => {
         yield 'ghi';
       })(),
     );
-    const items = [];
-    for await (const item of iterable) {
-      items.push(item);
-    }
+    const items = await Array.fromAsync(iterable);
     assert.deepEqual(items, ['abc', 'def', 'ghi']);
   });
 
@@ -160,5 +155,502 @@ describe('asyncerator', () => {
       pipeline(from([Promise.reject(new Error('Reject'))]), toArray),
       { message: 'Reject' },
     );
+  });
+
+  it('closes a synchronous generator when consumption stops early', async () => {
+    let hasClosed = false;
+    function* source() {
+      try {
+        yield 1;
+        yield 2;
+      } finally {
+        hasClosed = true;
+      }
+    }
+
+    // Exercise iterator closing through an early break.
+    // eslint-disable-next-line no-unreachable-loop
+    for await (const value of from(source())) {
+      assert.equal(value, 1);
+      break;
+    }
+
+    assert.ok(hasClosed);
+  });
+
+  it('closes a synchronous generator when a yielded promise rejects', async () => {
+    const failure = new Error('yield failed');
+    let hasClosed = false;
+    function* source() {
+      try {
+        yield Promise.reject(failure);
+      } finally {
+        hasClosed = true;
+      }
+    }
+
+    await assert.rejects(
+      from(source())[Symbol.asyncIterator]().next(),
+      failure,
+    );
+    assert.ok(hasClosed);
+  });
+
+  it('awaits a synchronous generator cleanup value before completing an early break', async () => {
+    const cleanupStarted = Promise.withResolvers<undefined>();
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    let hasFinished = false;
+    function* source() {
+      try {
+        yield 1;
+      } finally {
+        cleanupStarted.resolve(undefined);
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return cleanupReleased.promise;
+      }
+    }
+
+    const consumption = (async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source())) {
+        assert.equal(value, 1);
+        break;
+      }
+      hasFinished = true;
+    })();
+
+    await cleanupStarted.promise;
+    await new Promise<void>((resolve) => {
+      setImmediate(resolve);
+    });
+    const hasFinishedBeforeCleanup = hasFinished;
+    cleanupReleased.resolve(undefined);
+    await consumption;
+    assert.equal(hasFinishedBeforeCleanup, false);
+    assert.ok(hasFinished);
+  });
+
+  it('propagates a rejection from a synchronous generator cleanup value', async () => {
+    const failure = new Error('cleanup failed');
+    function* source() {
+      try {
+        yield 1;
+      } finally {
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return Promise.reject(failure);
+      }
+    }
+
+    await assert.rejects(async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source())) {
+        assert.equal(value, 1);
+        break;
+      }
+    }, failure);
+  });
+
+  it('preserves an iteration error when a synchronous cleanup value rejects', async () => {
+    const failure = new Error('yield failed');
+    function* source() {
+      try {
+        yield Promise.reject(failure);
+      } finally {
+        // A synchronous generator can expose asynchronous cleanup in its completion value.
+        // eslint-disable-next-line no-unsafe-finally
+        return Promise.reject(new Error('cleanup failed'));
+      }
+    }
+
+    await assert.rejects(
+      from(source())[Symbol.asyncIterator]().next(),
+      failure,
+    );
+  });
+
+  it('does not await the completion value of an async iterator cleanup', async () => {
+    const completionValue = Promise.withResolvers<undefined>();
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        return { done: true, value: completionValue.promise };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+
+    const returning = iterator.return();
+    const result = await Promise.race([
+      returning,
+      new Promise<void>((resolve) => {
+        setImmediate(resolve);
+      }),
+    ]);
+    completionValue.resolve(undefined);
+    await returning;
+    assert.deepEqual(result, { done: true, value: undefined });
+  });
+
+  it('awaits a bare async iterator cleanup before completing an early break', async () => {
+    const cleanupStarted = Promise.withResolvers<undefined>();
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    let hasFinished = false;
+    let hasClosed = false;
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        cleanupStarted.resolve(undefined);
+        await cleanupReleased.promise;
+        hasClosed = true;
+        return { done: true, value: undefined };
+      },
+    };
+
+    const consumption = (async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source)) {
+        assert.equal(value, 1);
+        break;
+      }
+      hasFinished = true;
+    })();
+
+    await cleanupStarted.promise;
+    assert.equal(hasFinished, false);
+    assert.equal(hasClosed, false);
+    cleanupReleased.resolve(undefined);
+    await consumption;
+    assert.ok(hasClosed);
+    assert.ok(hasFinished);
+  });
+
+  it('closes a bare async iterator when next rejects', async () => {
+    const failure = new Error('next failed');
+    let hasClosed = false;
+    const source: AsyncIterator<number> = {
+      async next() {
+        throw failure;
+      },
+      async return() {
+        hasClosed = true;
+        return { done: true, value: undefined };
+      },
+    };
+
+    await assert.rejects(from(source)[Symbol.asyncIterator]().next(), failure);
+    assert.ok(hasClosed);
+  });
+
+  it('preserves an iteration error when cleanup also rejects', async () => {
+    const failure = new Error('next failed');
+    const source: AsyncIterator<number> = {
+      async next() {
+        throw failure;
+      },
+      async return() {
+        throw new Error('cleanup failed');
+      },
+    };
+
+    await assert.rejects(from(source)[Symbol.asyncIterator]().next(), failure);
+  });
+
+  it('propagates a cleanup error when consumption stops early', async () => {
+    const failure = new Error('cleanup failed');
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        throw failure;
+      },
+    };
+
+    await assert.rejects(async () => {
+      // Exercise iterator closing through an early break.
+      // eslint-disable-next-line no-unreachable-loop
+      for await (const value of from(source)) {
+        assert.equal(value, 1);
+        break;
+      }
+    }, failure);
+  });
+
+  it('does not close wrapped iterators after ordinary exhaustion', async () => {
+    const source: Iterator<number> = {
+      next() {
+        return { done: true, value: undefined };
+      },
+      return() {
+        assert.fail('An exhausted iterator must not be closed again');
+      },
+    };
+
+    assert.deepEqual(await Array.fromAsync(from(source)), []);
+    assert.deepEqual(
+      await Array.fromAsync(from({ [Symbol.iterator]: () => source })),
+      [],
+    );
+  });
+
+  it('forwards cancellation while a bare async iterator next is pending', async () => {
+    const pending = Promise.withResolvers<IteratorResult<number>>();
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      next() {
+        return pending.promise;
+      },
+      async return() {
+        returns++;
+        const result = { done: true, value: undefined } as const;
+        pending.resolve(result);
+        return result;
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.return);
+    const next = iterator.next();
+    const firstReturn = iterator.return();
+    const secondReturn = iterator.return();
+
+    assert.equal(returns, 1);
+    assert.deepEqual(await Promise.all([next, firstReturn, secondReturn]), [
+      { done: true, value: undefined },
+      { done: true, value: undefined },
+      { done: true, value: undefined },
+    ]);
+  });
+
+  it('closes an acquired iterator before its wrapper has started', async () => {
+    let returns = 0;
+    const source: Iterable<number> = {
+      [Symbol.iterator]() {
+        return {
+          next() {
+            assert.fail('The iterator must not be advanced during cleanup');
+          },
+          return() {
+            returns++;
+            return { done: true, value: undefined };
+          },
+        };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.return);
+
+    assert.deepEqual(await iterator.return(), {
+      done: true,
+      value: undefined,
+    });
+    await iterator.return();
+    assert.equal(returns, 1);
+  });
+
+  it('awaits shared cleanup when throw is called before the wrapper starts', async () => {
+    const failure = new Error('cancelled');
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    let returns = 0;
+    let hasRejected = false;
+    const source: AsyncIterator<number> = {
+      async next() {
+        assert.fail('The iterator must not be advanced during cleanup');
+      },
+      async return() {
+        returns++;
+        await cleanupReleased.promise;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+    assert.ok(iterator.return);
+    const firstThrow = iterator.throw(failure);
+    const firstRejection = (async () => {
+      await assert.rejects(firstThrow, failure);
+      hasRejected = true;
+    })();
+    const secondThrow = assert.rejects(iterator.throw(failure), failure);
+    const returning = iterator.return();
+
+    await new Promise<void>((resolve) => {
+      setImmediate(resolve);
+    });
+    const hasRejectedBeforeCleanup = hasRejected;
+    cleanupReleased.resolve(undefined);
+    await Promise.all([firstRejection, secondThrow, returning]);
+
+    assert.equal(hasRejectedBeforeCleanup, false);
+    assert.equal(returns, 1);
+    assert.deepEqual(await iterator.next(), { done: true, value: undefined });
+  });
+
+  it('closes a started synchronous generator when its unstarted wrapper receives throw', async () => {
+    const failure = new Error('cancelled');
+    let hasClosed = false;
+    function* source() {
+      try {
+        yield 1;
+        yield 2;
+      } finally {
+        hasClosed = true;
+      }
+    }
+    const sourceIterator = source();
+    sourceIterator.next();
+    const iterator = from(sourceIterator)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+
+    await assert.rejects(iterator.throw(failure), failure);
+    assert.ok(hasClosed);
+  });
+
+  it('preserves throw before starting when cleanup also rejects', async () => {
+    const failure = new Error('cancelled');
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      async next() {
+        assert.fail('The iterator must not be advanced during cleanup');
+      },
+      async return() {
+        returns++;
+        throw new Error('cleanup failed');
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+
+    await assert.rejects(iterator.throw(failure), failure);
+    assert.equal(returns, 1);
+  });
+
+  it('forwards throw while a bare async iterator next is pending', async () => {
+    const failure = new Error('cancelled');
+    const pending = Promise.withResolvers<IteratorResult<number>>();
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      next() {
+        return pending.promise;
+      },
+      async return() {
+        returns++;
+        const result = { done: true, value: undefined } as const;
+        pending.resolve(result);
+        return result;
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.throw);
+    const next = iterator.next();
+    const throwing = assert.rejects(iterator.throw(failure), failure);
+
+    assert.equal(returns, 1);
+    assert.deepEqual(await next, { done: true, value: undefined });
+    await throwing;
+    assert.equal(returns, 1);
+  });
+
+  it('shares pending cleanup with a reentrant cancellation request', async () => {
+    const cleanupReleased = Promise.withResolvers<undefined>();
+    const cleanupEvents = new EventTarget();
+    let returns = 0;
+    let reentrantReturn: Promise<IteratorResult<number>> | undefined;
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      async return() {
+        returns++;
+        if (returns === 1) {
+          cleanupEvents.dispatchEvent(new Event('cleanup'));
+        }
+        await cleanupReleased.promise;
+        return { done: true, value: undefined };
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+    const returnIterator = iterator.return.bind(iterator);
+    cleanupEvents.addEventListener('cleanup', () => {
+      reentrantReturn = returnIterator();
+    });
+    const firstReturn = returnIterator();
+    cleanupReleased.resolve(undefined);
+
+    assert.ok(reentrantReturn);
+    assert.deepEqual(await Promise.all([firstReturn, reentrantReturn]), [
+      { done: true, value: undefined },
+      { done: true, value: undefined },
+    ]);
+    assert.equal(returns, 1);
+  });
+
+  it('shares a cleanup failure with a reentrant cancellation request', async () => {
+    const failure = new Error('cleanup failed');
+    const cleanupEvents = new EventTarget();
+    let returns = 0;
+    let reentrantReturn: Promise<IteratorResult<number>> | undefined;
+    const source: AsyncIterator<number> = {
+      async next() {
+        return { done: false, value: 1 };
+      },
+      return() {
+        returns++;
+        if (returns === 1) {
+          cleanupEvents.dispatchEvent(new Event('cleanup'));
+        }
+        throw failure;
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    await iterator.next();
+    assert.ok(iterator.return);
+    const returnIterator = iterator.return.bind(iterator);
+    cleanupEvents.addEventListener('cleanup', () => {
+      reentrantReturn = returnIterator();
+    });
+    const firstReturn = returnIterator();
+
+    assert.ok(reentrantReturn);
+    await Promise.all([
+      assert.rejects(firstReturn, failure),
+      assert.rejects(reentrantReturn, failure),
+    ]);
+    assert.equal(returns, 1);
+  });
+
+  it('preserves pending iteration errors when cancellation also rejects', async () => {
+    const pending = Promise.withResolvers<IteratorResult<number>>();
+    const failure = new Error('next failed');
+    let returns = 0;
+    const source: AsyncIterator<number> = {
+      next() {
+        return pending.promise;
+      },
+      async return() {
+        returns++;
+        pending.reject(failure);
+        throw new Error('cleanup failed');
+      },
+    };
+    const iterator = from(source)[Symbol.asyncIterator]();
+    assert.ok(iterator.return);
+    const next = iterator.next();
+    const cancellation = iterator.return();
+
+    assert.equal(returns, 1);
+    await Promise.all([assert.rejects(next, failure), cancellation]);
+    assert.equal(returns, 1);
   });
 });

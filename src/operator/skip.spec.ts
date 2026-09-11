@@ -43,11 +43,7 @@ describe('skip', () => {
       [],
     );
     assert.deepEqual(
-      await pipeline(
-        from(['a', 'b', 'c']),
-        skip(Number.POSITIVE_INFINITY),
-        toArray,
-      ),
+      await pipeline(from(['a', 'b', 'c']), skip(Infinity), toArray),
       [],
     );
   });

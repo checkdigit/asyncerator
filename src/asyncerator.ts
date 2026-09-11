@@ -6,21 +6,14 @@
  * This code is licensed under the MIT license (see LICENSE.txt for details).
  */
 
-/*
- * An Asyncerator is the minimum common `for-await` compatible interface that both NodeJS.ReadableStream and
- * AsyncIterableIterator implement.  It's a useful construct to be used with the pipeline function, since it allows
- * AsyncIterables and Node stream-based objects to be combined in various convenient ways.
+import { acquireIterator, adaptIterator } from './internal/iterator.ts';
+
+/**
+ * Shared async iteration interface for the library's sources, operators and sinks.
+ * Async generator objects, Node readable streams and iterable async iterators satisfy this interface.
  *
- * The follow Node built-ins implement the Asyncerator interface:
- * - AsyncIterableIterator
- * - AsyncGenerator (aka async generator functions)
- * - NodeJS.ReadableStream (internal Node implementations include stream.Readable, readline, fs.createReadStream, etc.)
- * - the standard JavaScript `for await...of` statement will accept an Asyncerator
- *
- * Notes:
- * - Asyncerator is similar to AsyncIterableIterator, but does not extend AsyncIterator.
- * - It's also similar to AsyncIterable, but [Symbol.asyncIterator]() returns an AsyncIterableIterator instead of an AsyncIterator.
- *
+ * Like AsyncIterable<T>, an Asyncerator can be consumed with `for await...of` without having its own `next()` method.
+ * It additionally guarantees that [Symbol.asyncIterator]() returns an iterator that is itself async iterable.
  */
 
 export interface Asyncerator<T> {
@@ -46,46 +39,5 @@ export type Asyncable<T> =
 export default function <T>(
   source: Asyncable<T> | (() => Asyncerator<T>),
 ): Asyncerator<T> {
-  let iterator: Iterator<T> | AsyncIterator<T>;
-
-  if (typeof (source as Asyncerator<T>)[Symbol.asyncIterator] === 'function') {
-    iterator = (source as Asyncerator<T>)[Symbol.asyncIterator]();
-    if (
-      typeof (iterator as AsyncIterableIterator<T>)[Symbol.asyncIterator] ===
-      'function'
-    ) {
-      // this is already an async iterable iterator, so we're good to go as-is
-      return iterator as AsyncIterableIterator<T>;
-    }
-  } else if (
-    typeof (source as IterableIterator<T>)[Symbol.iterator] === 'function'
-  ) {
-    // we know for sure this is a normal, synchronous iterator
-    const synchronousIterator = (source as IterableIterator<T>)[
-      Symbol.iterator
-    ]();
-    return (async function* () {
-      for (
-        let item = synchronousIterator.next();
-        item.done !== true;
-        item = synchronousIterator.next()
-      ) {
-        yield item.value;
-      }
-    })();
-  } else {
-    // could be an Iterator or an AsyncIterator, but we can't tell the difference, so treat it as async regardless
-    iterator = source as AsyncIterator<T>;
-  }
-
-  return (async function* () {
-    for (
-      let item = await iterator.next();
-      item.done !== true;
-      // eslint-disable-next-line no-await-in-loop
-      item = await iterator.next()
-    ) {
-      yield item.value;
-    }
-  })();
+  return adaptIterator(acquireIterator(source));
 }

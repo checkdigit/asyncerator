@@ -69,7 +69,7 @@ describe('race', () => {
           toArray,
         )
       ).sort(),
-      ['  ', '    ', '      '],
+      ['  ', ' '.repeat(4), ' '.repeat(6)],
     );
   });
 
@@ -93,6 +93,20 @@ describe('race', () => {
         toArray,
       ),
       { message: 'Reject' },
+    );
+  });
+
+  it('propagates a rejected mapper promise to the consumer', async () => {
+    const failure = new Error('Mapper rejected');
+    await assert.rejects(
+      pipeline(
+        from([1]),
+        race(async () => {
+          throw failure;
+        }),
+        toArray,
+      ),
+      (error: unknown) => error === failure,
     );
   });
 

@@ -31,9 +31,7 @@ describe('series', () => {
   });
 
   it('reject if array item is a promise that rejects', async () => {
-    await assert.rejects(
-      pipeline(series(from([Promise.reject(new Error('Reject'))])), toArray),
-      { message: 'Reject' },
-    );
+    const source = series(from([Promise.reject(new Error('Reject'))]));
+    await assert.rejects(pipeline(source, toArray), { message: 'Reject' });
   });
 });

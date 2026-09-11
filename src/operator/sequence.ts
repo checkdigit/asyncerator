@@ -23,7 +23,7 @@ export default function <Input>(
 ): Operator<Input, Input> {
   return async function* (iterator: Asyncerator<Input>) {
     const queue: Input[] = [];
-    let complete = false;
+    let isComplete = false;
     let hasThrown = false;
     let errorThrown: unknown;
 
@@ -42,7 +42,7 @@ export default function <Input>(
 
       let currentIndex = 0;
       // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
-      while (!complete && !hasThrown) {
+      while (!isComplete && !hasThrown) {
         // eslint-disable-next-line no-await-in-loop
         queue.push(await sequenceFunction(currentIndex++));
 
@@ -52,10 +52,13 @@ export default function <Input>(
           setTimeout(resolve, 0);
         });
       }
-    })().catch((error: unknown) => {
-      hasThrown = true;
-      errorThrown = error;
-    });
+    })()
+      // handle sequence errors without blocking the other producer or consumer.
+      // eslint-disable-next-line unicorn/prefer-await
+      .catch((error: unknown) => {
+        hasThrown = true;
+        errorThrown = error;
+      });
 
     /**
      * pass-through producer
@@ -72,12 +75,16 @@ export default function <Input>(
         queue.push(item);
       }
     })()
+      // the pass-through producer must run concurrently with the consumer.
+      // eslint-disable-next-line unicorn/prefer-await
       .catch((error: unknown) => {
         hasThrown = true;
         errorThrown = error;
       })
+      // preserve completion notification after the rejection handler settles.
+      // eslint-disable-next-line unicorn/prefer-await
       .finally(() => {
-        complete = true;
+        isComplete = true;
       });
 
     /**
@@ -85,7 +92,7 @@ export default function <Input>(
      */
 
     // eslint-disable-next-line no-unmodified-loop-condition,@typescript-eslint/no-unnecessary-condition
-    while (!complete && !hasThrown) {
+    while (!isComplete && !hasThrown) {
       if (queue.length === 0) {
         // there's nothing pending yet, so let's allow some IO to occur...
         // eslint-disable-next-line no-await-in-loop
@@ -95,6 +102,8 @@ export default function <Input>(
       }
 
       // one or more promises may have completed, so yield everything in the queue
+      // drain into a separate array before yielding so producers can keep adding values.
+      // eslint-disable-next-line unicorn/no-unnecessary-splice
       yield* queue.splice(0);
     }
 

@@ -53,6 +53,8 @@ describe('before', async () => {
         before('before '),
         socket,
         toNull,
+        // handle rejection without returning a promise from the socket listener.
+        // eslint-disable-next-line unicorn/prefer-await
       ).catch(() => {
         assert.fail();
       });

@@ -15,6 +15,7 @@ import asyncerator, { type Asyncable } from '../asyncerator.ts';
  */
 export default async function <T>(iterator: Asyncable<T>): Promise<T[]> {
   const results = [];
+  // Array.fromAsync calls return() when next() rejects; preserve for-await cleanup behavior.
   for await (const result of asyncerator(iterator)) {
     results.push(result);
   }
