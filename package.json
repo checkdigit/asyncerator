@@ -1,6 +1,6 @@
 {
   "name": "asyncerator",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Provide supporting types for AsyncIterable/AsyncIterableIterators, promisified stream.pipeline implementation, and Array-like utility operators, sources and sinks.",
   "keywords": [
     "stream",
@@ -48,7 +48,7 @@
     "ci:coverage": "node -e \"const fs = require('node:fs'); fs.rmSync('coverage', { recursive: true, force: true }); fs.mkdirSync('coverage')\" && node --test-timeout 600000 --experimental-test-coverage --test-coverage-exclude=\"**/*.spec.ts\" --test-reporter=lcov --test-reporter-destination=coverage/lcov.info --test \"src/**/*.spec.ts\"",
     "ci:lint": "npm run lint",
     "ci:style": "npm run prettier",
-    "ci:test": "node --pending-deprecation --throw-deprecation --test-timeout 600000 --test \"src/**/*.spec.ts\"",
+    "ci:test": "node --test-randomize --pending-deprecation --throw-deprecation --test-timeout 600000 --test \"src/**/*.spec.ts\"",
     "clean": "npm cache verify && node -e \"for (const path of ['coverage', 'node_modules']) require('node:fs').rmSync(path, { recursive: true, force: true })\"",
     "coverage": "node --test-timeout 600000 --experimental-test-coverage --test-coverage-exclude=\"**/*.spec.ts\" --test \"src/**/*.spec.ts\"",
     "lint": "eslint --max-warnings 0 .",
@@ -63,13 +63,13 @@
     "debug": "^4.4.3"
   },
   "devDependencies": {
-    "@checkdigit/eslint-config": "^12.1.0",
-    "@checkdigit/prettier-config": "^8.1.1",
-    "@checkdigit/typescript-config": "^10.2.1",
+    "@checkdigit/eslint-config": "^12.3.0",
+    "@checkdigit/prettier-config": "^8.3.0",
+    "@checkdigit/typescript-config": "^10.2.2",
     "@types/debug": "^4.1.13"
   },
   "engines": {
-    "node": ">=24.18.0"
+    "node": ">=26.13.1"
   },
   "allowScripts": {
     "esbuild@0.28.2": false,

@@ -1,0 +1,27 @@
+name: Check Dependencies
+on:
+  schedule:
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+# Serialize checks to prevent overlapping runs from opening duplicate issues.
+concurrency:
+  group: check-dependencies
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: checkdigit/github-actions/check-dependencies@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: '*'
+        with:
+          max-age-days: '90'
+          contributor-lookback-days: '90'
+          fallback-assignee: 'bobwieler'

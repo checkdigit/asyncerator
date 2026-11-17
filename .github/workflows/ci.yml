@@ -5,6 +5,10 @@ on:
     branches:
       - 'main'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 env:
   CI: true
 
@@ -27,6 +31,10 @@ jobs:
         run: npm install --global npm@latest
       - name: Install Dependencies
         run: npm ci --ignore-scripts
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Prepare
+        run: npm run prepare
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
@@ -56,6 +64,10 @@ jobs:
         run: npm install --global npm@latest
       - name: Install Dependencies
         run: npm ci --ignore-scripts
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Prepare
+        run: npm run prepare
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
@@ -64,3 +76,13 @@ jobs:
         run: npm run ci:lint
       - name: Run Tests
         run: npm run ci:test
+
+  result:
+    name: CI
+    needs: [pullRequestBuild, branchBuild]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful build jobs
+        if: ${{ needs.pullRequestBuild.result != 'success' || needs.branchBuild.result != 'success' }}
+        run: exit 1
