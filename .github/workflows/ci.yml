@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -18,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['24.x', '26.x']
+        node-version: ['26.x', '27.0.0-alpha.0.0.0']
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -31,10 +34,6 @@ jobs:
         run: npm install --global npm@latest
       - name: Install Dependencies
         run: npm ci --ignore-scripts
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Prepare
-        run: npm run prepare
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
@@ -49,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['24.x', '26.x']
+        node-version: ['26.x', '27.0.0-alpha.0.0.0']
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -64,10 +63,6 @@ jobs:
         run: npm install --global npm@latest
       - name: Install Dependencies
         run: npm ci --ignore-scripts
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Prepare
-        run: npm run prepare
       - name: Compile
         run: npm run ci:compile
       - name: Check Code Style
@@ -77,12 +72,26 @@ jobs:
       - name: Run Tests
         run: npm run ci:test
 
+  dependencyReview:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+      - name: Review dependencies
+        uses: actions/dependency-review-action@v5
+        with:
+          allow-licenses: ${{ vars.ALLOW_LICENSES }}
+
   result:
     name: CI
-    needs: [pullRequestBuild, branchBuild]
+    needs: [pullRequestBuild, branchBuild, dependencyReview]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Require successful build jobs
-        if: ${{ needs.pullRequestBuild.result != 'success' || needs.branchBuild.result != 'success' }}
+      - name: Require successful build and dependency review jobs
+        if: >-
+          needs.pullRequestBuild.result != 'success' ||
+          needs.branchBuild.result != 'success' ||
+          needs.dependencyReview.result != 'success'
         run: exit 1

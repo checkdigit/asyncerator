@@ -1,4 +1,5 @@
 name: Check Dependencies
+
 on:
   schedule:
     - cron: '0 10 * * 1-5'
@@ -24,4 +25,3 @@ jobs:
         with:
           max-age-days: '90'
           contributor-lookback-days: '90'
-          fallback-assignee: 'bobwieler'

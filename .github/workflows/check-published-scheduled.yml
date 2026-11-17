@@ -2,7 +2,10 @@ name: Check Published
 
 on:
   schedule:
-    - cron: '11 23 * * *'
+    - cron: '30 20 * * *'
+
+permissions:
+  contents: read
 
 jobs:
   checkPublished:
@@ -11,6 +14,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.x'
+          package-manager-cache: false
+      - name: Use latest npm
+        run: npm install --global npm@latest
       - name: Check Published
         uses: checkdigit/github-actions/check-published@main
         env:

@@ -18,6 +18,7 @@ jobs:
       cancel-in-progress: false
     timeout-minutes: 15
     steps:
+      # No PR checkout: the action reads the merged commit and tags it through the API.
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:

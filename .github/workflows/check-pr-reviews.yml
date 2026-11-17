@@ -4,8 +4,14 @@ on:
   pull_request_review:
     types: [submitted]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   checkPrReviews:
+    # Review events for fork PRs receive a read-only token and cannot post comments.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     name: Check PR Reviews
     steps:
